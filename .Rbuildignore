@@ -1,2 +1,4 @@
 ^g2gtools\.Rproj$
 ^\.Rproj\.user$
+^LICENSE\.md$
+^README\.Rmd$
