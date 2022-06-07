@@ -20,7 +20,7 @@ clean_column_names <- function(column_names) {
 #' Ensure full question column only contains one set of open and closed brackets
 #'
 #' 'tidy_teacher_survey' identifies the question stem and response options by looking for open and closed
-#'      brackets ('[' and ']'). The text within the brackets is the response option. To work properly,
+#'      brackets. The text within the brackets is the response option. To work properly,
 #'      there can only be one set of open and closed brackets. This function tests to make sure that
 #'      there is only one set of brackets, if there are any at all.
 #'
@@ -30,12 +30,12 @@ clean_column_names <- function(column_names) {
 test_full_question_brackets <- function(full_question_column) {
 
   # TRUE means a passed test and a problem
-  brackets_open_test <- stringr::str_count(full_question_column, "\\[") == 1
-  number_brackets_closed <- stringr::str_count(full_question_column, "\\]") == 1
-  number_total_brackets <- (number_brackets_open + number_brackets_closed) %in% c(0, 2)
+  number_brackets_open <- stringr::str_count(full_question_column, "\\[")
+  number_brackets_closed <- stringr::str_count(full_question_column, "\\]")
+  open_equals_closed_brackets <- number_brackets_open == number_brackets_closed
 
   # vector showing if any of the three tests failed for a row
-  pass_all_tests <- brackets_open_test & number_brackets_closed & number_total_brackets
+  pass_all_tests <- number_brackets_open <= 1 & number_brackets_closed  <= 1 & open_equals_closed_brackets
 
   # throw an error if any tests did not pass for any rows
   if (any(!pass_all_tests)) {
@@ -43,7 +43,7 @@ test_full_question_brackets <- function(full_question_column) {
     row_failed_test <- which(!pass_all_tests)
 
     failed_questions <- unique(full_question_column[row_failed_test])
-    failed_questions <- paste0("     '", failed_questions)
+    failed_questions <- paste0("     '", failed_questions, "'")
 
     # error message
     error_text <- c(
@@ -55,7 +55,7 @@ test_full_question_brackets <- function(full_question_column) {
     ) |>
       paste0(collapse = "\n")
 
-    stop(error_text)
+    stop(error_text, .call = FALSE)
 
   }
 
@@ -63,3 +63,6 @@ test_full_question_brackets <- function(full_question_column) {
 
 }
 
+# full_question_column <- c('sd[fa]', 'sdfa[fds]dfs')
+#
+# test_full_question_brackets(full_question_column)

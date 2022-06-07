@@ -40,7 +40,7 @@ tidy_teacher_survey <- function(.data, grouping_columns, question_columns) {
     dplyr::mutate(.id = dplyr::row_number()) |>
     dplyr::select(.id, !!grouping_columns, !!question_columns) |>
     # convert to long form with the questions and responses as the columns we will make distinct
-    tidyr::pivot_longer(cols = -c(.id, grouping_var_names), names_to = 'full_question', values_to = 'response') |>
+    tidyr::pivot_longer(cols = -c(.id, dplyr::all_of(grouping_var_names)), names_to = 'full_question', values_to = 'response') |>
     dplyr::rename_with(~clean_column_names(.x))
 
   # ensure there is no more than one set of open and closed brackets. We cannot seperate the question stem
@@ -55,7 +55,7 @@ tidy_teacher_survey <- function(.data, grouping_columns, question_columns) {
     response_option = stringr::str_extract(full_question, !!question_stem_re) |> stringr::str_trim(),
     response_option = stringr::str_remove_all(response_option, "^\\[|\\]$")
   ) |>
-  dplyr::select(.id, clean_column_names(grouping_var_names), question_stem, response_option, response)
+  dplyr::select(.id, clean_column_names(dplyr::all_of(grouping_var_names)), question_stem, response_option, response)
 
   return(tidy_survey_results)
 
