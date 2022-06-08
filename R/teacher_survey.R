@@ -13,6 +13,8 @@
 #'
 #' @return A tibble in tidy format where each row represents a single person's response to a single question.
 #'
+#' @importFrom rlang .data
+#'
 #' @export
 tidy_teacher_survey <- function(.data, grouping_columns, question_columns) {
 
@@ -38,9 +40,9 @@ tidy_teacher_survey <- function(.data, grouping_columns, question_columns) {
     # add a column that uniquely identifies each respondent
     # needed so when we convert to long form we can still identify individual respondents
     dplyr::mutate(.id = dplyr::row_number()) |>
-    dplyr::select(.id, !!grouping_columns, !!question_columns) |>
+    dplyr::select(.data$.id, !!grouping_columns, !!question_columns) |>
     # convert to long form with the questions and responses as the columns we will make distinct
-    tidyr::pivot_longer(cols = -c(.id, dplyr::all_of(grouping_var_names)), names_to = 'full_question', values_to = 'response') |>
+    tidyr::pivot_longer(cols = -c(.data$.id, dplyr::all_of(grouping_var_names)), names_to = 'full_question', values_to = 'response') |>
     dplyr::rename_with(~clean_column_names(.x))
 
   # ensure there is no more than one set of open and closed brackets. We cannot seperate the question stem
@@ -51,31 +53,37 @@ tidy_teacher_survey <- function(.data, grouping_columns, question_columns) {
   tidy_survey_results <- tidy_survey_results |>
   #create seperate columns for the question stem and the response option
   dplyr::mutate(
-    question_stem = stringr::str_remove(full_question, !!question_stem_re) |> stringr::str_trim(),
-    response_option = stringr::str_extract(full_question, !!question_stem_re) |> stringr::str_trim(),
-    response_option = stringr::str_remove_all(response_option, "^\\[|\\]$")
+    question_stem = stringr::str_remove(.data$full_question, !!question_stem_re) |> stringr::str_trim(),
+    response_option = stringr::str_extract(.data$full_question, !!question_stem_re) |> stringr::str_trim(),
+    response_option = stringr::str_remove_all(.data$response_option, "^\\[|\\]$")
   ) |>
-  dplyr::select(.id, clean_column_names(dplyr::all_of(grouping_var_names)), question_stem, response_option, response)
+  dplyr::select(.data$.id, clean_column_names(dplyr::all_of(grouping_var_names)), .data$question_stem, .data$response_option, .data$response)
 
   return(tidy_survey_results)
 
 }
 
-#' Add question tntpmetrics column names to survey questions
+#' Create tntpmetrics high expectations column name from question.
+#'
+#' Calculating high expectations with the tntpmetrics package requires that each question have a distinct
+#' and pre-specified column name. This function creates the column name based on the high expectations question.
+#'
+#' @param response_option Vector of high expectations questions. This will be the 'response_option' column
+#'      if 'tidy_teacher_survey()' is used.
 #'
 #' @keywords internal
-teacher_survey_add_metric_colnames <- function(response_option) {
+teacher_survey_add_he_metric_colnames <- function(response_option) {
 
   string_did_not_match <- 'Did not match'
 
   # unique TNTP metrics values
   all_metrics <- c('exp_fairtomaster', 'exp_oneyearenough', 'exp_allstudents', 'exp_appropriate')
 
-  tntp_metric_colnames <- case_when(
-    str_detect(response_option, "^It.s fair to expect.*end of the year.$") ~ all_metrics[1],
-    str_detect(response_option, "^One year is enough.*master these standards.$") ~ all_metrics[2],
-    str_detect(response_option, "^All students in my class.*end of the year.$") ~ all_metrics[3],
-    str_detect(response_option, "^The standards are appropriate.*students in this class.$") ~ all_metrics[4],
+  tntp_metric_colnames <- dplyr::case_when(
+    stringr::str_detect(response_option, "^It.s fair to expect.*end of the year.$") ~ all_metrics[1],
+    stringr::str_detect(response_option, "^One year is enough.*master these standards.$") ~ all_metrics[2],
+    stringr::str_detect(response_option, "^All students in my class.*end of the year.$") ~ all_metrics[3],
+    stringr::str_detect(response_option, "^The standards are appropriate.*students in this class.$") ~ all_metrics[4],
     TRUE ~ string_did_not_match
   )
 
@@ -91,18 +99,6 @@ teacher_survey_add_metric_colnames <- function(response_option) {
     )
   }
 
-  # throw error if there are not exactly four distinct questions
-  matched_response_options <- response_option[tntp_metric_colnames != string_did_not_match]
-  num_unique_questions <- dplyr::n_distinct(matched_response_options, na.rm = TRUE)
-
-  if (num_unique_questions != 4) {
-    stop(
-      c("You have ", num_unique_questions, " distinct high expectations questions that we found matches for.\n",
-        "There should only be four. Please recheck the wording of your high expectations questions."),
-      call. = FALSE
-    )
-  }
-
   # throw an error if all four tntp metrics column names do not show up
   matched_unique_metrics <- tntp_metric_colnames[tntp_metric_colnames != string_did_not_match]
 
@@ -114,10 +110,24 @@ teacher_survey_add_metric_colnames <- function(response_option) {
 
     stop(
       c("You failed to match any question to the following TNTP metrics: ", missing_metrics, ".\n",
+        "Your data must contain all four questions to calculate high expectations.\n",
         "Please review the spelling in the columns containing the high expectations question text."),
       call. = FALSE
     )
   }
+
+  # throw error if there are not exactly four distinct questions
+  matched_response_options <- response_option[tntp_metric_colnames != string_did_not_match]
+  num_unique_questions <- dplyr::n_distinct(matched_response_options, na.rm = TRUE)
+
+  if (num_unique_questions != 4) {
+    stop(
+      c("You have ", num_unique_questions, " distinct high expectations questions that we found matches for.\n",
+        "There should be four. Please recheck the wording of your high expectations questions."),
+      call. = FALSE
+    )
+  }
+
   return(tntp_metric_colnames)
 
 }

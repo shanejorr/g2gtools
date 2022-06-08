@@ -55,3 +55,33 @@ test_that("Throws error when raw data has column names with multiple open or clo
   testthat::expect_error(test_full_question_brackets(no_error_one), NA)
 
 })
+
+test_that("Properly match high expectation questions to their TNTP metrics column names.", {
+
+  grouping_columns <- c(3)
+  question_columns <- 8:30
+
+  he_questions <- teacher_pre_survey %>%
+    g2gtools::tidy_teacher_survey(grouping_columns, question_columns) %>%
+    dplyr::filter(stringr::str_detect(question_stem, "statements about your state standards")) %>%
+    dplyr::pull(response_option)
+
+  # test that everything works without an error
+  metric_responses <- teacher_survey_add_he_metric_colnames(he_questions)
+
+  testthat::expect_equal(metric_responses[1], "exp_fairtomaster")
+  testthat::expect_equal(metric_responses[2], "exp_oneyearenough")
+  testthat::expect_equal(metric_responses[3], "exp_allstudents")
+  testthat::expect_equal(metric_responses[4], "exp_appropriate")
+
+  # test that there is an error when there are not four metric responses
+  three_metric_responses <- he_questions[metric_responses != "exp_fairtomaster"]
+
+  testthat::expect_error(teacher_survey_add_he_metric_colnames(three_metric_responses), "You failed.*exp_fairtomaster.*")
+
+  # test that there is an error when there are too many questions
+  additional_question <- c(he_questions, "One year is enough sdaffdsafa master these standards.")
+
+  testthat::expect_error(teacher_survey_add_he_metric_colnames(additional_question), "You have 5.*")
+
+})
