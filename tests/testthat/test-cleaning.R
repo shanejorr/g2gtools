@@ -11,10 +11,10 @@ test_that("Raw data properly converts to tidy dataset", {
   n_rows <- nrow(teacher_pre_survey)
 
   # total unique respondents in cleaned data
-  n_unique_respondents <- length(unique(tidy_survey$.id))
+  n_unique_respondents <- dplyr::n_distinct(tidy_survey$.id, na.rm = TRUE)
 
   # total unique emails (grouping variable), should be same as total unique respondents in our test data set
-  n_unique_emails <- length(unique(tidy_survey$what_is_your_school_email_address))
+  n_unique_emails <- dplyr::n_distinct(tidy_survey$what_is_your_school_email_address, na.rm = TRUE)
 
   # ensure number of unique responses is correct
   testthat::expect_equal(n_unique_respondents, n_rows)

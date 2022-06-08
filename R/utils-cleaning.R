@@ -55,7 +55,7 @@ test_full_question_brackets <- function(full_question_column) {
     ) |>
       paste0(collapse = "\n")
 
-    stop(error_text, .call = FALSE)
+    stop(error_text, call. = FALSE)
 
   }
 

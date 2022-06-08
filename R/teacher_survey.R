@@ -60,3 +60,64 @@ tidy_teacher_survey <- function(.data, grouping_columns, question_columns) {
   return(tidy_survey_results)
 
 }
+
+#' Add question tntpmetrics column names to survey questions
+#'
+#' @keywords internal
+teacher_survey_add_metric_colnames <- function(response_option) {
+
+  string_did_not_match <- 'Did not match'
+
+  # unique TNTP metrics values
+  all_metrics <- c('exp_fairtomaster', 'exp_oneyearenough', 'exp_allstudents', 'exp_appropriate')
+
+  tntp_metric_colnames <- case_when(
+    str_detect(response_option, "^It.s fair to expect.*end of the year.$") ~ all_metrics[1],
+    str_detect(response_option, "^One year is enough.*master these standards.$") ~ all_metrics[2],
+    str_detect(response_option, "^All students in my class.*end of the year.$") ~ all_metrics[3],
+    str_detect(response_option, "^The standards are appropriate.*students in this class.$") ~ all_metrics[4],
+    TRUE ~ string_did_not_match
+  )
+
+  # determine if any rows did not match and deliver warning if they did not
+  num_didnt_match <- any(tntp_metric_colnames == string_did_not_match)
+
+  if (num_didnt_match) {
+    warning(
+      c("Some of your rows did not match with a tntpmetrics value. The non-matches return '", string_did_not_match, "'.\n",
+        "If you expected all your rows to match, please examined the returned values for '", string_did_not_match, "'.\n") |>
+      paste0(collapse = ""),
+      call. = FALSE
+    )
+  }
+
+  # throw error if there are not exactly four distinct questions
+  matched_response_options <- response_option[tntp_metric_colnames != string_did_not_match]
+  num_unique_questions <- dplyr::n_distinct(matched_response_options, na.rm = TRUE)
+
+  if (num_unique_questions != 4) {
+    stop(
+      c("You have ", num_unique_questions, " distinct high expectations questions that we found matches for.\n",
+        "There should only be four. Please recheck the wording of your high expectations questions."),
+      call. = FALSE
+    )
+  }
+
+  # throw an error if all four tntp metrics column names do not show up
+  matched_unique_metrics <- tntp_metric_colnames[tntp_metric_colnames != string_did_not_match]
+
+  missing_metrics <- setdiff(all_metrics, matched_unique_metrics)
+
+  if (length(missing_metrics) != 0) {
+
+    missing_metrics <- paste0(missing_metrics)
+
+    stop(
+      c("You failed to match any question to the following TNTP metrics: ", missing_metrics, ".\n",
+        "Please review the spelling in the columns containing the high expectations question text."),
+      call. = FALSE
+    )
+  }
+  return(tntp_metric_colnames)
+
+}
