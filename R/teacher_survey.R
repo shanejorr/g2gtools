@@ -131,3 +131,54 @@ teacher_survey_add_he_metric_colnames <- function(response_option) {
   return(tntp_metric_colnames)
 
 }
+
+#' Create a data set that can be used by TNTP metrics to calculate high expectations.
+#'
+#' The \code{tntpmetrics} package can be used to calculate high expectations metrics based on the common measures.
+#' This function converts the data from the pre and post teacher surveys into the format required by \code{tntpmetrics}.
+#' The input data must be created with \code{tidy_teacher_survey}, or maintain the same form.
+#'
+#' @param .data A data frame containing the survey responses, created with \code{tidy_teacher_survey}.
+#'
+#' @returns A data frame that is in the correct format to be used by \code{tntpmetrics}.
+teacher_survey_calculate_high_expectations <- function(.data) {
+
+  # identify the grouping variables from the input data frame
+  id_cols <- setdiff(colnames(.data), c('question_stem', 'response_option', 'response'))
+
+  # relatinship between text response and number required for tntpmetrics
+  map_response_to_integer <- c(
+    "Strongly Disagree" = 0, "Disagree" = 1, "Somewhat Disagree" = 2,
+    "Somewhat Agree" = 3, "Agree" = 4, "Strongly Agree" = 5
+  )
+
+  # use this number if a text response fails to match
+  # we will then look for match failures by looking for this number
+  default_recode <- 99
+
+  he <- .data |>
+    # only keep high expectations questions, which have the stem showin in the text
+    dplyr::filter(stringr::str_detect(.data$question_stem, "statements about your state standards")) |>
+    dplyr::mutate(
+      # add the column name required for tntpmetrics
+      tntp_metrics = teacher_survey_add_he_metric_colnames(.data$response_option),
+      # convert the text response to an integer
+      response = dplyr::recode(.data$response, !!!map_response_to_integer, .default = default_recode, .missing = NA_real_)
+    )
+
+  # make sure all questions were matched and throw an error if they were not
+  if (any(he$response == default_recode)) {
+
+    stop(
+      c("The 'response' column that is created by 'tidy_teacher_survey()' produced odd responses after filtering for high expectations questions.\n",
+        "Plese double check the 'response' column. It should contain the strings of the responses ('Agree', 'Disagree', ect.)"),
+      call. = FALSE
+    )
+
+  }
+
+  # convert to wide form where each question is a column
+  he |>
+    tidyr::pivot_wider(id_cols= dplyr::all_of(id_cols), names_from = 'tntp_metrics', values_from = 'response')
+
+}

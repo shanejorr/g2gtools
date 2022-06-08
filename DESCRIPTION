@@ -17,7 +17,7 @@ Imports:
     dplyr,
     rlang,
     stringr,
-    tidyr
+    tidyr,
 URL: https://github.com/shanejorr/g2gtools
 BugReports: https://github.com/shanejorr/g2gtools/issues
 Depends: 

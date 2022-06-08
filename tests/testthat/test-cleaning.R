@@ -21,8 +21,8 @@ test_that("Raw data properly converts to tidy dataset", {
   testthat::expect_equal(n_unique_emails, n_rows)
 
   # Ensure the number of responses for each response column is correct for a single column
-  single_response_option <- tidy_survey %>%
-    dplyr::filter(stringr::str_detect(response_option, "^Leaders at my school")) %>%
+  single_response_option <- tidy_survey |>
+    dplyr::filter(stringr::str_detect(response_option, "^Leaders at my school")) |>
     dplyr::count(response)
 
   agree_responses <- single_response_option$n[single_response_option$response == 'Agree']
@@ -61,9 +61,9 @@ test_that("Properly match high expectation questions to their TNTP metrics colum
   grouping_columns <- c(3)
   question_columns <- 8:30
 
-  he_questions <- teacher_pre_survey %>%
-    g2gtools::tidy_teacher_survey(grouping_columns, question_columns) %>%
-    dplyr::filter(stringr::str_detect(question_stem, "statements about your state standards")) %>%
+  he_questions <- teacher_pre_survey  |>
+    tidy_teacher_survey(grouping_columns, question_columns) |>
+    dplyr::filter(stringr::str_detect(question_stem, "statements about your state standards")) |>
     dplyr::pull(response_option)
 
   # test that everything works without an error
@@ -83,5 +83,33 @@ test_that("Properly match high expectation questions to their TNTP metrics colum
   additional_question <- c(he_questions, "One year is enough sdaffdsafa master these standards.")
 
   testthat::expect_error(teacher_survey_add_he_metric_colnames(additional_question), "You have 5.*")
+
+})
+
+test_that("Create high expectations data set for tntpmetrics.", {
+
+  grouping_columns <- c(3)
+  question_columns <- 8:30
+
+  # extract high expectations questions
+  he_questions <- teacher_pre_survey |>
+    tidy_teacher_survey(grouping_columns, question_columns) |>
+    dplyr::filter(stringr::str_detect(.data$question_stem, "statements about your state standards"))
+
+  # create tntpmetrics olumns and extract one respondent to test
+  test_metrics <- he_questions |>
+    teacher_survey_calculate_high_expectations() |>
+    dplyr::filter(.data$.id == 10)
+
+  testthat::expect_equal(test_metrics$exp_fairtomaster, 2)
+  testthat::expect_equal(test_metrics$exp_oneyearenough, 2)
+  testthat::expect_equal(test_metrics$exp_allstudents, 0)
+  testthat::expect_equal(test_metrics$exp_appropriate, 1)
+
+  # test that we get an error when a text response (Agree') does not match an integer value
+  bad_response_value <- he_questions |>
+    dplyr::mutate(response = stringr::str_replace(.data$response, "^Agree$", "Agreee"))
+
+  testthat::expect_error(teacher_survey_calculate_high_expectations(bad_response_value), "^The.*after filtering.*")
 
 })
