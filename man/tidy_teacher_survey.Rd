@@ -4,17 +4,17 @@
 \alias{tidy_teacher_survey}
 \title{Transform the pre and post training teacher survey into tidy format (long form)}
 \usage{
-tidy_teacher_survey(.data, grouping_columns, question_columns)
+tidy_teacher_survey(.data, question_columns, grouping_columns = NULL)
 }
 \arguments{
 \item{.data}{The name of an R data frame containing raw teacher survey data.}
 
+\item{question_columns}{An integer or vector of integers representing column numbers for columns contain question answers
+that we want to include in the analysis.}
+
 \item{grouping_columns}{An integer or vector of integers representing column numbers of the columns
 that provide distinguishing characteristics of respondents that you might want to group on.
 This could be a teacher's email address, subjects taught, or demographic information about the teacher.}
-
-\item{question_columns}{An integer or vector of integers representing column numbers for columns contain question answers
-that we want to include in the analysis.}
 }
 \value{
 A tibble in tidy format where each row represents a single person's response to a single question.
@@ -23,4 +23,9 @@ A tibble in tidy format where each row represents a single person's response to 
 The teacher surveys (pre and post training) are conducted in Google Forms. As a result, their
 results are in Google Sheets. In raw form, each question is a column. The function converst the surveys
 into a tidy format where each row is a user's response to a specific question.
+}
+\examples{
+teacher_pre_survey |>
+   tidy_teacher_survey(8:30, 3)
+
 }

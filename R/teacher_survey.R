@@ -11,12 +11,16 @@
 #' @param question_columns An integer or vector of integers representing column numbers for columns contain question answers
 #'     that we want to include in the analysis.
 #'
+#' @examples
+#' teacher_pre_survey |>
+#'    tidy_teacher_survey(8:30, 3)
+#'
 #' @return A tibble in tidy format where each row represents a single person's response to a single question.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-tidy_teacher_survey <- function(.data, grouping_columns, question_columns) {
+tidy_teacher_survey <- function(.data, question_columns, grouping_columns = NULL) {
 
   # regular expression that identifies the response options
   question_stem_re <- " \\[.*\\]$"
@@ -141,7 +145,14 @@ teacher_survey_add_he_metric_colnames <- function(response_option) {
 #' @param .data A data frame containing the survey responses, created with \code{tidy_teacher_survey}.
 #'
 #' @returns A data frame that is in the correct format to be used by \code{tntpmetrics}.
-teacher_survey_calculate_high_expectations <- function(.data) {
+#'
+#' @examples
+#' teacher_pre_survey |>
+#'    tidy_teacher_survey(8:30, 3) |>
+#'    teacher_survey_calc_high_expectations()
+#'
+#' @export
+teacher_survey_calc_high_expectations <- function(.data) {
 
   # identify the grouping variables from the input data frame
   id_cols <- setdiff(colnames(.data), c('question_stem', 'response_option', 'response'))
@@ -180,5 +191,46 @@ teacher_survey_calculate_high_expectations <- function(.data) {
   # convert to wide form where each question is a column
   he |>
     tidyr::pivot_wider(id_cols= dplyr::all_of(id_cols), names_from = 'tntp_metrics', values_from = 'response')
+
+}
+
+#' Calculate the percentage and number of responses for each question.
+#'
+#' The teacher survey contains questions that are largely on the 6 point Likert scale. This function
+#' calculates the percentage and number of responses for each question and response option. The data,
+#' \code{.data}, for this function should be created with \code{tidy_teacher_survey}.
+#'
+#' @param .data A data frame containing the survey responses, created with \code{tidy_teacher_survey}.
+#' @param grouping_columns A string or vector with the column names of columns that you want to group
+#'      the results by. This could include a column containing school names or demographic information.
+#'
+#' @returns A data frame that contains the percentage and number of responses for each response option
+#'      and question. Three columns are added, all starting with a period (.):
+#'
+#'  - \code{.n_responses}: The number of responses for a given question and response option.
+#'  - \code{.n_total}: The total number of responses for the question.
+#'  - \code{.percent}: The percentage respondents that provided the given response for the question.
+#'
+#' @examples
+#' teacher_pre_survey |>
+#'    tidy_teacher_survey(8:30, 3) |>
+#'    teacher_survey_calc_percentages()
+#'
+#' @export
+teacher_survey_calc_percentages <- function(.data, grouping_columns = NULL) {
+
+  # column names from tidy_teacher_survey function that contain question stems, questions, and response
+  questions_responses <- c('question_stem', 'response_option', 'response')
+
+  .data |>
+    # calculate the number of responses for each response option
+    dplyr::group_by_at(c(grouping_columns, questions_responses)) |>
+    dplyr::count(name = '.n_response') |>
+    # calculate the number of responses for each question
+    dplyr::group_by_at(c(grouping_columns, questions_responses[-3])) |>
+    dplyr::mutate(.n_question = sum(.n_response)) |>
+    dplyr::ungroup() |>
+    # calculate percentages
+    dplyr::mutate(.percent = .n_response / .n_question)
 
 }
