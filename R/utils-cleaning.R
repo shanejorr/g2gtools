@@ -19,7 +19,7 @@ clean_column_names <- function(column_names) {
 
 #' Ensure full question column only contains one set of open and closed brackets
 #'
-#' 'tidy_teacher_survey' identifies the question stem and response options by looking for open and closed
+#' 'tidy_forms_survey' identifies the question stem and response options by looking for open and closed
 #'      brackets. The text within the brackets is the response option. To work properly,
 #'      there can only be one set of open and closed brackets. This function tests to make sure that
 #'      there is only one set of brackets, if there are any at all.
@@ -63,6 +63,24 @@ test_full_question_brackets <- function(full_question_column) {
 
 }
 
-# full_question_column <- c('sd[fa]', 'sdfa[fds]dfs')
-#
-# test_full_question_brackets(full_question_column)
+#' Order of scales in surveys and observations
+#'
+#' @param scale_name Name of scale, as a string.
+#'      Option are:
+#'      - 'agree_disagree': 6 point likert scale from strongly agree to strongly disagree.
+#'      - 'knowledge': 5 point scale from excellent knowledge to no knowledge.
+#'      - 'how_often': 5 point scale from in all or most lessons to never to.
+#'
+#' @example
+#' scale_order('agree_disagree')
+#'
+#'@export
+scale_order <- function(scale_name) {
+
+  list(
+    agree_disagree = c('Strongly Agree', 'Agree', 'Somewhat Agree', 'Somewhat Disagree', 'Disagree', 'Strongly Disagree'),
+    knowledge = c('Excellent knowledge', 'Good knowledge', 'Some knowledge', 'A little knowledge', 'No knowledge'),
+    how_often = c('In all or most lessons', 'Often', 'Sometimes', 'Rarely', 'Never')
+  )
+
+}

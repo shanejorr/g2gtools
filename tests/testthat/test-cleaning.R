@@ -5,7 +5,7 @@ test_that("Raw data properly converts to tidy dataset", {
   question_columns <- 8:30
 
   # convert teacher pre survey to long / tidy form
-  tidy_survey <- tidy_teacher_survey(teacher_pre_survey, question_columns, grouping_columns)
+  tidy_survey <- tidy_forms_survey(teacher_pre_survey, question_columns, grouping_columns)
 
   # total rows / unique respondents in raw data
   n_rows <- nrow(teacher_pre_survey)
@@ -62,7 +62,7 @@ test_that("Properly match high expectation questions to their TNTP metrics colum
   question_columns <- 8:30
 
   he_questions <- teacher_pre_survey  |>
-    tidy_teacher_survey(question_columns, grouping_columns) |>
+    tidy_forms_survey(question_columns, grouping_columns) |>
     dplyr::filter(stringr::str_detect(question_stem, "statements about your state standards")) |>
     dplyr::pull(response_option)
 
@@ -93,7 +93,7 @@ test_that("Create high expectations data set for tntpmetrics.", {
 
   # extract high expectations questions
   he_questions <- teacher_pre_survey |>
-    tidy_teacher_survey(question_columns, grouping_columns) |>
+    tidy_forms_survey(question_columns, grouping_columns) |>
     dplyr::filter(stringr::str_detect(.data$question_stem, "statements about your state standards"))
 
   # create tntpmetrics olumns and extract one respondent to test
@@ -128,8 +128,8 @@ test_that("Ensure percentages are properly calculated for surveys.", {
   total_num_responses <- 17
 
   pre_survey <- teacher_pre_survey %>%
-    tidy_teacher_survey(question_columns) |>
-    teacher_survey_calc_percentages() |>
+    tidy_forms_survey(question_columns) |>
+    forms_survey_calc_percentages() |>
     dplyr::filter(stringr::str_detect(response_option, col_to_test)) |>
     dplyr::select(response, .n_response, .n_question, .percent) |>
     dplyr::arrange(response)
