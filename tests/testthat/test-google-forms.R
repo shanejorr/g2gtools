@@ -1,5 +1,5 @@
 # Test cleaning functions ------------------------------
-test_that("Raw data properly converts to tidy dataset", {
+test_that("Raw google forms data properly converts to tidy dataset", {
 
   grouping_columns <- c(3)
   question_columns <- 8:30
@@ -34,25 +34,6 @@ test_that("Raw data properly converts to tidy dataset", {
   testthat::expect_equal(disagree_responses, 1)
   testthat::expect_equal(somewhat_agree_responses, 3)
   testthat::expect_equal(strongly_agree_responses, 3)
-
-})
-
-test_that("Throws error when raw data has column names with multiple open or closed brackets", {
-
-  error_one <- c("a_dsf[dfs]", "b_fds[fds[fds]")
-  testthat::expect_error(test_full_question_brackets(error_one), "Question.*b_fds.*")
-
-  error_two <- c("a_dsf[dfs", "b_fds[fdsfds]")
-  testthat::expect_error(test_full_question_brackets(error_two), "Question.*a_dsf.*")
-
-  error_three <- c("a_d[sf[df]s]", "b_fdsfdsfds]")
-  testthat::expect_error(test_full_question_brackets(error_three), "Question.*a_d.*b_fdsf.*")
-
-  no_error_one <- c("a_dsf[df]s", "b_fds[fdsfds]")
-  testthat::expect_error(test_full_question_brackets(no_error_one), NA)
-
-  no_error_two <- c("a_dsfdfs", "b_fdsfdsfds")
-  testthat::expect_error(test_full_question_brackets(no_error_one), NA)
 
 })
 
