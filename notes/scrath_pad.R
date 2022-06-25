@@ -5,6 +5,39 @@ library(g2gtools)
 
 # devtools::load_all()
 
+# classroom observations ------------------
+
+classroom_observations_math |>
+  tidy_forms_survey(8:ncol(obs), c(3,4,5)) |>
+  classroom_obs_add_ca()
+
+grouping_vars <- c('')
+
+a <- tidy_forms_survey(obs, 8:ncol(obs), c(3,4,5))
+
+qs <- a %>%
+  distinct(question_stem, response_option)
+
+
+
+test_obs <- data.frame(
+  question_stem = c(
+    "test", 'Core Action 1 Overall:', 'Core Action 1 Note:',
+    "Are all students engaged in the work of the lesson from start to finish?",
+    "Overall, did this lesson reflect the demands of the standards and/or the instructional shifts the standards require?",
+    "minor domain", "minor domain"
+    ),
+  response_option = c('test', rep(NA_character_, 4), "asdf (1a)", "dsaf (2b)")
+)
+# "asdf (1a)", "dsaf (2b)"
+classroom_obs_add_ca(test_obs)
+
+ca_main <- c(NA_character_, '1', NA_character_, 'Culture of Learning', 'Demands of the Standards', '1', '2')
+ca_minor <- c(NA_character_, 'Overall', NA_character_, 'Culture of Learning', 'Demands of the Standards', 'a', 'b')
+classroom_obs_add_ca(test_obs[1])
+
+# "(?<=Core Action )[0-9]"
+
 # cleaning teacher survey ---------------
 
 # pre-survey columns
@@ -25,7 +58,7 @@ list_of_scales <- list(
    agree_disagree = c('Strongly Agree', 'Agree', 'Somewhat Agree', 'Somewhat Disagree', 'Disagree', 'Strongly Disagree'),
    knowledge = c('Excellent knowledge', 'Good knowledge', 'Some knowledge', 'A little knowledge', 'No knowledge')
 )
-column_of_scales <- c('Somewhat Disagree', 'Disagree', 'Agree)
+column_of_scales <- c('Somewhat Disagree', 'Disagree', 'Agree')
 scale_to_factor(column_of_scales, list_of_scales)
 setdiff(c('a', 'b', 'c', 'z'), c('a', 'b', 'c', 'd'))
 

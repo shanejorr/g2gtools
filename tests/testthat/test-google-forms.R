@@ -1,4 +1,3 @@
-# Test cleaning functions ------------------------------
 test_that("Raw google forms data properly converts to tidy dataset", {
 
   grouping_columns <- c(3)

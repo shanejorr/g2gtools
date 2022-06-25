@@ -10,4 +10,8 @@ usethis::use_data(teacher_pre_survey, overwrite = TRUE)
 
 # an example of teacher post training survey data ------------------------
 
+# classroom observations -------------------
 
+classroom_observations_math <- readr::read_csv('data-raw/classroom_observations.csv')
+
+usethis::use_data(classroom_observations_math, overwrite = TRUE)
