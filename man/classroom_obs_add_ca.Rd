@@ -11,13 +11,13 @@ classroom_obs_add_ca(.data)
 with \code{tidy_forms_survey}.}
 }
 \value{
-A data frame containg all the original columns and rows, along with two additional columns:
+A data frame containing all the original columns and rows, along with two additional columns:
 \code{core_action_main} and \code{core_action_minor}.
 }
 \description{
 Classroom observations are based on the IPG and contain components called core actions.
 There are major core actions, which are numbers, and minor core actions, which are letters.
-THe IPG also contains Culture of Learning (CoL) and summary ratings. This function add two columns
+The IPG also contains Culture of Learning (CoL) and summary ratings. This function add two columns
 to the data set of classroom observations identifying the major and minor core action.
 }
 \details{

@@ -22,3 +22,35 @@ test_that("Determine major and minor core actions for classroom observations.", 
 
 
 })
+
+test_that("Ensure we properly convert observations to TNTP Metrics dataset.", {
+
+  n_rows <- 10
+
+  obs_data <- data.frame(
+    .id = 1,
+    grade = c('K', 'K', seq(1, n_rows-2)),
+    core_action_main = c('1', '1', '1', '1', '2', '2', '3', '3', 'Culture of Learning', NA_character_),
+    core_action_minor = c('a', 'b', 'c', 'Overall', 'a', 'Overall', 'a', 'Overall', 'Culture of Learning', NA_character_),
+    response = c('Yes', 'Not Yet', 'Yes', 'Not Yet',
+                 'Mostly', 'Somewhat', 'Not Yet', 'Not Yet', 'Yes', 'Maybe something')
+  )
+
+  obs_metrics <- classroom_obs_add_tntpmetrics(obs_data, grade_column = 'grade', subject_name = 'Math',
+                                               id_cols = '.id')
+
+  # ensure column names are equal
+  expect_equal(
+    colnames(obs_metrics),
+    c('.id', 'form', 'ca1_a', 'ca1_b', 'ca1_c', 'ca2_overall', 'ca3_overall', 'col')
+  )
+
+  # ensure data values are equal
+  actual_vals <- obs_metrics[1, ] |> unlist() |>  unname()
+
+  expect_equal(
+    obs_metrics[1, ] |> unlist() |>  unname(),
+    c("1","Math","1","0","1","2","1","4" )
+  )
+
+})
