@@ -16,8 +16,7 @@
 #'      with \code{tidy_forms_survey}.
 #'
 #' @examples
-#' classroom_observations_math |>
-#'  tidy_forms_survey(8:ncol(obs), c(3,4,5)) |>
+#' tidy_forms_survey(classroom_observations_math, 8:ncol(classroom_observations_math), c(3,4,5)) |>
 #'  classroom_obs_add_ca()
 #'
 #' @return A data frame containg all the original columns and rows, along with two additional columns:
