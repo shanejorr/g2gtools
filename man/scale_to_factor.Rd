@@ -4,31 +4,22 @@
 \alias{scale_to_factor}
 \title{Convert scale to a factor with levels in the proper order for plotting}
 \usage{
-scale_to_factor(scale_column, list_of_scales)
+scale_to_factor(scale_column)
 }
 \arguments{
-\item{scale_column}{A vector with the responses in your data containing scales that you want to
-convert to a factor.}
-
-\item{list_of_scales}{A list where each element is a vector of ordered scales.}
+\item{scale_column}{A vector with the responses in your data containing scales that you want to}
 }
 \value{
 A vector with the same values as the input vector, \code{scale_column}, but converted to a
 factor with the levels in the proper order.
 }
 \description{
-Given a vector of scales in your data and a list of possible scales, where each element in the
+Given a vector of scales in your data and a the list of scales in \code{scale_order()}, where each element in the
 list is a different scale, the function will find the appropriate scale and convert the scale column
-in your data to a factor with the levels in the proper order.
+in your data to a factor with the levels in the proper order. The list of scales in your data must be one in \code{scale_order}.
 }
 \examples{
-list_of_scales <- list(
-    agree_disagree = c('Strongly Agree', 'Agree', 'Somewhat Agree',
-                       'Somewhat Disagree', 'Disagree', 'Strongly Disagree'),
-    knowledge = c('Excellent knowledge', 'Good knowledge', 'Some knowledge',
-                  'A little knowledge', 'No knowledge')
-)
 column_of_scales <- c('Somewhat Disagree', 'Disagree', 'Agree')
-scale_to_factor(column_of_scales, list_of_scales)
+scale_to_factor(column_of_scales)
 
 }

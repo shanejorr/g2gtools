@@ -17,9 +17,13 @@ Config/testthat/edition: 3
 Imports: 
     dplyr,
     glue,
+    purrr,
     rlang,
     stringr,
-    tidyr
+    tidyr,
+    tntpr (>= 0.1.1)
+Remotes:
+    tntp/tntpr
 URL: https://github.com/shanejorr/g2gtools
 BugReports: https://github.com/shanejorr/g2gtools/issues
 Depends: 

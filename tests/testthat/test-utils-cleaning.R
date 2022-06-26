@@ -20,22 +20,14 @@ test_that("Throws error when raw data has column names with multiple open or clo
 test_that("Survey responses properly convert to factors", {
 
   # scales to test
-  test_scale <- list(
-    numbers = c('1', '2', '3'),
-    letters = c('a', 'b', 'c')
-  )
+  test_scale <- c('Strongly Agree', 'Agree', 'Somewhat Agree')
 
   # function delivers the correct output when the input parameters are correct
-  input_data <- c(test_scale$numbers, '1')
-  factor_data <- scale_to_factor(input_data, test_scale)
-
-  expect_equal(factor_data, factor(input_data))
-  expect_equal(levels(factor_data), test_scale$numbers)
+  expect_equal(scale_to_factor(test_scale),
+               factor(test_scale, levels = c(test_scale, "Somewhat Disagree", "Disagree", "Strongly Disagree")))
 
   # get a warning when the input data scale is not in the list of scales to use
   # and return the original data
-  input_data <- c(input_data, 'aa')
-  expect_message(scale_to_factor(input_data, test_scale$numbers), regexp = "None of.*matched the scales.*")
-  expect_equal(scale_to_factor(input_data, test_scale$numbers), input_data)
+  expect_message(scale_to_factor(c(test_scale, 'Not on scale')), regexp = "None of.*matched the scales.*")
 
 })
