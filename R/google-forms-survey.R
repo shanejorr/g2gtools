@@ -223,6 +223,7 @@ forms_survey_calc_percentages <- function(.data, grouping_columns = NULL) {
   questions_responses <- c('question_stem', 'response_option', 'response')
 
   .data |>
+    tidyr::drop_na(response) |>
     # calculate the number of responses for each response option
     dplyr::group_by_at(c(grouping_columns, questions_responses)) |>
     dplyr::count(name = '.n_response') |>

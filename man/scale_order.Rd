@@ -18,7 +18,7 @@ the order of scales for plotting.
 Included scales are:
 \itemize{
 \item 'agree_disagree': 6 point likert scale from strongly agree to strongly disagree.
-\item 'strongly_agree': 2 point scale with agree and strongly agree.
+\item 'strongly_agree': 2 point scale for agree and strongly agree.
 \item 'knowledge': 5 point scale from excellent knowledge to no knowledge.
 \item 'how_often': 5 point scale from in all or most lessons to never to.
 }

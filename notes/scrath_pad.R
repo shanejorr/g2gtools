@@ -22,14 +22,18 @@ post_results <- teacher_post |>
 # label whether question is in pre and post training
 common_stems <- intersect(unique(pre_results$question_stem), unique(post_results$question_stem))
 
-pre_grouping_cols <- c("are_you_participating_in_the_math_or_literacy_sessions_this_summer", "term")
+pre_grouping_cols <- c("subject", "term")
 
 all_teacher_results <- pre_results |>
   bind_rows(post_results) |>
-  forms_survey_calc_percentages(grouping_columns = pre_grouping_cols) |>
-  mutate(in_survey = ifelse(question_stem %in% !!common_stems, "Pre and Post Survey", term)) |>
+  # change long column name
+  rename(subject = are_you_participating_in_the_math_or_literacy_sessions_this_summer) |>
   # fix misspelling
-  mutate(response = str_replace(response, 'Dsagree', 'Disagree'))
+  mutate(response = str_replace(response, 'Dsagree', 'Disagree')) |>
+  # combine agree and strongly agree into one group
+  #mutate(response = ifelse(str_detect(response, "^Agree$|^Strongly Agree$"), 'Agree / Strongly Agree', response)) |>
+  forms_survey_calc_percentages(grouping_columns = pre_grouping_cols) |>
+  mutate(in_survey = ifelse(question_stem %in% !!common_stems, "Pre and Post Survey", term))
 
 ## pre and post comparisons -----------------------
 
@@ -40,14 +44,26 @@ unique_stems <- unique(pre_and_post$question_stem)
 
 q_stem <- unique_stems[1]
 
-q <- pre_and_post |>
+ind_stem <- pre_and_post |>
   filter(question_stem == !!q_stem)
 
-response_col_factor <- scale_to_factor(q$response, scale_order())
+# we only want to keep agree and strongly agree, so remove other items
+scales_to_remove <- c('Somewhat Agree', 'Somewhat Disagree', 'Disagree', 'Strongly Disagree')
 
-column_levels <- levels(response_col_factor)
+ind_stem <- ind_stem |>
+  filter(!response %in% !!scales_to_remove)
 
-get_palette()
+
+# find the scale and hex color codes, but you need to flip the values and names for plots
+scale_order <- find_scale(ind_stem$response, FALSE)
+scale_order <- names(scale_order) |> purrr::set_names(scale_order)
+
+# plot
+
+ind_stem |>
+  filter(subject == 'ELA') |>
+  mutate(response = factor(response, levels = names(scale_order))) |>
+  viz_pre_post(scale_order)
 
 # obs ------------------------------
 

@@ -2,9 +2,10 @@
 
 export(classroom_obs_add_ca)
 export(classroom_obs_add_tntpmetrics)
+export(find_scale)
 export(forms_survey_calc_percentages)
 export(scale_order)
-export(scale_to_factor)
 export(teacher_survey_calc_high_expectations)
 export(tidy_forms_survey)
+export(viz_pre_post)
 importFrom(rlang,.data)

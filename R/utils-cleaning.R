@@ -95,6 +95,9 @@ scale_order <- function() {
     strongly_agree = c('Strongly Agree', 'Agree') |>
       purrr::set_names(likert_6_agree[1:2]),
 
+    only_agree_and_strongly <- c('Agree / Strongly Agree') |>
+      purrr::set_names(likert_6_agree[2]),
+
     knowledge = c('Excellent knowledge', 'Good knowledge', 'Some knowledge', 'A little knowledge', 'No knowledge') |>
       purrr::set_names(likert_5),
 
@@ -113,12 +116,14 @@ scale_order <- function() {
 #'
 #' @param scale_column A vector with the responses in your data containing scales that you want to
 #'      convert to a factor.
+#' @param use_agree_disagree For the 6 point scale from strongly agree to strong disagree, do you want
+#'      to use all six points (TRUE) or only agree and strongly agree (FALSE)?
 #'
 #' @return A vector with the same values as the input vector, \code{scale_column}, but converted to a
 #' factor with the levels in the proper order
 #'
 #' @export
-scale_to_factor <- function(scale_column) {
+find_scale <- function(scale_column, use_agree_disagree) {
 
   # set iterator because if we either have no matches (i == 0) or
 
@@ -127,14 +132,15 @@ scale_to_factor <- function(scale_column) {
   matches <- 0
 
   # iterate through each scale in the list of scales
+  package_scales <- if (use_agree_disagree) scale_order()[-2] else scale_order()[-1]
 
-  for (single_scale in scale_order()) {
+  for (i in seq.int(package_scales)) {
 
     # determine whether all the values in the scale column are in the list of scales
 
     # if all the values are in the list of scales, then nothing will be returned and length will be 0
 
-    diff_length <- setdiff(scale_column, single_scale) |> length()
+    diff_length <- setdiff(scale_column[!is.na(scale_column)], package_scales[[i]]) |> length()
 
     # the current scale in the list of scales is not the right one if all the values in the scale column
 
@@ -144,9 +150,9 @@ scale_to_factor <- function(scale_column) {
 
     # we have the right scale if we are at this point
 
-    # so convert to factor with the current scale in the iteratin
+    # so save the scale as an object to return
 
-    factor_column <- factor(scale_column, levels = single_scale)
+    scale <- package_scales[[i]]
 
     matches <- matches + 1
 
@@ -158,12 +164,9 @@ scale_to_factor <- function(scale_column) {
 
   if (matches == 0) {
 
-    factor_column <- scale_column
-
-    message(paste0(
-      "None of the scales in `list_of_scales` matched the scales in the data from `scale_column`.\n",
-      "The scales in the data were: ", paste0(unique(scale_column), collapse = ", "), ".\n",
-      "Therefore, returning the original data in the same format and as the same data type."
+    stop(paste0(
+      "None of the scales in `scale_order()` matched the scales in the data from `scale_column`.\n",
+      "The scales in the data were: ", paste0(unique(scale_column), collapse = ", "), ".\n"
     ))
 
   }
@@ -174,6 +177,6 @@ scale_to_factor <- function(scale_column) {
 
   if (matches > 1) stop("Your scales matched more than one option from `scales_order()`. Please ensure they only match one option", call. = FALSE)
 
-  return(factor_column)
+  return(scale)
 
 }

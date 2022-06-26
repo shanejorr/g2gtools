@@ -16,9 +16,13 @@ Suggests:
 Config/testthat/edition: 3
 Imports: 
     dplyr,
+    ggplot2,
     glue,
+    officer,
     purrr,
     rlang,
+    rvg,
+    scales,
     stringr,
     tidyr,
     tntpr (>= 0.1.1)
