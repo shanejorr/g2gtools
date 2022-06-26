@@ -8,10 +8,10 @@ library(g2gtools)
 # teacher survey --------------------------
 
 teacher_pre <- read_csv('notes/garden_city-summer_2022-teacher-pre.csv') %>%
-  mutate(term = 'Pre-Training Survey')
+  mutate(term = 'Pre-Training')
 
 teacher_post <- read_csv('notes/garden_city-summer_2022-teacher-post.csv') %>%
-  mutate(term = 'Post-Training Survey')
+  mutate(term = 'Post-Training')
 
 pre_results <- teacher_pre |>
   tidy_forms_survey(c(9:19, 22:47), c(21, 48))
@@ -63,7 +63,8 @@ scale_order <- names(scale_order) |> purrr::set_names(scale_order)
 ind_stem |>
   filter(subject == 'ELA') |>
   mutate(response = factor(response, levels = names(scale_order))) |>
-  viz_pre_post(scale_order)
+  viz_pre_post_scales (scale_order) +
+  labs(title = 'This is a test')
 
 # obs ------------------------------
 

@@ -4,7 +4,7 @@
 \alias{plt_no_lines_theme}
 \title{Theme without any lines}
 \usage{
-plt_no_lines_theme(strip_panel_text_size = 11)
+plt_no_lines_theme()
 }
 \description{
 Theme without any lines

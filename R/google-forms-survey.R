@@ -232,6 +232,11 @@ forms_survey_calc_percentages <- function(.data, grouping_columns = NULL) {
     dplyr::mutate(.n_question = sum(.n_response)) |>
     dplyr::ungroup() |>
     # calculate percentages
-    dplyr::mutate(.percent = .n_response / .n_question)
+    dplyr::mutate(
+      # calculate percentages
+      .percent = .n_response / .n_question,
+      # make a column that is text of the percent and n for plotting
+      .percent_pretty = glue::glue("{scales::percent(.percent, accuracy = 1)} ({.n_response})")
+    )
 
 }

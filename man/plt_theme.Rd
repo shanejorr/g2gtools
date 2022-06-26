@@ -4,7 +4,7 @@
 \alias{plt_theme}
 \title{Basic theme setting fonts}
 \usage{
-plt_theme(strip_panel_text_size = 11)
+plt_theme()
 }
 \description{
 Basic theme setting fonts
