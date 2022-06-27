@@ -28,6 +28,8 @@ Default is '.percent'.}
 \item{y_var}{A string representing the column name for the y variable. Will be percent or term (pre / post).
 Default is 'term'.}
 
+\item{text_var}{A string representing the column name of numeric values to display on plot.}
+
 \item{fill_var}{A string representing the column name for the fill variable. Will be column with scale.
 Default is 'response'.}
 

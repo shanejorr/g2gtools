@@ -1,5 +1,7 @@
 #' Add visualizations to Power Point slides
 #'
+#' @importFrom rlang .data
+#'
 #' @keywords internal
 cf_add_slides_ppt <- function(doc, slide_header, slide_plot, plt_width, plt_height) {
 
@@ -34,6 +36,8 @@ cf_add_slides_ppt <- function(doc, slide_header, slide_plot, plt_width, plt_heig
 
 #' Basic theme setting fonts
 #'
+#' @importFrom rlang .data
+#'
 #' @keywords internal
 plt_theme <- function() {
 
@@ -51,6 +55,8 @@ plt_theme <- function() {
 }
 
 #' Theme without any lines
+#'
+#' @importFrom rlang .data
 #'
 #' @keywords internal
 plt_no_lines_theme <- function() {
@@ -86,13 +92,15 @@ plt_no_lines_theme <- function() {
 #'
 #' @returns A ggplot visualization.
 #'
+#' @importFrom rlang .data
+#'
 #' @keywords internal
 viz_fill_barchart <- function(.data, color_pal, x_var, y_var, fill_var) {
 
   # number of characters until line break in facet wrap
   facet_text_wrap <- 75
 
-  plt <- ggplot2::ggplot(.data, aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
+  plt <- ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
     ggplot2::geom_col() +
     ggplot2::scale_fill_manual(values = color_pal) +
     plt_no_lines_theme() +
@@ -114,6 +122,7 @@ viz_fill_barchart <- function(.data, color_pal, x_var, y_var, fill_var) {
 #'    Default is '.percent'.
 #' @param y_var A string representing the column name for the y variable. Will be percent or term (pre / post).
 #'    Default is 'term'.
+#' @param text_var A string representing the column name of numeric values to display on plot.
 #' @param fill_var A string representing the column name for the fill variable. Will be column with scale.
 #'    Default is 'response'.
 #' @param facet_var A string representing the column name for the fill variable. Will be question text.
@@ -124,17 +133,19 @@ viz_fill_barchart <- function(.data, color_pal, x_var, y_var, fill_var) {
 #'
 #' @returns A ggplot visualization.
 #'
+#' @importFrom rlang .data
+#'
 #' @export
 viz_pre_post_scales <- function(.data, color_pal, x_var = '.percent', y_var = 'term', text_var = '.percent_pretty', fill_var = 'response',
                                  facet_var = 'response_option', facet_str_wrap = 65, facet_col = 2) {
 
   plt <- viz_fill_barchart(.data, color_pal, x_var, y_var, fill_var) +
     ggplot2::scale_x_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1), breaks = seq(0, 1, .25)) +
-    ggplot2::geom_text(aes(label = .data[[text_var]]), position = position_stack(vjust = .5))
+    ggplot2::geom_text(ggplot2::aes(label = .data[[text_var]]), position = ggplot2::position_stack(vjust = .5))
 
   if (!is.null(facet_var)) {
     plt <- plt +
-      ggplot2::facet_wrap(vars(stringr::str_wrap(.data[[facet_var]], facet_str_wrap)), ncol = facet_col)
+      ggplot2::facet_wrap(ggplot2::vars(stringr::str_wrap(.data[[facet_var]], facet_str_wrap)), ncol = facet_col)
   }
 
   return(plt)

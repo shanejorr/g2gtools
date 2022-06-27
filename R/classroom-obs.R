@@ -43,20 +43,20 @@ classroom_obs_add_ca <- function(.data) {
 
   .data |>
     dplyr::mutate(core_action_main = dplyr::case_when(
-      stringr::str_detect(response_option, "[(][0-9][a-z][)]$") ~ stringr::str_extract(response_option, "[(][0-9][a-z][)]$") |>
+      stringr::str_detect(.data$response_option, "[(][0-9][a-z][)]$") ~ stringr::str_extract(.data$response_option, "[(][0-9][a-z][)]$") |>
         stringr::str_remove_all("[(]|[)]"),
-      stringr::str_detect(question_stem, "Core Action [0-9] Overall") ~ stringr::str_extract(question_stem, "(?<=Core Action )[0-9]"),
-      stringr::str_detect(question_stem, "^Overall, did this lesson reflect the demands") ~ "Demands of the Standards",
-      stringr::str_detect(question_stem, "^Are all students engaged in the work of the lesson fr") ~ "Culture of Learning",
+      stringr::str_detect(.data$question_stem, "Core Action [0-9] Overall") ~ stringr::str_extract(.data$question_stem, "(?<=Core Action )[0-9]"),
+      stringr::str_detect(.data$question_stem, "^Overall, did this lesson reflect the demands") ~ "Demands of the Standards",
+      stringr::str_detect(.data$question_stem, "^Are all students engaged in the work of the lesson fr") ~ "Culture of Learning",
       TRUE ~ NA_character_
     )) |>
     dplyr::mutate(core_action_minor = dplyr::case_when(
-      stringr::str_detect(core_action_main, "^[0-9][a-z]$") ~ stringr::str_extract(core_action_main, "[a-z]$"),
-      stringr::str_detect(core_action_main, "^[0-9]$") ~ "Overall",
-      stringr::str_detect(core_action_main, "^Demands of the|^Culture") ~ core_action_main,
+      stringr::str_detect(.data$core_action_main, "^[0-9][a-z]$") ~ stringr::str_extract(.data$core_action_main, "[a-z]$"),
+      stringr::str_detect(.data$core_action_main, "^[0-9]$") ~ "Overall",
+      stringr::str_detect(.data$core_action_main, "^Demands of the|^Culture") ~ .data$core_action_main,
       TRUE ~ NA_character_
     )) |>
-    dplyr::mutate(core_action_main = ifelse(stringr::str_detect(core_action_main, "^[0-9][a-z]$"), stringr::str_remove(core_action_main, "[a-z]$"), core_action_main))
+    dplyr::mutate(core_action_main = ifelse(stringr::str_detect(.data$core_action_main, "^[0-9][a-z]$"), stringr::str_remove(.data$core_action_main, "[a-z]$"), .data$core_action_main))
 
 }
 
@@ -108,12 +108,12 @@ classroom_obs_add_tntpmetrics <- function(.data, grade_column, subject_name, id_
 
   .data <- .data |>
     dplyr::mutate(tntp_metric = dplyr::case_when(
-      core_action_main == '1' & core_action_minor != 'Overall' ~ glue::glue("ca1_{core_action_minor}"),
-      core_action_main %in% c('2', '3') & core_action_minor == 'Overall' ~ glue::glue("ca{core_action_main}_overall"),
-      core_action_main == 'Culture of Learning' ~ 'col'
+      .data$core_action_main == '1' & .data$core_action_minor != 'Overall' ~ glue::glue("ca1_{.data$core_action_minor}"),
+      .data$core_action_main %in% c('2', '3') & .data$core_action_minor == 'Overall' ~ glue::glue("ca{.data$core_action_main}_overall"),
+      .data$core_action_main == 'Culture of Learning' ~ 'col'
     )) |>
     # only need rows pertaining to items needed for TNTP metrics
-    tidyr::drop_na(tntp_metric)
+    tidyr::drop_na(.data$tntp_metric)
 
   # make sure the responses are proper
   all_responses <- unique(c(names(recode_responses_ca_one), names(recode_responses_ca_others)))
@@ -157,7 +157,7 @@ classroom_obs_add_tntpmetrics <- function(.data, grade_column, subject_name, id_
   .data <- .data |>
     tidyr::pivot_wider(id_cols = dplyr::all_of(id_cols), names_from = 'tntp_metric', values_from = 'tntp_metric_response') |>
     dplyr::mutate(form = !!subject_name) |>
-    dplyr::select(all_of(id_cols), form, everything())
+    dplyr::select(dplyr::all_of(id_cols), .data$form, dplyr::everything())
 
   return(.data)
 

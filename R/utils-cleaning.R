@@ -2,6 +2,8 @@
 #'
 #' @param column_names A string or vector of strings representing the column names we want to clean up.
 #'
+#' @importFrom rlang .data
+#'
 #' @keywords internal
 clean_column_names <- function(column_names) {
 
@@ -25,6 +27,8 @@ clean_column_names <- function(column_names) {
 #'      there is only one set of brackets, if there are any at all.
 #'
 #' @param full_question_column Vector representing the column to test.
+#'
+#' @importFrom rlang .data
 #'
 #' @keywords internal
 test_full_question_brackets <- function(full_question_column) {
@@ -81,7 +85,9 @@ test_full_question_brackets <- function(full_question_column) {
 #' scale_order() # for a named list with all scales
 #' scale_order()['agree_disagree'] # for a vector containing a single scale
 #'
-#'@export
+#' @importFrom rlang .data
+#'
+#' @export
 scale_order <- function() {
 
   # palettes
@@ -121,6 +127,8 @@ scale_order <- function() {
 #'
 #' @return A vector with the same values as the input vector, \code{scale_column}, but converted to a
 #' factor with the levels in the proper order
+#'
+#' @importFrom rlang .data
 #'
 #' @export
 find_scale <- function(scale_column, use_agree_disagree) {

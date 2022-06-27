@@ -75,6 +75,8 @@ tidy_forms_survey <- function(.data, question_columns, grouping_columns = NULL) 
 #' @param response_option Vector of high expectations questions. This will be the 'response_option' column
 #'      if 'tidy_forms_survey()' is used.
 #'
+#' @importFrom rlang .data
+#'
 #' @keywords internal
 teacher_survey_add_he_metric_colnames <- function(response_option) {
 
@@ -151,6 +153,8 @@ teacher_survey_add_he_metric_colnames <- function(response_option) {
 #'    tidy_forms_survey(8:30, 3) |>
 #'    teacher_survey_calc_high_expectations()
 #'
+#' @importFrom rlang .data
+#'
 #' @export
 teacher_survey_calc_high_expectations <- function(.data) {
 
@@ -216,6 +220,8 @@ teacher_survey_calc_high_expectations <- function(.data) {
 #'    tidy_forms_survey(8:30, 3) |>
 #'    forms_survey_calc_percentages()
 #'
+#' @importFrom rlang .data
+#'
 #' @export
 forms_survey_calc_percentages <- function(.data, grouping_columns = NULL) {
 
@@ -223,20 +229,20 @@ forms_survey_calc_percentages <- function(.data, grouping_columns = NULL) {
   questions_responses <- c('question_stem', 'response_option', 'response')
 
   .data |>
-    tidyr::drop_na(response) |>
+    tidyr::drop_na(.data$response) |>
     # calculate the number of responses for each response option
     dplyr::group_by_at(c(grouping_columns, questions_responses)) |>
     dplyr::count(name = '.n_response') |>
     # calculate the number of responses for each question
     dplyr::group_by_at(c(grouping_columns, questions_responses[-3])) |>
-    dplyr::mutate(.n_question = sum(.n_response)) |>
+    dplyr::mutate(.n_question = sum(.data$.n_response)) |>
     dplyr::ungroup() |>
     # calculate percentages
     dplyr::mutate(
       # calculate percentages
-      .percent = .n_response / .n_question,
+      .percent = .data$.n_response / .data$.n_question,
       # make a column that is text of the percent and n for plotting
-      .percent_pretty = glue::glue("{scales::percent(.percent, accuracy = 1)} ({.n_response})")
+      .percent_pretty = glue::glue("{scales::percent(.data$.percent, accuracy = 1)} ({.data$.n_response})")
     )
 
 }
