@@ -108,10 +108,15 @@ scale_order <- function() {
       purrr::set_names(likert_5),
 
     how_often = c('In all or most lessons', 'Often', 'Sometimes', 'Rarely', 'Never') |>
-      purrr::set_names(likert_5)
+      purrr::set_names(likert_5),
+
+    obs_yes_notyet = c('Yes', 'Mostly', 'Somewhat', 'Not Yet') |>
+      purrr::set_names(likert_5[1:4])
   )
 
 }
+
+
 
 #' Convert scale to a factor with levels in the proper order for plotting
 #'
@@ -134,9 +139,7 @@ scale_order <- function() {
 find_scale <- function(scale_column, use_agree_disagree) {
 
   # set iterator because if we either have no matches (i == 0) or
-
   # multiple matches (i > 1) there is a problem
-
   matches <- 0
 
   # iterate through each scale in the list of scales
@@ -145,31 +148,22 @@ find_scale <- function(scale_column, use_agree_disagree) {
   for (i in seq.int(package_scales)) {
 
     # determine whether all the values in the scale column are in the list of scales
-
     # if all the values are in the list of scales, then nothing will be returned and length will be 0
-
     diff_length <- setdiff(scale_column[!is.na(scale_column)], package_scales[[i]]) |> length()
 
     # the current scale in the list of scales is not the right one if all the values in the scale column
-
     # are not in the list of scales, therefore, move to the next scale.
-
     if (diff_length != 0) next
 
     # we have the right scale if we are at this point
-
     # so save the scale as an object to return
-
     scale <- package_scales[[i]]
-
     matches <- matches + 1
 
   }
 
   # if none of the scales match, make the returned column the same as the input column
-
   # i.e. do not convet to a factor
-
   if (matches == 0) {
 
     stop(paste0(
@@ -180,9 +174,7 @@ find_scale <- function(scale_column, use_agree_disagree) {
   }
 
   # it is a problem if we find more than one scale in scales_order() matching the scales in scale_column
-
   # throw error if this occurs
-
   if (matches > 1) stop("Your scales matched more than one option from `scales_order()`. Please ensure they only match one option", call. = FALSE)
 
   return(scale)

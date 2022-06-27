@@ -29,7 +29,7 @@ test_that("Ensure we properly convert observations to TNTP Metrics dataset.", {
 
   obs_data <- data.frame(
     .id = 1,
-    grade = c('K', 'K', seq(1, n_rows-2)),
+    grade = rep(5, n_rows),
     core_action_main = c('1', '1', '1', '1', '2', '2', '3', '3', 'Culture of Learning', NA_character_),
     core_action_minor = c('a', 'b', 'c', 'Overall', 'a', 'Overall', 'a', 'Overall', 'Culture of Learning', NA_character_),
     response = c('Yes', 'Not Yet', 'Yes', 'Not Yet',
@@ -42,7 +42,7 @@ test_that("Ensure we properly convert observations to TNTP Metrics dataset.", {
   # ensure column names are equal
   expect_equal(
     colnames(obs_metrics),
-    c('.id', 'form', 'ca1_a', 'ca1_b', 'ca1_c', 'ca2_overall', 'ca3_overall', 'col')
+    c('.id', 'grade_level', 'form', 'ca1_a', 'ca1_b', 'ca1_c', 'ca2_overall', 'ca3_overall', 'col')
   )
 
   # ensure data values are equal
@@ -50,7 +50,7 @@ test_that("Ensure we properly convert observations to TNTP Metrics dataset.", {
 
   expect_equal(
     obs_metrics[1, ] |> unlist() |>  unname(),
-    c("1","Math","1","0","1","2","1","4" )
+    c("1", "5", "Math","1","0","1","2","1","4" )
   )
 
 })

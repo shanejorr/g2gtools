@@ -47,8 +47,8 @@ plt_theme <- function() {
       axis.text = ggplot2::element_text(size = 10),
       axis.title = ggplot2::element_text(size=12),
       strip.text = ggplot2::element_text(size = 10),
-      panel.background = ggplot2::element_rect(size=0.5, color = 'gray'),
-      text = ggplot2::element_text(family="Segoe UI")
+      panel.background = ggplot2::element_rect(size=0.5, color = 'gray')#,
+      #text = ggplot2::element_text(family="Segoe UI")
       #plot.title = element_text(family = "Segoe UI")
     )
 
@@ -100,7 +100,7 @@ viz_fill_barchart <- function(.data, color_pal, x_var, y_var, fill_var) {
   # number of characters until line break in facet wrap
   facet_text_wrap <- 75
 
-  plt <- ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
+  ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
     ggplot2::geom_col() +
     ggplot2::scale_fill_manual(values = color_pal) +
     plt_no_lines_theme() +

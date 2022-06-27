@@ -79,7 +79,7 @@ classroom_obs_add_ca <- function(.data) {
 #' tidy_forms_survey(classroom_observations_math, 8:ncol(classroom_observations_math), c(3,6)) |>
 #'  classroom_obs_add_ca() |>
 #'  classroom_obs_add_tntpmetrics(grade_column = 'grade', subject_name = 'Math',
-#'                                id_cols = c('.id', 'when_did_the_observation_occur', 'Math'))
+#'                                id_cols = c('.id', 'when_did_the_observation_occur'))
 #'
 #' @return A data frame that can be used by \code{tntpmetrics} to calcualte IPG scores.
 #'
@@ -152,12 +152,12 @@ classroom_obs_add_tntpmetrics <- function(.data, grade_column, subject_name, id_
   # convert to wide form and add class
 
   # we want to ensure '.id' is included as an ID column
-  id_cols <- unique(c('.id'), id_cols)
+  id_cols <- unique(c('.id', id_cols, 'grade_level'))
 
   .data <- .data |>
     tidyr::pivot_wider(id_cols = dplyr::all_of(id_cols), names_from = 'tntp_metric', values_from = 'tntp_metric_response') |>
     dplyr::mutate(form = !!subject_name) |>
-    dplyr::select(dplyr::all_of(id_cols), .data$form, dplyr::everything())
+    dplyr::select(dplyr::all_of(id_cols), 'form', dplyr::everything())
 
   return(.data)
 
