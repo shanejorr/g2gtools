@@ -4,7 +4,11 @@
 \alias{scale_order}
 \title{A list containing the order of scales in surveys and observations}
 \usage{
-scale_order()
+scale_order(scale_name)
+}
+\arguments{
+\item{scale_name}{The name of the scale, as a string, or a vector of scale names. Use 'get scale names'
+to retrieve a list of possible names.}
 }
 \value{
 A named list where each element contains scales in the proper order. A single vector
@@ -14,17 +18,7 @@ of scales can be returned by subsetting on the name of the scale: \code{scale_or
 Returns a named list where each element is a different scale in the proper order. Useful for setting
 the order of scales for plotting.
 }
-\details{
-Included scales are:
-\itemize{
-\item 'agree_disagree': 6 point likert scale from strongly agree to strongly disagree.
-\item 'strongly_agree': 2 point scale for agree and strongly agree.
-\item 'knowledge': 5 point scale from excellent knowledge to no knowledge.
-\item 'how_often': 5 point scale from in all or most lessons to never to.
-}
-}
 \examples{
-scale_order() # for a named list with all scales
-scale_order()['agree_disagree'] # for a vector containing a single scale
+scale_order('agree_disagree')
 
 }

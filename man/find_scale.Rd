@@ -10,8 +10,8 @@ find_scale(scale_column, use_agree_disagree)
 \item{scale_column}{A vector with the responses in your data containing scales that you want to
 convert to a factor.}
 
-\item{use_agree_disagree}{For the 6 point scale from strongly agree to strong disagree, do you want
-to use all six points (TRUE) or only agree and strongly agree (FALSE)?}
+\item{use_agree_disagree}{For the strongly agree to strongly disagree scale, whether to use all
+six points on the Liekrt scale or only agree and strongly agree.}
 }
 \value{
 A vector with the same values as the input vector, \code{scale_column}, but converted to a

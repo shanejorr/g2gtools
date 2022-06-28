@@ -72,36 +72,37 @@ test_full_question_brackets <- function(full_question_column) {
 #' Returns a named list where each element is a different scale in the proper order. Useful for setting
 #' the order of scales for plotting.
 #'
-#' Included scales are:
-#'  - 'agree_disagree': 6 point likert scale from strongly agree to strongly disagree.
-#'  - 'strongly_agree': 2 point scale for agree and strongly agree.
-#'  - 'knowledge': 5 point scale from excellent knowledge to no knowledge.
-#'  - 'how_often': 5 point scale from in all or most lessons to never to.
+#' @param scale_name The name of the scale, as a string, or a vector of scale names. Use 'get scale names'
+#'     to retrieve a list of possible names.
 #'
 #' @return A named list where each element contains scales in the proper order. A single vector
 #'      of scales can be returned by subsetting on the name of the scale: \code{scale_order()['agree_disagree']}
 #'
 #' @examples
-#' scale_order() # for a named list with all scales
-#' scale_order()['agree_disagree'] # for a vector containing a single scale
+#' scale_order('agree_disagree')
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-scale_order <- function() {
+scale_order <- function(scale_name) {
+
+  # note: need test
 
   # palettes
   likert_6_agree <- rev(tntpr::colors_tntp[c('likert_1', 'likert_2', 'likert_3', 'likert_5', 'likert_6', 'likert_7')])
   likert_5 <- tntpr::colors_tntp[c('likert_7', 'likert_6', 'likert_5', 'likert_4', 'default_7')]
 
-  list(
+  # can only enter one scale name
+  if (length(scale_name) > 1) stop("You can only enter one value in `scale_name`", call. = FALSE)
+
+  scales <- list(
     agree_disagree = c('Strongly Agree', 'Agree', 'Somewhat Agree', 'Somewhat Disagree', 'Disagree', 'Strongly Disagree') |>
       purrr::set_names(likert_6_agree),
 
     strongly_agree = c('Strongly Agree', 'Agree') |>
       purrr::set_names(likert_6_agree[1:2]),
 
-    only_agree_and_strongly <- c('Agree / Strongly Agree') |>
+    only_agree_and_strongly = c('Agree / Strongly Agree') |>
       purrr::set_names(likert_6_agree[2]),
 
     knowledge = c('Excellent knowledge', 'Good knowledge', 'Some knowledge', 'A little knowledge', 'No knowledge') |>
@@ -111,12 +112,53 @@ scale_order <- function() {
       purrr::set_names(likert_5),
 
     obs_yes_notyet = c('Yes', 'Mostly', 'Somewhat', 'Not Yet') |>
+      purrr::set_names(likert_5[1:4]),
+
+    obs_yesbut = c('Yes', 'Yes, but only in some areas', 'Not really', 'No') |>
       purrr::set_names(likert_5[1:4])
   )
 
+  get_scale <- 'get scale names'
+  scale_options <- c(names(scales), get_scale)
+
+  if (any(!scale_name %in% scale_options)) {
+    stop(glue::glue("`scale_name` must be one of: '", paste0(scale_options, collapse = "', '"), "'."), call. = FALSE)
+  }
+
+  if (any(scale_name == get_scale)) {
+    return_scale <- names(scales)
+  } else {
+    return_scale <- scales[[scale_name]]
+  }
+
+  return(return_scale)
+
 }
 
+#' Create a named vector from scales where the values are colors and names are the scales
+#'
+#' To create manual fills in ggplot, you need a named vector with the colors as values and the scale names
+#' as the names of the vector. This function takes a named vector where the scales values are values
+#' colors are names, and switches names and values. The returned vector can then be used in ggplot
+#'
+#' @param scale_name name from \code{scale_order()}.
+#'
+#' @examples
+#' create_color_scales('obs_yes_notyet')
+#'
+#' @returns A named vector with the scales as names and hex values as values.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+create_color_scales <- function(scale_name) {
 
+  scales <- scale_order(scale_name)
+
+  names(scales) |>
+    purrr::set_names(scales)
+
+}
 
 #' Convert scale to a factor with levels in the proper order for plotting
 #'
@@ -127,8 +169,8 @@ scale_order <- function() {
 #'
 #' @param scale_column A vector with the responses in your data containing scales that you want to
 #'      convert to a factor.
-#' @param use_agree_disagree For the 6 point scale from strongly agree to strong disagree, do you want
-#'      to use all six points (TRUE) or only agree and strongly agree (FALSE)?
+#' @param use_agree_disagree For the strongly agree to strongly disagree scale, whether to use all
+#'      six points on the Liekrt scale or only agree and strongly agree.
 #'
 #' @return A vector with the same values as the input vector, \code{scale_column}, but converted to a
 #' factor with the levels in the proper order
@@ -142,8 +184,13 @@ find_scale <- function(scale_column, use_agree_disagree) {
   # multiple matches (i > 1) there is a problem
   matches <- 0
 
+  scale_names <- c('agree_disagree', 'strongly_agree', 'only_agree_and_strongly', 'knowledge', 'how_often')
+
+  scales <- purrr::map(scale_names, scale_order) |>
+    purrr::set_names(scale_names)
+
   # iterate through each scale in the list of scales
-  package_scales <- if (use_agree_disagree) scale_order()[-2] else scale_order()[-1]
+  package_scales <- if (use_agree_disagree) scales[-2] else scales[-1]
 
   for (i in seq.int(package_scales)) {
 

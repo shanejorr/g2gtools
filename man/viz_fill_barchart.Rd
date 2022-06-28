@@ -33,4 +33,3 @@ is represented by the fill.
 Use the function \code{forms_survey_calc_percentages()} to ensure the data is in the proper format.
 All default parameter values are designed to with with \code{forms_survey_calc_percentages()}.
 }
-\keyword{internal}

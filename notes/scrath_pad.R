@@ -71,37 +71,78 @@ ind_stem |>
 
 pers_prep_link <- 'https://docs.google.com/spreadsheets/d/12YrXBV-PSeZWQeQMPx2AC--34ENQSBFMzJzaDOJfehs/edit#gid=2077396197'
 
-pers_prep_obs <- read_sheet(pers_prep_link)
+pers_prep_obs <- read_sheet(pers_prep_link) |>
+  mutate(Grade = as.character(Grade))
 
-pers_prep_obs <- tidy_forms_survey(pers_prep_obs, 8:ncol(pers_prep_obs), c(2, 6, 3)) |>
+pers_prep_tidy <- tidy_forms_survey(pers_prep_obs, 8:ncol(pers_prep_obs), c(3, 4, 5, 6)) |>
   rename(term = when_did_the_observation_occur) |>
   classroom_obs_add_ca() |>
+  mutate(
+    response = str_replace(response, "^Yes, but only in some areas.*", "Yes, but only in some areas"),
+    response = str_replace(response, "^Not really.*", "Not really")
+  )
+
+pers_prep_viz_df <- pers_prep_tidy |>
   drop_na(core_action_main) |>
   forms_survey_calc_percentages(grouping_columns = c('term', 'core_action_main', 'core_action_minor')) |>
   mutate(
     # add space before Overall, so core action number can be combined
     core_action_minor = ifelse(core_action_minor == 'Overall', " Overall", core_action_minor),
-    core_action = glue::glue("CA {core_action_main}{core_action_minor}")
+    core_action = ifelse(
+      str_detect(core_action_main, "[^0-9]"),
+      core_action_main,
+      glue::glue("CA {core_action_main}{core_action_minor}")
+      )
   )
 
+count(pers_prep_viz_df, core_action_main, core_action)
+unique(pers_prep_viz_df$core_action)
 ## visualizations --------------
-devtools::load_all()
 
-ca1_scales <- scale_order()[['obs_yes_notyet']]
-ca1_scales <- ca1_scales[ca1_scales %in% c('Yes', 'Not Yet')]
-ca1_scale <- names(ca1_scales) |>
-  purrr::set_names(ca1_scales)
+scale_yes_notyet <- create_color_scales('obs_yes_notyet')
 
-ca_one <- pers_prep_obs |>
-  filter(core_action_main == 1) |>
-  mutate(response = factor(response, levels = names(ca1_scale)))
+ca_scales <- list(
+  '1' = scale_yes_notyet[c(1, 4)],
+  '2' = scale_yes_notyet,
+  '3' = scale_yes_notyet,
+  'Culture of Learning' = scale_yes_notyet,
+  'Demands of the Standards' = create_color_scales('obs_yesbut')
+)
+
+for (ca in unique(pers_prep_viz_df$core_action_main)) {
+
+  color_pal <- ca_scales[[ca]]
+
+  plt_title <-  if (str_detect(ca, "[0-9]")) glue::glue("Core Action {ca} Observation Results") else glue::glue("{ca} Observation Results")
+
+  plt <- pers_prep_viz_df |>
+    filter(core_action_main == !!ca) |>
+    mutate(response = factor(response, levels = names(color_pal))) |>
+    # create plot
+    viz_fill_barchart(color_pal, 'core_action', '.n_response', 'response') +
+      geom_text(ggplot2::aes(label = .n_response), position = position_stack(vjust = .5)) +
+      labs(
+        x = NULL,
+        y = 'Number of responses',
+        fill = NULL,
+        title = plt_title
+      )
+
+  slide_title <- 'Teacher Observations'
 
 
 
-viz_fill_barchart(ca_one, ca1_scale, 'core_action', '.n_response', 'response') +
-  labs(title = 'Test title')
+}
 
-# pers_prep_obs |>
-#   classroom_obs_add_tntpmetrics(grade_column = 'grade', subject_name = 'Math',
-#                                 id_cols = c('.id', 'when_did_the_observation_occur')) |>
-#   tntpmetrics::make_metric(metric = "ipg")
+ca_one <- pers_prep_viz_df |>
+  filter(core_action_main == '2') |>
+  mutate(response = factor(response, levels = names(ca_scale)))
+
+
+
+
+
+pers_prep_tidy |>
+  classroom_obs_add_tntpmetrics(grade_column = 'grade', subject_name = 'Math',
+                                id_cols = c('.id', 'term')) |>
+  tntpmetrics::make_metric(metric = "ipg")

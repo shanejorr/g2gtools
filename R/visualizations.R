@@ -1,15 +1,19 @@
 #' Add visualizations to Power Point slides
 #'
+#' Add ggplot plots to PPT slides as vector graphics. You must initialize the PPT deck with
+#' \code{doc <- officer::read_pptx()}. After adding plots to the deck with this function, you can
+#' write out the deck with \code{print(doc, target = 'file_name_of_deck.pptx')))}
+#'
+#' @param doc Document object. Created with \code{officer::read_pptx()}.
+#' @param slide_plot A ggplot object containing the plot we want in the PPT slide.
+#' @param slide_header The slide header, as a string.
+#' @param plt_width The width of the plot, in inches, when it is in the PPT presentation.
+#' @param plt_height The height of the plot, in inches, when it is in the PPT presentation.
+#'
 #' @importFrom rlang .data
 #'
-#' @keywords internal
-cf_add_slides_ppt <- function(doc, slide_header, slide_plot, plt_width, plt_height) {
-
-  # adds a power point slide with a plot to a power point file
-  # parameters:
-  #   doc: power point document, created with read_pptx()
-  #   slide_header: header of slide with plot
-  #   slide_plot: the plot to include in the slide
+#' @export
+add_slides_ppt <- function(doc, slide_plot, slide_header, plt_width, plt_height) {
 
   # create new slide with default template
   doc <- officer::add_slide(doc, "Title and Content", 'Office Theme')
@@ -94,7 +98,7 @@ plt_no_lines_theme <- function() {
 #'
 #' @importFrom rlang .data
 #'
-#' @keywords internal
+#' @export
 viz_fill_barchart <- function(.data, color_pal, x_var, y_var, fill_var) {
 
   # number of characters until line break in facet wrap
