@@ -156,3 +156,43 @@ viz_pre_post_scales <- function(.data, color_pal, x_var = '.percent', y_var = 't
 
 }
 
+#' Create different question stems for stems with more than x number of questions
+#'
+#' When creating faceted bar charts that are faceted by question, sometimes there are too many
+#' questions for a single question stem to place on one visualization. This function lets you choose
+#' how many questions should be plotted on one visualization. For questions over this number, it adds the
+#' word '(continue)' to the question stem. Then, the questions will plot to different visualization when
+#' you iterate through stems, creating faceted charts.
+#'
+#' The function works with data created by \code{forms_survey_calc_percentages()}.
+#'
+#' @param .data Input data frame
+#' @param number_questions An integer, the number of questions per plot (per facet)
+#' @param grouping_columns Columns, as a string vector, that you want to group by when determining whether
+#'      the number of questions within the question stem is over the value set by \code{number_questions}.
+#'
+#' @returns The same data frame as before, but question stems containing questions over the value
+#'      set by \code{number_questions} contain the word '(continued)' at the start of them.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_split_question_stems <- function(.data, number_questions, grouping_columns) {
+
+  # test #
+
+  if (!is.numeric(number_questions)) stop("`number_questions` must be an integer", call. = FALSE)
+
+  unique_questions <- .data |>
+    dplyr::select(dplyr::all_of(grouping_columns), .data$question_stem, .data$response_option) |>
+    dplyr::distinct() |>
+    dplyr::group_by_at(c(grouping_columns, 'question_stem')) |>
+    dplyr::mutate(n = dplyr::row_number()) |>
+    dplyr::mutate(cont = ifelse(.data$n > .data$number_questions, TRUE, FALSE)) |>
+    dplyr::select(-.data$n)
+
+  .data |>
+    dplyr::left_join(unique_questions, by = c('subject', 'term', 'question_stem', 'response_option')) |>
+    dplyr::mutate(question_stem = ifelse(.data$cont, glue::glue("(.data$continued) {.data$question_stem}"), .data$question_stem))
+
+}
