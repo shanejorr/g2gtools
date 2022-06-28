@@ -4,13 +4,17 @@
 \alias{forms_survey_calc_percentages}
 \title{Calculate the percentage and number of responses for each question.}
 \usage{
-forms_survey_calc_percentages(.data, grouping_columns = NULL)
+forms_survey_calc_percentages(.data, grouping_columns = NULL, add_n = FALSE)
 }
 \arguments{
 \item{.data}{A data frame containing the survey responses, created with \code{tidy_forms_survey}.}
 
 \item{grouping_columns}{A string or vector with the column names of columns that you want to group
 the results by. This could include a column containing school names or demographic information.}
+
+\item{add_n}{The function creates a column called \code{.percent_pretty}. By default, FALSE, this column
+contains the whole number as a percentage (70\%). If TRUE, then the number of responses is also
+added (70\% (10)).}
 }
 \value{
 A data frame that contains the percentage and number of responses for each response option

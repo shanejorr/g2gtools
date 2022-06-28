@@ -207,6 +207,9 @@ teacher_survey_calc_high_expectations <- function(.data) {
 #' @param .data A data frame containing the survey responses, created with \code{tidy_forms_survey}.
 #' @param grouping_columns A string or vector with the column names of columns that you want to group
 #'      the results by. This could include a column containing school names or demographic information.
+#' @param add_n The function creates a column called \code{.percent_pretty}. By default, FALSE, this column
+#'      contains the whole number as a percentage (70%). If TRUE, then the number of responses is also
+#'      added (70% (10)).
 #'
 #' @returns A data frame that contains the percentage and number of responses for each response option
 #'      and question. Three columns are added, all starting with a period (.):
@@ -223,12 +226,12 @@ teacher_survey_calc_high_expectations <- function(.data) {
 #' @importFrom rlang .data
 #'
 #' @export
-forms_survey_calc_percentages <- function(.data, grouping_columns = NULL) {
+forms_survey_calc_percentages <- function(.data, grouping_columns = NULL, add_n = FALSE) {
 
   # column names from tidy_forms_survey function that contain question stems, questions, and response
   questions_responses <- c('question_stem', 'response_option', 'response')
 
-  .data |>
+  df <- .data |>
     tidyr::drop_na(.data$response) |>
     # calculate the number of responses for each response option
     dplyr::group_by_at(c(grouping_columns, questions_responses)) |>
@@ -241,8 +244,16 @@ forms_survey_calc_percentages <- function(.data, grouping_columns = NULL) {
     dplyr::mutate(
       # calculate percentages
       .percent = .data$.n_response / .data$.n_question,
-      # make a column that is text of the percent and n for plotting
-      .percent_pretty = glue::glue("{scales::percent(.data$.percent, accuracy = 1)} ({.data$.n_response})")
+      # make a column that is text of the percent for plotting
+      .percent_pretty = scales::percent(.data$.percent, accuracy = 1)
     )
+
+  # add n as well, if needed
+  if (add_n) {
+    df$.percent_pretty <- glue::glue("{df} ({df$.n_response})")
+  }
+
+  return(df)
+
 
 }

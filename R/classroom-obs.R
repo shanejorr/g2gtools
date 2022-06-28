@@ -45,18 +45,30 @@ classroom_obs_add_ca <- function(.data) {
     dplyr::mutate(core_action_main = dplyr::case_when(
       stringr::str_detect(.data$response_option, "[(][0-9][a-z][)]$") ~ stringr::str_extract(.data$response_option, "[(][0-9][a-z][)]$") |>
         stringr::str_remove_all("[(]|[)]"),
+      stringr::str_detect(.data$question_stem, "^Overall.*CA [0-9] overall[)]$") ~ stringr::str_extract(.data$question_stem, "[0-9] overall[)]$") |>
+        stringr::str_extract("[0-9]"),
       stringr::str_detect(.data$question_stem, "Core Action [0-9] Overall") ~ stringr::str_extract(.data$question_stem, "(?<=Core Action )[0-9]"),
       stringr::str_detect(.data$question_stem, "^Overall, did this lesson reflect the demands") ~ "Demands of the Standards",
       stringr::str_detect(.data$question_stem, "^Are all students engaged in the work of the lesson fr") ~ "Culture of Learning",
+      stringr::str_detect(.data$question_stem, "systematically provide all students with the opportunity to master foundational skills") ~ "Reading Foundational Skills",
       TRUE ~ NA_character_
     )) |>
     dplyr::mutate(core_action_minor = dplyr::case_when(
       stringr::str_detect(.data$core_action_main, "^[0-9][a-z]$") ~ stringr::str_extract(.data$core_action_main, "[a-z]$"),
       stringr::str_detect(.data$core_action_main, "^[0-9]$") ~ "Overall",
       stringr::str_detect(.data$core_action_main, "^Demands of the|^Culture") ~ .data$core_action_main,
+      stringr::str_detect(.data$core_action_main, "^Reading Foundational Skills$") ~ stringr::str_extract(.data$response_option, "[a-z][)]$") |>
+        stringr::str_remove_all("[(]|[)]"),
       TRUE ~ NA_character_
     )) |>
-    dplyr::mutate(core_action_main = ifelse(stringr::str_detect(.data$core_action_main, "^[0-9][a-z]$"), stringr::str_remove(.data$core_action_main, "[a-z]$"), .data$core_action_main))
+    dplyr::mutate(
+      core_action_main = ifelse(stringr::str_detect(.data$core_action_main, "^[0-9][a-z]$"), stringr::str_remove(.data$core_action_main, "[a-z]$"), .data$core_action_main),
+      response_option = ifelse(is.na(.data$response_option), .data$question_stem, .data$response_option)
+    ) |>
+    dplyr::mutate(core_action_minor = dplyr::case_when(
+      stringr::str_detect(.data$core_action_main, "^Reading Foundational Skills$") & stringr::str_detect(.data$question_stem, "^Overall") ~ 'Overall',
+      TRUE ~ .data$core_action_minor
+    ))
 
 }
 

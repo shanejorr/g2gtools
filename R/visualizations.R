@@ -145,7 +145,7 @@ viz_pre_post_scales <- function(.data, color_pal, x_var = '.percent', y_var = 't
 
   plt <- viz_fill_barchart(.data, color_pal, x_var, y_var, fill_var) +
     ggplot2::scale_x_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1), breaks = seq(0, 1, .25)) +
-    ggplot2::geom_text(ggplot2::aes(label = .data[[text_var]]), position = ggplot2::position_stack(vjust = .5))
+    ggplot2::geom_text(ggplot2::aes(label = .data[[text_var]]), position = ggplot2::position_stack(vjust = .5), size = 3)
 
   if (!is.null(facet_var)) {
     plt <- plt +
@@ -188,11 +188,12 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns) 
     dplyr::distinct() |>
     dplyr::group_by_at(c(grouping_columns, 'question_stem')) |>
     dplyr::mutate(n = dplyr::row_number()) |>
-    dplyr::mutate(cont = ifelse(.data$n > .data$number_questions, TRUE, FALSE)) |>
+    dplyr::mutate(cont = ifelse(.data$n > !!number_questions, TRUE, FALSE)) |>
     dplyr::select(-.data$n)
 
   .data |>
     dplyr::left_join(unique_questions, by = c('subject', 'term', 'question_stem', 'response_option')) |>
-    dplyr::mutate(question_stem = ifelse(.data$cont, glue::glue("(.data$continued) {.data$question_stem}"), .data$question_stem))
+    dplyr::mutate(question_stem = ifelse(.data$cont, glue::glue("(continued) {.data$question_stem}"), .data$question_stem)) |>
+    dplyr::select(-.data$cont)
 
 }
