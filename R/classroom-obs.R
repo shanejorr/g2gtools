@@ -81,7 +81,7 @@ classroom_obs_add_ca <- function(.data) {
 #' @param response_column Column with scales as responses. Will be \code{response} if \code{tidy_forms_survey()}
 #'      is used.
 #'
-#' @returns A vector of the same length, with the scales transformed.
+#' @returns A character vector of the same length, with the scales transformed.
 #'
 #' @importFrom rlang .data
 #'
@@ -89,7 +89,7 @@ classroom_obs_add_ca <- function(.data) {
 g2g_relabel_yesbut_notreally <- function(response_column) {
 
   stringr::str_replace(response_column, "^Yes, but only in some areas.*", "Yes, but only in some areas") |>
-    response = stringr::str_replace("^Not really.*", "Not really")
+    stringr::str_replace("^Not really.*", "Not really")
 
 }
 
