@@ -114,7 +114,7 @@ g2g_relabel_yesbut_notreally <- function(response_column) {
 #'  classroom_obs_add_tntpmetrics(grade_column = 'grade', subject_name = 'Math',
 #'                                id_cols = c('.id', 'when_did_the_observation_occur'))
 #'
-#' @return A data frame that can be used by \code{tntpmetrics} to calcualte IPG scores.
+#' @returns A data frame that can be used by \code{tntpmetrics} to calcualte IPG scores.
 #'
 #' @importFrom rlang .data
 #'
@@ -194,4 +194,31 @@ classroom_obs_add_tntpmetrics <- function(.data, grade_column, subject_name, id_
 
   return(.data)
 
+}
+
+#' Find the first and last observations for a person, based on the date.
+#'
+#' @param .data Data frame containing observation data.
+#' @param grouping_columns Columns to group by when finding the first and last observations, as
+#'      a vector of strings. Can be names or other unique identifiers.
+#' @param date_column Column containing dates that will be used to determine the first and last.
+#'
+#' @returns A vector of strings with the same length as the number of rows in \code{.data} containing
+#'      whether the observation is the first, last, or in the middle of the dates.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_first_or_last <- function(.data, grouping_columns, date_column) {
+
+  # test #
+  .data |>
+    dplyr::group_by(grouping_columns) |>
+    dplyr::mutate(.timing = dplyr::case_when(
+      .data[[date_column]] == max(.data[[date_column]]) ~ 'Last Observation',
+      .data[[date_column]] == min(.data[[date_column]]) ~ 'First Observation',
+      TRUE ~ 'During Program'
+    )) |>
+    dplyr::ungroup() |>
+    dplyr::pull(.data$.timing)
 }
