@@ -19,7 +19,7 @@
 #' tidy_forms_survey(classroom_observations_math, 8:ncol(classroom_observations_math), c(3,4,5)) |>
 #'  classroom_obs_add_ca()
 #'
-#' @return A data frame containing all the original columns and rows, along with two additional columns:
+#' @returns A data frame containing all the original columns and rows, along with two additional columns:
 #'      \code{core_action_main} and \code{core_action_minor}.
 #'
 #' @importFrom rlang .data
@@ -69,6 +69,27 @@ classroom_obs_add_ca <- function(.data) {
       stringr::str_detect(.data$core_action_main, "^Reading Foundational Skills$") & stringr::str_detect(.data$question_stem, "^Overall") ~ 'Overall',
       TRUE ~ .data$core_action_minor
     ))
+
+}
+
+
+#' Relabel a scale that is in math observations to shorten it and so that it matches other scales.
+#'
+#' The scales to relabel go from yes to no, with the ones we are changing starting with 'Yes, but'
+#' and 'Not really'.
+#'
+#' @param response_column Column with scales as responses. Will be \code{response} if \code{tidy_forms_survey()}
+#'      is used.
+#'
+#' @returns A vector of the same length, with the scales transformed.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_relabel_yesbut_notreally <- function(response_column) {
+
+  stringr::str_replace(response_column, "^Yes, but only in some areas.*", "Yes, but only in some areas") |>
+    response = stringr::str_replace("^Not really.*", "Not really")
 
 }
 

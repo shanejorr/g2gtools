@@ -9,11 +9,11 @@ clean_column_names <- function(column_names) {
 
   column_names |>
     # replace spaces with underscores
-    stringr::str_replace_all(" ", "_") |>
+    stringr::str_replace_all(" |,", "_") |>
     # remove periods unless the period is the first character
     stringr::str_remove_all("(?<=.)\\.") |>
     # remove the following
-    stringr::str_remove_all("[?]|[']|[)]|[(]") |>
+    stringr::str_remove_all("[?]|[']|[)]|[(]|[:]") |>
     # convert to lower
     stringr::str_to_lower()
 
