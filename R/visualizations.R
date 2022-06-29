@@ -2,7 +2,7 @@
 #'
 #' Add ggplot plots to PPT slides as vector graphics. You must initialize the PPT deck with
 #' \code{doc <- officer::read_pptx()}. After adding plots to the deck with this function, you can
-#' write out the deck with \code{print(doc, target = 'file_name_of_deck.pptx')))}
+#' write out the deck with \code{print(doc, target = 'file_name_of_deck.pptx')}
 #'
 #' @param doc Document object. Created with \code{officer::read_pptx()}.
 #' @param slide_plot A ggplot object containing the plot we want in the PPT slide.

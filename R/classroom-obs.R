@@ -211,14 +211,34 @@ classroom_obs_add_tntpmetrics <- function(.data, grade_column, subject_name, id_
 #' @export
 g2g_first_or_last <- function(.data, grouping_columns, date_column) {
 
+  # check to ensure columns are in data set
+  diff_columns <-setdiff(c(grouping_columns, date_column), colnames(.data))
+
+  if (length(diff_columns != 0)) {
+
+    stop(paste0("The following column that you used as a parameter is not in your data: ", paste0(diff_columns, collapse = ", ")), call.= FALSE)
+
+  }
+
   # test #
-  .data |>
-    dplyr::group_by(grouping_columns) |>
+  # check toensure column are in data set
+  df <- .data |>
+    dplyr::group_by_at(grouping_columns) |>
     dplyr::mutate(.timing = dplyr::case_when(
       .data[[date_column]] == max(.data[[date_column]]) ~ 'Last Observation',
       .data[[date_column]] == min(.data[[date_column]]) ~ 'First Observation',
       TRUE ~ 'During Program'
-    )) |>
-    dplyr::ungroup() |>
-    dplyr::pull(.data$.timing)
+    ))
+
+  # find the total number of distinct values of grouping column
+  distinct_counts <- df |>
+    dplyr::group_by_at(grouping_columns) |>
+    dplyr::select(dplyr::all_of(c(grouping_columns, date_column))) |>
+    dplyr::distinct() |>
+    dplyr::count(name = '.num_group')
+
+  df |>
+    dplyr::left_join(distinct_counts, by = grouping_columns)|>
+    dplyr::ungroup()
+
 }

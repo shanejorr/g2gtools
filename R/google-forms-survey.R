@@ -250,7 +250,7 @@ forms_survey_calc_percentages <- function(.data, grouping_columns = NULL, add_n 
 
   # add n as well, if needed
   if (add_n) {
-    df$.percent_pretty <- glue::glue("{df} ({df$.n_response})")
+    df$.percent_pretty <- glue::glue("{df$.percent_pretty}\n(n={df$.n_response})")
   }
 
   return(df)

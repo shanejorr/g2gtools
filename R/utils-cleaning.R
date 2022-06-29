@@ -114,7 +114,7 @@ scale_order <- function(scale_name) {
     obs_yes_notyet = c('Yes', 'Mostly', 'Somewhat', 'Not Yet') |>
       purrr::set_names(likert_5[1:4]),
 
-    obs_yesbut = c('Yes', 'Yes, but only in some areas', 'Not really', 'No') |>
+    obs_yesbut = c('Yes', 'Yes, But Only In Some Areas', 'Not Really', 'No') |>
       purrr::set_names(likert_5[1:4])
   )
 
