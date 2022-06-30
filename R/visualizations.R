@@ -43,7 +43,7 @@ add_slides_ppt <- function(doc, slide_plot, slide_header, plt_width, plt_height)
 #' @importFrom rlang .data
 #'
 #' @keywords internal
-plt_theme <- function() {
+g2g_plt_base_theme <- function() {
 
   ggplot2::theme_minimal() +
     ggplot2::theme(
@@ -58,14 +58,14 @@ plt_theme <- function() {
 
 }
 
-#' Theme without any lines
+#' G2G ggplot theme that contains no lines
 #'
 #' @importFrom rlang .data
 #'
-#' @keywords internal
-plt_no_lines_theme <- function() {
+#' @export
+g2g_plt_theme_no_lines <- function() {
 
-  plt_theme() +
+  g2g_plt_base_theme() +
     ggplot2::theme(
       axis.ticks = ggplot2::element_blank(),
       panel.grid.major = ggplot2::element_blank(),
@@ -107,7 +107,7 @@ viz_fill_barchart <- function(.data, color_pal, x_var, y_var, fill_var) {
   ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
     ggplot2::geom_col() +
     ggplot2::scale_fill_manual(values = color_pal) +
-    plt_no_lines_theme() +
+    g2g_plt_theme_no_lines() +
     ggplot2::theme(legend.position = 'bottom')
 
 }
