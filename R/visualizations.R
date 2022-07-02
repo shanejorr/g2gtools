@@ -145,7 +145,8 @@ viz_pre_post_scales <- function(.data, color_pal, x_var = '.percent', y_var = 't
 
   plt <- viz_fill_barchart(.data, color_pal, x_var, y_var, fill_var) +
     ggplot2::scale_x_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1), breaks = seq(0, 1, .25)) +
-    ggplot2::geom_text(ggplot2::aes(label = .data[[text_var]]), position = ggplot2::position_stack(vjust = .5), size = 3)
+    ggplot2::geom_text(ggplot2::aes(label = .data[[text_var]]), position = ggplot2::position_stack(vjust = .5), size = 3) +
+    guides(fill = guide_legend(reverse = TRUE))
 
   if (!is.null(facet_var)) {
     plt <- plt +
