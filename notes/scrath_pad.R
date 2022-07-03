@@ -74,13 +74,11 @@ pers_prep_link <- 'https://docs.google.com/spreadsheets/d/12YrXBV-PSeZWQeQMPx2AC
 pers_prep_obs <- read_sheet(pers_prep_link) |>
   mutate(Grade = as.character(Grade))
 
-pers_prep_tidy <- tidy_forms_survey(pers_prep_obs, 8:ncol(pers_prep_obs), c(3, 4, 5, 6)) |>
+pers_prep_tidy <- tidy_forms_survey(classroom_observations_math, 8:ncol(classroom_observations_math), c(3, 4, 5, 6)) |>
   rename(term = when_did_the_observation_occur) |>
-  classroom_obs_add_ca() |>
-  mutate(
-    response = str_replace(response, "^Yes, but only in some areas.*", "Yes, but only in some areas"),
-    response = str_replace(response, "^Not really.*", "Not really")
-  )
+  classroom_obs_add_ca()
+
+classroom_obs_add_tntpmetrics(pers_prep_tidy, grade_column = 'grade', subject_name = 'Math', id_cols = c('.id', 'term'))
 
 pers_prep_viz_df <- pers_prep_tidy |>
   drop_na(core_action_main) |>

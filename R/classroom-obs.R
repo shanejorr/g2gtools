@@ -143,10 +143,22 @@ classroom_obs_add_tntpmetrics <- function(.data, grade_column, subject_name, id_
     dplyr::mutate(tntp_metric = dplyr::case_when(
       .data$core_action_main == '1' & .data$core_action_minor != 'Overall' ~ glue::glue("ca1_{.data$core_action_minor}"),
       .data$core_action_main %in% c('2', '3') & .data$core_action_minor == 'Overall' ~ glue::glue("ca{.data$core_action_main}_overall"),
-      .data$core_action_main == 'Culture of Learning' ~ 'col'
-    )) |>
-    # only need rows pertaining to items needed for TNTP metrics
-    tidyr::drop_na(.data$tntp_metric)
+      .data$core_action_main == 'Culture of Learning' ~ 'col',
+      .data$core_action_main == 'Reading Foundational Skills' & .data$core_action_minor == 'Overall' ~ 'rfs_overall',
+      TRUE ~'no match'
+    ))
+
+  # print main and minor core actions that were not matched, to ensure there are no issues
+  actions_not_matches <- .data |>
+    dplyr::filter(.data$tntp_metric == 'no match') |>
+    dplyr::distinct(.data$core_action_main, .data$core_action_minor)
+
+  message("The following major and minor core action combinations were not matched. Make sure this is correct:")
+  print(actions_not_matches)
+
+  # remove items that did not match, as they are not required for TNTP metrics
+  .data <- .data |>
+    dplyr::filter(.data$tntp_metric != 'no match')
 
   # make sure the responses are proper
   all_responses <- unique(c(names(recode_responses_ca_one), names(recode_responses_ca_others)))
