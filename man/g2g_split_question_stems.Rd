@@ -7,7 +7,7 @@
 g2g_split_question_stems(.data, number_questions, grouping_columns)
 }
 \arguments{
-\item{.data}{Input data frame}
+\item{.data}{Input data frame made with \code{forms_survey_calc_percentages}.}
 
 \item{number_questions}{An integer, the number of questions per plot (per facet)}
 

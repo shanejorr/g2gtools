@@ -146,7 +146,7 @@ viz_pre_post_scales <- function(.data, color_pal, x_var = '.percent', y_var = 't
   plt <- viz_fill_barchart(.data, color_pal, x_var, y_var, fill_var) +
     ggplot2::scale_x_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1), breaks = seq(0, 1, .25)) +
     ggplot2::geom_text(ggplot2::aes(label = .data[[text_var]]), position = ggplot2::position_stack(vjust = .5), size = 3) +
-    guides(fill = guide_legend(reverse = TRUE))
+    ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
 
   if (!is.null(facet_var)) {
     plt <- plt +
@@ -167,7 +167,7 @@ viz_pre_post_scales <- function(.data, color_pal, x_var = '.percent', y_var = 't
 #'
 #' The function works with data created by \code{forms_survey_calc_percentages()}.
 #'
-#' @param .data Input data frame
+#' @param .data Input data frame made with \code{forms_survey_calc_percentages}.
 #' @param number_questions An integer, the number of questions per plot (per facet)
 #' @param grouping_columns Columns, as a string vector, that you want to group by when determining whether
 #'      the number of questions within the question stem is over the value set by \code{number_questions}.
@@ -193,7 +193,7 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns) 
     dplyr::select(-.data$n)
 
   .data |>
-    dplyr::left_join(unique_questions, by = c('subject', 'term', 'question_stem', 'response_option')) |>
+    dplyr::left_join(unique_questions, by = c(grouping_columns, 'question_stem', 'response_option')) |>
     dplyr::mutate(question_stem = ifelse(.data$cont, glue::glue("(continued) {.data$question_stem}"), .data$question_stem)) |>
     dplyr::select(-.data$cont)
 

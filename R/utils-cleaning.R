@@ -244,16 +244,51 @@ find_scale <- function(scale_column, use_agree_disagree) {
 #'
 #' @returns A vector of values from the \code{participants} column that includes participants in the
 #'      pre and post data sets.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
 g2g_id_pre_post <- function(.data, participants, pre_post_col) {
+
+  .data |>
+    g2g_compare_names(participants, pre_post_col) |>
+    dplyr::filter(.data[['.n']] != 1) |>
+    dplyr::pull(.data[[participants]]) |>
+    unique()
+
+}
+
+#' Check participant names for consistency
+#'
+#' Analysis often require matching pre and post participants. An antecedent step is ensuring unique
+#' identifiers such as names or email addresses are consistent across pre and post data sets.
+#' This function returns a data set with unique pre and post participants, so that users can easily
+#' manually check whether unique identifiers are consistent.
+#'
+#' @param .data A single data set containing pre and post data, in long form where pre and post are
+#'      in different rows.
+#' @param participants The column name, as a string, that identifies unique participants. This could
+#'      be names, emails or other identifiers.
+#' @param pre_post_col The column name, as a string, that identifies whether a row is a pre or post
+#'      training observations.
+#'
+#' @returns A dataframe containing unique pre and post participants, sorted so that users can manually
+#'      check for consistent spelling.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_compare_names <- function(.data, participants, pre_post_col) {
 
   .data |>
     dplyr::distinct(.data[[participants]], .data[[pre_post_col]]) |>
     dplyr::group_by(.data[[participants]]) |>
-    dplyr::mutate(.n = dplyr::n()) |>
+    dplyr::mutate(
+      .n = dplyr::n(),
+      .id = dplyr::row_number(),
+      .group_id = dplyr::cur_group_id()
+    ) |>
     dplyr::ungroup() |>
-    dplyr::arrange(.data[[participants]], .data[[pre_post_col]]) |>
-    dplyr::filter(.n != 1) |>
-    dplyr::pull(.data[[participants]]) |>
-    unique()
+    dplyr::arrange(.data[[participants]], .data[['.id']], .data[[pre_post_col]], )
 
 }

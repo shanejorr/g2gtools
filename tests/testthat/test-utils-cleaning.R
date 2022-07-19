@@ -32,13 +32,21 @@ test_that("Survey responses properly convert to factors", {
 
 })
 
-test_that("Survey responses properly convert to factors", {
+test_that("Identify observations in pre and post datasets", {
 
   pre_post_data <- data.frame(
     id = c('a', 'a', 'b', 'b', 'c', 'd'),
     term = c('pre', 'post', 'pre', 'post', 'pre', 'post')
   )
 
+  # test g2g_compare_names()
+  compare_pre_post <- g2g_compare_names(pre_post_data, 'id', 'term')
+
+  expect_equal(compare_pre_post$id, pre_post_data$id)
+
+  expect_equal(compare_pre_post$.group_id, c(1,1,2,2,3,4))
+
+  # test g2g_id_pre_post()
   in_pre_post <- g2g_id_pre_post(pre_post_data, 'id', 'term')
 
   expect_equal(in_pre_post, c('a', 'b'))

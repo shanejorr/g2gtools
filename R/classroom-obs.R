@@ -208,6 +208,36 @@ classroom_obs_add_tntpmetrics <- function(.data, grade_column, subject_name, id_
 
 }
 
+#' Add a column to the Core Actions that combines the major and minor core actions
+#'
+#' Classroom observations have a major and minor core action. This functions adds a column to the
+#' classroom observation dataset that combines descriptions of major and minor core actions into one column.
+#' This is useful for plots. This function should be used on data created with \code{forms_survey_calc_percentages()}.
+#'
+#' @param .data Data set created with \code{forms_survey_calc_percentages()}.
+#'
+#' @returns A data set that is the same as \code{.data}, but an additional column is added called \code{core_action}.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_obs_combine_ca <- function(.data) {
+
+  .data |>
+    dplyr::mutate(
+      # add space before Overall, so core action number can be combined
+      core_action_minor = ifelse(.data[['core_action_minor']] == 'Overall', " Overall", .data[['core_action_minor']]),
+      core_action = dplyr::case_when(
+        stringr::str_detect(.data[['core_action_main']], "^[0-9]$") ~ glue::glue("CA {.data[['core_action_main']]}{core_action_minor}"),
+        stringr::str_detect(.data[['core_action_main']], "^Reading") ~ glue::glue("RFS {.data[['core_action_minor']]}"),
+        stringr::str_detect(.data[['core_action_main']], "^Culture ") ~ 'Culture of Learning',
+        stringr::str_detect(.data[['core_action_main']], "^Demands") ~ 'Demands of the Standards',
+        TRUE ~ 'Fail to match'
+      )
+  )
+
+}
+
 #' Find the first and last observations for a person, based on the date.
 #'
 #' @param .data Data frame containing observation data.
