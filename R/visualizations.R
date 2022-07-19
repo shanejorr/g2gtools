@@ -141,7 +141,7 @@ viz_fill_barchart <- function(.data, color_pal, x_var, y_var, fill_var) {
 #'
 #' @export
 viz_pre_post_scales <- function(.data, color_pal, x_var = '.percent', y_var = 'term', text_var = '.percent_pretty', fill_var = 'response',
-                                 facet_var = 'response_option', facet_str_wrap = 65, facet_col = 2) {
+                                 facet_var = 'response_option', facet_str_wrap = 50, facet_col = 2) {
 
   plt <- viz_fill_barchart(.data, color_pal, x_var, y_var, fill_var) +
     ggplot2::scale_x_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1), breaks = seq(0, 1, .25)) +

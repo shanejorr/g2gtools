@@ -227,3 +227,33 @@ find_scale <- function(scale_column, use_agree_disagree) {
   return(scale)
 
 }
+
+#' Identify participants who have values in pre and post tools
+#'
+#' Analysis often require comparing pre and post metrics, only using participants in both the
+#' pre and post datasets. For example, we might calculate changes in high expectations scores
+#' between pre and post, only using teachers who took pre and post surveys. This function identifies
+#' participants with pre and post observations and returns a vector with their names / emails / id numbers.
+#'
+#' @param .data A single data set containing pre and post data, in long form where pre and post are
+#'      in different rows.
+#' @param participants The column name, as a string, that identifies unique participants. This could
+#'      be names, emails or other identifiers.
+#' @param pre_post_col The column name, as a string, that identifies whether a row is a pre or post
+#'      training observations.
+#'
+#' @returns A vector of values from the \code{participants} column that includes participants in the
+#'      pre and post data sets.
+g2g_id_pre_post <- function(.data, participants, pre_post_col) {
+
+  .data |>
+    dplyr::distinct(.data[[participants]], .data[[pre_post_col]]) |>
+    dplyr::group_by(.data[[participants]]) |>
+    dplyr::mutate(.n = dplyr::n()) |>
+    dplyr::ungroup() |>
+    dplyr::arrange(.data[[participants]], .data[[pre_post_col]]) |>
+    dplyr::filter(.n != 1) |>
+    dplyr::pull(.data[[participants]]) |>
+    unique()
+
+}

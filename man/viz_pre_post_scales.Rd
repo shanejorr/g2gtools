@@ -12,7 +12,7 @@ viz_pre_post_scales(
   text_var = ".percent_pretty",
   fill_var = "response",
   facet_var = "response_option",
-  facet_str_wrap = 65,
+  facet_str_wrap = 50,
   facet_col = 2
 )
 }
