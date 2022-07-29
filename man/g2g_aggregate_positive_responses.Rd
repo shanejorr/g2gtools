@@ -4,7 +4,12 @@
 \alias{g2g_aggregate_positive_responses}
 \title{Sum percentage totals of positive responses}
 \usage{
-g2g_aggregate_positive_responses(.data, positive_responses, grouping_terms)
+g2g_aggregate_positive_responses(
+  .data,
+  positive_responses,
+  grouping_terms,
+  only_keep_first_response = FALSE
+)
 }
 \arguments{
 \item{.data}{Input data frame. It must contain the aggregate percentage for each response option in long form.
@@ -15,6 +20,11 @@ It cannot be the raw data where each row is a response. The data set must be cre
 
 \item{grouping_terms}{Any columns that you want to group by, such as years, demographics, or pre or post training. Represented
 as a vector of strings.}
+
+\item{only_keep_first_response}{Boolean on whether the aggregate percentages should show up in all rows
+or only the rows represented by the first response in \code{positive_responses}. Setting this to
+\code{TRUE} is useful in stacked bar charts where you only want to show the percentages once and
+have it mapped to one of the positive response options. Defaults to \code{FALSE}.}
 }
 \value{
 The original data frame with an additional column titles \code{.strong_response_percent} that shows the

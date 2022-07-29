@@ -74,86 +74,66 @@ g2g_plt_theme_no_lines <- function() {
 
 }
 
-
-#' Plot comparing pre and post training data for data with scales.
+#' Stacked horizontal bar chart showing Likert item responses
 #'
-#' A horizontal bar chart comparing pre and post training data. The x axis is the percentage responses
-#' and the y axis is pre and post training. The plot is faceted by the question. The scale (response column)
-#' is represented by the fill.
+#' Creates a stacked horizontal bar chart showing Likert items and responses. Data must be percentages.
 #'
-#' Use the function \code{forms_survey_calc_percentages()} to ensure the data is in the proper format.
-#' All default parameter values are designed to with with \code{forms_survey_calc_percentages()}.
-#'
-#' @param .data The dataset used to make the visualization.
-#' @param color_pal The color palette for the scales. It should be a named vector with the names matching
-#'      the scale.
-#' @param x_var A string representing the column name for the x variable. Will be percent or term (pre / post).
-#'    Default is '.percent'.
-#' @param y_var A string representing the column name for the y variable. Will be percent or term (pre / post).
-#'    Default is 'term'.
-#' @param fill_var A string representing the column name for the fill variable. Will be column with scale.
-#'    Default is 'response'.
-#'
-#' @returns A ggplot visualization.
+#' @param .data The data set to visualize. It must be aggregated results in tidy format. Each row is a
+#'     single question and response option ('Agree'), and the aggregate percentage of respondents
+#'     - as a decimal (.75) - answering with the given response option.
+#' @param x_var The x variable name, as a string. This should be numeric and as a decimal between 0 and 1.
+#'       It represents the percentage of respondents for the given question and response option.
+#' @param y_var The x variable name, as a string. This could be questions or a column signifying
+#'       pre or post training, with a facet added after this function signifying questions.
+#' @param fill_var The variable name, as a string, representing the response scales ('Agree').
+#' @param text_var The variable name, as a string, representing the text to plot over the chart.
+#'       This should be numeric and as a decimal between 0 and 1.
+#' @param color_pal Custom color palette to use. THis should be a vector with the values being
+#'       the hex codes for the colors and the names being the unique scales from \code{fill_var}
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-viz_fill_barchart <- function(.data, color_pal, x_var, y_var, fill_var) {
+g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var, color_pal) {
 
-  # number of characters until line break in facet wrap
-  facet_text_wrap <- 75
+  # make sure all numbers are between 0 and 1
+  if (!all(dplyr::between(.data[[x_var]][!is.na(.data[[x_var]])], 0, 1))) {
+    stop("All 'x_var' values must be decimals between 0 and 1.", call. = FALSE)
+  }
+
+  # make sure all numbers are between 0 and 1
+  if (!all(dplyr::between(.data[[text_var]][!is.na(.data[[text_var]])], 0, 1))) {
+    stop("All 'text_var' values must be decimals between 0 and 1.", call. = FALSE)
+  }
+
+  # make sure all column are present
+  col_names <- colnames(.data)
+
+  viz_cols <- c(x_var, y_var, fill_var, text_var)
+
+  viz_in_colnames <- viz_cols %in% col_names
+
+  if(!all(viz_in_colnames)) {
+    stop(
+      paste0(
+        "The following column names are not in your data (.data): '",
+        paste0(viz_cols[!viz_in_colnames], collapse = ", '"),
+        "'"),
+      call. = FALSE
+      )
+  }
 
   ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
     ggplot2::geom_col() +
+    ggplot2::geom_text(
+      ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), x = .data[[text_var]] - .03),
+      color = 'white', fontface='bold' # nudge_x = .03,
+    ) +
     ggplot2::scale_fill_manual(values = color_pal) +
+    ggplot2::scale_x_continuous(labels = scales::percent) +
     g2g_plt_theme_no_lines() +
-    ggplot2::theme(legend.position = 'bottom')
-
-}
-
-#' Bar chart comparing pre and post with scales.
-#'
-#' Creates a bar chart comparing pre and post surveys with scales. Since scales are used,
-#' the numeric axis is a percentage. Function is designed to work with data produced by
-#' \code{forms_survey_calc_percentages()}, but it can work with other forms of data as well.
-#' All defaults are designed for \code{forms_survey_calc_percentages()}.
-#'
-#' @param .data The dataset used to make the visualization.
-#' @param color_pal The color palette for the scales. It should be a named vector with the names matching
-#'      the scale.
-#' @param x_var A string representing the column name for the x variable. Will be percent or term (pre / post).
-#'    Default is '.percent'.
-#' @param y_var A string representing the column name for the y variable. Will be percent or term (pre / post).
-#'    Default is 'term'.
-#' @param text_var A string representing the column name of numeric values to display on plot.
-#' @param fill_var A string representing the column name for the fill variable. Will be column with scale.
-#'    Default is 'response'.
-#' @param facet_var A string representing the column name for the fill variable. Will be question text.
-#'    Default is 'response_option'. Use NULL to avoid any facets.
-#' @param facet_str_wrap The number of characters in the \code{facet_var} until a new line is created.
-#'    Default is 65.
-#' @param facet_col The number of columns used in the facet. Defautls to 2.
-#'
-#' @returns A ggplot visualization.
-#'
-#' @importFrom rlang .data
-#'
-#' @export
-viz_pre_post_scales <- function(.data, color_pal, x_var = '.percent', y_var = 'term', text_var = '.percent_pretty', fill_var = 'response',
-                                 facet_var = 'response_option', facet_str_wrap = 50, facet_col = 2) {
-
-  plt <- viz_fill_barchart(.data, color_pal, x_var, y_var, fill_var) +
-    ggplot2::scale_x_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1), breaks = seq(0, 1, .25)) +
-    ggplot2::geom_text(ggplot2::aes(label = .data[[text_var]]), position = ggplot2::position_stack(vjust = .5), size = 3) +
-    ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
-
-  if (!is.null(facet_var)) {
-    plt <- plt +
-      ggplot2::facet_wrap(ggplot2::vars(stringr::str_wrap(.data[[facet_var]], facet_str_wrap)), ncol = facet_col)
-  }
-
-  return(plt)
+    ggplot2::theme(legend.position = 'bottom') +
+    ggplot2::guides(fill=ggplot2::guide_legend(nrow=2,byrow=TRUE))
 
 }
 

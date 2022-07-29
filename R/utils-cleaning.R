@@ -148,31 +148,6 @@ g2g_scale_order <- function(scale_name) {
 
 }
 
-#' Create a named vector from scales where the values are colors and names are the scales
-#'
-#' To create manual fills in ggplot, you need a named vector with the colors as values and the scale names
-#' as the names of the vector. This function takes a named vector where the scales values are values
-#' colors are names, and switches names and values. The returned vector can then be used in ggplot
-#'
-#' @param scale_name name from \code{g2g_scale_order()}.
-#'
-#' @examples
-#' g2g_create_color_scales('yes_notyet')
-#'
-#' @returns A named vector with the scales as names and hex values as values.
-#'
-#' @importFrom rlang .data
-#'
-#' @export
-g2g_create_color_scales <- function(scale_name) {
-
-  scales <- g2g_scale_order(scale_name)
-
-  names(scales) |>
-    purrr::set_names(scales)
-
-}
-
 #' Convert scale to a factor with levels in the proper order for plotting
 #'
 #' Given a vector of scales in your data and a list of possible scales, where each element in the
@@ -313,6 +288,10 @@ g2g_compare_names <- function(.data, participants, pre_post_col) {
 #' @param positive_responses A string vector of positive responses, for example \code{c('Agree', 'Strongly Agree')}
 #' @param grouping_terms Any columns that you want to group by, such as years, demographics, or pre or post training. Represented
 #'      as a vector of strings.
+#' @param only_keep_first_response Boolean on whether the aggregate percentages should show up in all rows
+#'     or only the rows represented by the first response in \code{positive_responses}. Setting this to
+#'     \code{TRUE} is useful in stacked bar charts where you only want to show the percentages once and
+#'     have it mapped to one of the positive response options. Defaults to \code{FALSE}.
 #'
 #' @return The original data frame with an additional column titles \code{.strong_response_percent} that shows the
 #'      percentage of respondents who answered favorably (if the row represents a favorable response)
@@ -332,15 +311,63 @@ g2g_compare_names <- function(.data, participants, pre_post_col) {
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_aggregate_positive_responses <- function(.data, positive_responses, grouping_terms) {
+g2g_aggregate_positive_responses <- function(.data, positive_responses, grouping_terms, only_keep_first_response = FALSE) {
 
   all_grouping_terms <- c('question_stem', 'response_option', grouping_terms, '.scale_strength')
 
-  .data |>
+  .data <- .data |>
     dplyr::ungroup() |>
     dplyr::mutate(.scale_strength = ifelse(.data[['response']] %in% !!positive_responses, 'Strong response', 'Weak response')) |>
     dplyr::group_by_at(all_grouping_terms) |>
     dplyr::mutate(.strong_response_percent = sum(.data[['.percent']])) |>
     dplyr::ungroup()
+
+  if (only_keep_first_response) {
+
+    .data <- .data |>
+      dplyr::mutate(.strong_response_percent = ifelse(.data[['response']] == positive_responses[1], .data[['.strong_response_percent']], NA_real_))
+
+  }
+
+  return(.data)
+
+}
+
+#' Convert to title case but leave common words uncapitalized
+#'
+#' When converting to title case, most R function fail to proeprly account for words that should
+#' not be capitalized in title case such as 'and' and 'the'. \code{g2g_to_title} converts to title
+#' case, but does not convert common words. Among other purposes, the function is useful for
+#' placing scales in the case that is required by most g2g tools.
+#'
+#' @param x Vector that you want converted to title case.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_to_title <- function(x) {
+
+  words_not_to_convert <- c(
+    'and', 'a', 'the', 'as', 'but', 'for', 'if', 'nor', 'or', 'so', 'yet',
+    'as', 'at', 'by', 'for', 'in', 'of', 'off', 'on', 'per', 'to', 'up', 'via'
+  )
+
+  words_not_to_convert <- stringr::str_c(" ", words_not_to_convert, " ")
+
+  replacement_strings <- stringr::str_to_title(words_not_to_convert) |>
+    purrr::set_names(words_not_to_convert)
+
+  replacement_strings <- words_not_to_convert |>
+    purrr::set_names(stringr::str_to_title(words_not_to_convert))
+
+  convert_to_title <- x |>
+    stringr::str_to_lower() |>
+    stringr::str_to_title()
+
+  convert_to_title <- stringr::str_c(convert_to_title, " ") |>
+    stringr::str_replace_all(replacement_strings) |>
+    stringr::str_trim(side = 'right')
+
+  return(convert_to_title)
 
 }
