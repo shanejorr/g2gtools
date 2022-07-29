@@ -67,71 +67,65 @@ test_full_question_brackets <- function(full_question_column) {
 
 }
 
-#' A list containing the order of scales in surveys and observations
+#' Return a vector of scales in the proper order with colors
 #'
-#' Returns a named list where each element is a different scale in the proper order. Useful for setting
-#' the order of scales for plotting.
+#' @param scale_name The name of the scale, as a string.
 #'
-#' @param scale_name The name of the scale, as a string, or a vector of scale names. Use 'get scale names'
-#'     to retrieve a list of possible names.
+#' @section Scale options:
 #'
-#' @return A named list where each element contains scales in the proper order. A single vector
-#'      of scales can be returned by subsetting on the name of the scale: \code{scale_order()['agree_disagree']}
+#' -  'agree_disagree': Strongly Agree, Agree, Somewhat Agree, Somewhat Disagree, Disagree, Strongly Disagree
+#' -  'knowledge': Excellent Knowledge, Good Knowledge, Some Knowledge, A Little Knowledge, No Knowledge
+#' -  'how_often': In All or Most Lessons', Often, Sometimes, Rarely, Never
+#' -  'yes_notyet': Yes, Mostly, Somewhat, Not yet
+#' -  'yes_but': Yes, 'Yes, But Only in Some Areas', Not Really, No)
+#'
+#'
+#' @return A a named vector where the values are the scales in the proper order and the names are the
+#' hex codes for colors.
 #'
 #' @examples
-#' scale_order('agree_disagree')
+#' g2g_scale_order('agree_disagree')
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-scale_order <- function(scale_name) {
+g2g_scale_order <- function(scale_name) {
 
   # note: need test
 
-  # palettes
-  likert_6_agree <- rev(tntpr::colors_tntp[c('likert_1', 'likert_2', 'likert_3', 'likert_5', 'likert_6', 'likert_7')])
-  likert_5 <- tntpr::colors_tntp[c('likert_7', 'likert_6', 'likert_5', 'likert_4', 'default_7')]
-
   # can only enter one scale name
+  scale_length <- length(scale_name)
   if (length(scale_name) > 1) stop("You can only enter one value in `scale_name`", call. = FALSE)
 
   scales <- list(
-    agree_disagree = c('Strongly Agree', 'Agree', 'Somewhat Agree', 'Somewhat Disagree', 'Disagree', 'Strongly Disagree') |>
-      purrr::set_names(likert_6_agree),
+    agree_disagree = c('Strongly Agree', 'Agree', 'Somewhat Agree', 'Somewhat Disagree', 'Disagree', 'Strongly Disagree'),
 
-    strongly_agree = c('Strongly Agree', 'Agree') |>
-      purrr::set_names(likert_6_agree[1:2]),
+    knowledge = c('Excellent knowledge', 'Good Knowledge', 'Some Knowledge', 'A Little Knowledge', 'No Knowledge'),
 
-    only_agree_and_strongly = c('Agree / Strongly Agree') |>
-      purrr::set_names(likert_6_agree[2]),
+    how_often = c('In All or Most Lessons', 'Often', 'Sometimes', 'Rarely', 'Never'),
 
-    knowledge = c('Excellent knowledge', 'Good knowledge', 'Some knowledge', 'A little knowledge', 'No knowledge') |>
-      purrr::set_names(likert_5),
+    yes_notyet = c('Yes', 'Mostly', 'Somewhat', 'Not Yet'),
 
-    how_often = c('In all or most lessons', 'Often', 'Sometimes', 'Rarely', 'Never') |>
-      purrr::set_names(likert_5),
-
-    obs_yes_notyet = c('Yes', 'Mostly', 'Somewhat', 'Not Yet') |>
-      purrr::set_names(likert_5[1:4]),
-
-    obs_yesbut = c('Yes', 'Yes, But Only In Some Areas', 'Not Really', 'No') |>
-      purrr::set_names(likert_5[1:4])
+    yes_but = c('Yes', 'Yes, But Only in Some Areas', 'Not Really', 'No')
   )
 
-  get_scale <- 'get scale names'
-  scale_options <- c(names(scales), get_scale)
+  single_scale <- scales[[scale_name]]
 
-  if (any(!scale_name %in% scale_options)) {
-    stop(glue::glue("`scale_name` must be one of: '", paste0(scale_options, collapse = "', '"), "'."), call. = FALSE)
-  }
+  scale_length <- length(single_scale)
 
-  if (any(scale_name == get_scale)) {
-    return_scale <- names(scales)
-  } else {
-    return_scale <- scales[[scale_name]]
-  }
+  # palettes
+  # for all palettes, the two highest values will be blue, the others will be gray
+  gray_colors <- c("#E2E2E2", "#C2C2C2", "#8A8A8A", "#474747")
+  blue_colors <- c("#00A4C7", "#81D2EB")
 
-  return(return_scale)
+  gray_length <- length(gray_colors)
+
+  num_grays <- scale_length - 2
+
+  pal <- c(blue_colors, gray_colors[(gray_length-(num_grays-1)):gray_length])
+
+  single_scale |>
+    purrr::set_names(pal)
 
 }
 
@@ -141,7 +135,7 @@ scale_order <- function(scale_name) {
 #' as the names of the vector. This function takes a named vector where the scales values are values
 #' colors are names, and switches names and values. The returned vector can then be used in ggplot
 #'
-#' @param scale_name name from \code{scale_order()}.
+#' @param scale_name name from \code{g2g_scale_order()}.
 #'
 #' @examples
 #' create_color_scales('obs_yes_notyet')
@@ -153,7 +147,7 @@ scale_order <- function(scale_name) {
 #' @export
 create_color_scales <- function(scale_name) {
 
-  scales <- scale_order(scale_name)
+  scales <- g2g_scale_order(scale_name)
 
   names(scales) |>
     purrr::set_names(scales)
@@ -186,7 +180,7 @@ find_scale <- function(scale_column, use_agree_disagree) {
 
   scale_names <- c('agree_disagree', 'strongly_agree', 'only_agree_and_strongly', 'knowledge', 'how_often')
 
-  scales <- purrr::map(scale_names, scale_order) |>
+  scales <- purrr::map(scale_names, g2g_scale_order) |>
     purrr::set_names(scale_names)
 
   # iterate through each scale in the list of scales
@@ -214,7 +208,7 @@ find_scale <- function(scale_column, use_agree_disagree) {
   if (matches == 0) {
 
     stop(paste0(
-      "None of the scales in `scale_order()` matched the scales in the data from `scale_column`.\n",
+      "None of the scales in `g2g_scale_order()` matched the scales in the data from `scale_column`.\n",
       "The scales in the data were: ", paste0(unique(scale_column), collapse = ", "), ".\n"
     ))
 

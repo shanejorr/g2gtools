@@ -7,7 +7,7 @@
 create_color_scales(scale_name)
 }
 \arguments{
-\item{scale_name}{name from \code{scale_order()}.}
+\item{scale_name}{name from \code{g2g_scale_order()}.}
 }
 \value{
 A named vector with the scales as names and hex values as values.
