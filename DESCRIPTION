@@ -24,10 +24,7 @@ Imports:
     rvg,
     scales,
     stringr,
-    tidyr,
-    tntpr (>= 0.1.1)
-Remotes:
-    tntp/tntpr
+    tidyr
 URL: https://github.com/shanejorr/g2gtools
 BugReports: https://github.com/shanejorr/g2gtools/issues
 Depends: 

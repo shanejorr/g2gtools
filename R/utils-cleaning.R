@@ -5,7 +5,7 @@
 #' @importFrom rlang .data
 #'
 #' @keywords internal
-clean_column_names <- function(column_names) {
+g2g_clean_column_names <- function(column_names) {
 
   column_names |>
     # replace spaces with underscores
@@ -31,7 +31,7 @@ clean_column_names <- function(column_names) {
 #' @importFrom rlang .data
 #'
 #' @keywords internal
-test_full_question_brackets <- function(full_question_column) {
+g2g_test_full_question_brackets <- function(full_question_column) {
 
   # TRUE means a passed test and a problem
   number_brackets_open <- stringr::str_count(full_question_column, "\\[")
@@ -67,6 +67,25 @@ test_full_question_brackets <- function(full_question_column) {
 
 }
 
+#' Named list of scales used in Good to Great
+#'
+#' @keywords internal
+g2g_list_of_scales <- function() {
+
+  list(
+    agree_disagree = c('Strongly Agree', 'Agree', 'Somewhat Agree', 'Somewhat Disagree', 'Disagree', 'Strongly Disagree'),
+
+    knowledge = c('Excellent knowledge', 'Good Knowledge', 'Some Knowledge', 'A Little Knowledge', 'No Knowledge'),
+
+    how_often = c('In All or Most Lessons', 'Often', 'Sometimes', 'Rarely', 'Never'),
+
+    yes_notyet = c('Yes', 'Mostly', 'Somewhat', 'Not Yet'),
+
+    yes_but = c('Yes', 'Yes, But Only in Some Areas', 'Not Really', 'No')
+  )
+
+}
+
 #' Return a vector of scales in the proper order with colors
 #'
 #' @param scale_name The name of the scale, as a string.
@@ -97,17 +116,17 @@ g2g_scale_order <- function(scale_name) {
   scale_length <- length(scale_name)
   if (length(scale_name) > 1) stop("You can only enter one value in `scale_name`", call. = FALSE)
 
-  scales <- list(
-    agree_disagree = c('Strongly Agree', 'Agree', 'Somewhat Agree', 'Somewhat Disagree', 'Disagree', 'Strongly Disagree'),
+  # NOTE: If you add scales, you need to add the name to 'g2g_find_scale
+  scales <- g2g_list_of_scales()
 
-    knowledge = c('Excellent knowledge', 'Good Knowledge', 'Some Knowledge', 'A Little Knowledge', 'No Knowledge'),
+  # make sure entered scale is one of the options
+  scale_names <- names(scales)
 
-    how_often = c('In All or Most Lessons', 'Often', 'Sometimes', 'Rarely', 'Never'),
+  if (!scale_name %in% scale_names) {
 
-    yes_notyet = c('Yes', 'Mostly', 'Somewhat', 'Not Yet'),
+    stop(paste0("Scale names must be one of: '", paste0(scale_names, collapse = "', '"), "'"), call. = FALSE)
 
-    yes_but = c('Yes', 'Yes, But Only in Some Areas', 'Not Really', 'No')
-  )
+  }
 
   single_scale <- scales[[scale_name]]
 
@@ -138,14 +157,14 @@ g2g_scale_order <- function(scale_name) {
 #' @param scale_name name from \code{g2g_scale_order()}.
 #'
 #' @examples
-#' create_color_scales('obs_yes_notyet')
+#' g2g_create_color_scales('yes_notyet')
 #'
 #' @returns A named vector with the scales as names and hex values as values.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-create_color_scales <- function(scale_name) {
+g2g_create_color_scales <- function(scale_name) {
 
   scales <- g2g_scale_order(scale_name)
 
@@ -159,12 +178,9 @@ create_color_scales <- function(scale_name) {
 #' Given a vector of scales in your data and a list of possible scales, where each element in the
 #' list is a different scale, the function will find the appropriate scale and convert the scale column
 #' in your data to a factor with the levels in the proper order.
-#' Find scale of common G2G questions
 #'
 #' @param scale_column A vector with the responses in your data containing scales that you want to
 #'      convert to a factor.
-#' @param use_agree_disagree For the strongly agree to strongly disagree scale, whether to use all
-#'      six points on the Liekrt scale or only agree and strongly agree.
 #'
 #' @return A vector with the same values as the input vector, \code{scale_column}, but converted to a
 #' factor with the levels in the proper order
@@ -172,25 +188,22 @@ create_color_scales <- function(scale_name) {
 #' @importFrom rlang .data
 #'
 #' @export
-find_scale <- function(scale_column, use_agree_disagree) {
+g2g_find_scale <- function(scale_column) {
 
   # set iterator because if we either have no matches (i == 0) or
   # multiple matches (i > 1) there is a problem
   matches <- 0
 
-  scale_names <- c('agree_disagree', 'strongly_agree', 'only_agree_and_strongly', 'knowledge', 'how_often')
+  scale_names <- names(g2g_list_of_scales())
 
   scales <- purrr::map(scale_names, g2g_scale_order) |>
     purrr::set_names(scale_names)
 
-  # iterate through each scale in the list of scales
-  package_scales <- if (use_agree_disagree) scales[-2] else scales[-1]
-
-  for (i in seq.int(package_scales)) {
+  for (i in seq.int(scales)) {
 
     # determine whether all the values in the scale column are in the list of scales
     # if all the values are in the list of scales, then nothing will be returned and length will be 0
-    diff_length <- setdiff(scale_column[!is.na(scale_column)], package_scales[[i]]) |> length()
+    diff_length <- setdiff(scale_column[!is.na(scale_column)], scales[[i]]) |> length()
 
     # the current scale in the list of scales is not the right one if all the values in the scale column
     # are not in the list of scales, therefore, move to the next scale.
@@ -198,7 +211,7 @@ find_scale <- function(scale_column, use_agree_disagree) {
 
     # we have the right scale if we are at this point
     # so save the scale as an object to return
-    scale <- package_scales[[i]]
+    scale <- scales[[i]]
     matches <- matches + 1
 
   }
@@ -266,7 +279,7 @@ g2g_id_pre_post <- function(.data, participants, pre_post_col) {
 #' @param pre_post_col The column name, as a string, that identifies whether a row is a pre or post
 #'      training observations.
 #'
-#' @returns A dataframe containing unique pre and post participants, sorted so that users can manually
+#' @return A dataframe containing unique pre and post participants, sorted so that users can manually
 #'      check for consistent spelling.
 #'
 #' @importFrom rlang .data
@@ -284,5 +297,50 @@ g2g_compare_names <- function(.data, participants, pre_post_col) {
     ) |>
     dplyr::ungroup() |>
     dplyr::arrange(.data[[participants]], .data[['.id']], .data[[pre_post_col]], )
+
+}
+
+#' Sum percentage totals of positive responses
+#'
+#' We often want to sum the percentage of respondents answering favorably on a survey, for example
+#' answering 'Agree' or 'Strongly Agree'. This function calculates these values and returns them as
+#' a column in the original data. The returned data frame will have the same number of rows as the
+#' input data frame, but it will have an additional column calls \code{.strong_response_percent}.
+#'
+#' @param .data Input data frame. It must contain the aggregate percentage for each response option in long form.
+#'      For example, each row must be a question and response option combination (question 1, strongly agree).
+#'      It cannot be the raw data where each row is a response. The data set must be created with \code{forms_survey_calc_percentages()}.
+#' @param positive_responses A string vector of positive responses, for example \code{c('Agree', 'Strongly Agree')}
+#' @param grouping_terms Any columns that you want to group by, such as years, demographics, or pre or post training. Represented
+#'      as a vector of strings.
+#'
+#' @return The original data frame with an additional column titles \code{.strong_response_percent} that shows the
+#'      percentage of respondents who answered favorably (if the row represents a favorable response)
+#'      or unfavorable (if the row represents an unfavorable response).
+#'
+#' @examples
+#' results <- teacher_pre_survey |>
+#'   tidy_forms_survey(8:30, 3) |>
+#'   dplyr::mutate(assessment = 'Pre-survey') |>
+#'   forms_survey_calc_percentages('assessment') |>
+#'   # the function should only be used on a data set with common scales
+#'   # so, filter to only keep a single question stem since we know it will have the same scales
+#'   dplyr::filter(stringr::str_detect(.data[['question_stem']], 'To what extent do you agree'))
+#'
+#' g2g_aggregate_positive_responses(results, c('Agree', 'Strongly Agree'), 'assessment')
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_aggregate_positive_responses <- function(.data, positive_responses, grouping_terms) {
+
+  all_grouping_terms <- c('question_stem', 'response_option', grouping_terms, '.scale_strength')
+
+  .data |>
+    dplyr::ungroup() |>
+    dplyr::mutate(.scale_strength = ifelse(.data[['response']] %in% !!positive_responses, 'Strong response', 'Weak response')) |>
+    dplyr::group_by_at(all_grouping_terms) |>
+    dplyr::mutate(.strong_response_percent = sum(.data[['.percent']])) |>
+    dplyr::ungroup()
 
 }

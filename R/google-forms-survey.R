@@ -47,12 +47,12 @@ tidy_forms_survey <- function(.data, question_columns, grouping_columns = NULL) 
     dplyr::select(.data$.id, !!grouping_columns, !!question_columns) |>
     # convert to long form with the questions and responses as the columns we will make distinct
     tidyr::pivot_longer(cols = -c(.data$.id, dplyr::all_of(grouping_var_names)), names_to = 'full_question', values_to = 'response') |>
-    dplyr::rename_with(~clean_column_names(.x))
+    dplyr::rename_with(~g2g_clean_column_names(.x))
 
   # ensure there is no more than one set of open and closed brackets. We cannot seperate the question stem
   # from the response option if there is more than one set.
 
-  test_full_question_brackets(tidy_survey_results$full_question)
+  g2g_test_full_question_brackets(tidy_survey_results$full_question)
 
   tidy_survey_results <- tidy_survey_results |>
   #create seperate columns for the question stem and the response option
@@ -61,7 +61,7 @@ tidy_forms_survey <- function(.data, question_columns, grouping_columns = NULL) 
     response_option = stringr::str_extract(.data$full_question, !!question_stem_re) |> stringr::str_trim(),
     response_option = stringr::str_remove_all(.data$response_option, "^\\[|\\]$")
   ) |>
-  dplyr::select(.data$.id, clean_column_names(dplyr::all_of(grouping_var_names)), .data$question_stem, .data$response_option, .data$response)
+  dplyr::select(.data$.id, g2g_clean_column_names(dplyr::all_of(grouping_var_names)), .data$question_stem, .data$response_option, .data$response)
 
   return(tidy_survey_results)
 
