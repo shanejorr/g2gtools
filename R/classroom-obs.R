@@ -9,15 +9,15 @@
 #' contains the minor core action.
 #'
 #' The input data set should contain the classroom observations survey that has been placed into long
-#' form with the function \code{tidy_forms_survey}. It must contain the \code{response_option} and
+#' form with the function \code{g2g_tidy_forms_survey}. It must contain the \code{response_option} and
 #' \code{question_stem} columns.
 #'
 #' @param .data The name of an R data frame containing classroom observations and placed into long form
-#'      with \code{tidy_forms_survey}.
+#'      with \code{g2g_tidy_forms_survey}.
 #'
 #' @examples
-#' tidy_forms_survey(classroom_observations_math, 8:ncol(classroom_observations_math), c(3,4,5)) |>
-#'  classroom_obs_add_ca()
+#' g2g_tidy_forms_survey(classroom_observations_math, 8:ncol(classroom_observations_math), c(3,4,5)) |>
+#'  g2g_classroom_obs_add_ca()
 #'
 #' @returns A data frame containing all the original columns and rows, along with two additional columns:
 #'      \code{core_action_main} and \code{core_action_minor}.
@@ -25,7 +25,7 @@
 #' @importFrom rlang .data
 #'
 #' @export
-classroom_obs_add_ca <- function(.data) {
+g2g_classroom_obs_add_ca <- function(.data) {
 
   # ensure required columns are present
   col_names <- colnames(.data)
@@ -37,7 +37,7 @@ classroom_obs_add_ca <- function(.data) {
   if (!all_req_cols_present == 0) {
     req_col_string <- paste0(req_cols, collapse = ", ")
     stop(paste0("You are missing one of the two required columns: ", req_col_string,
-                "\nPlease use `tidy_forms_survey()` to create the data set with the proper columns."),
+                "\nPlease use `g2g_tidy_forms_survey()` to create the data set with the proper columns."),
          call. = FALSE)
   }
 
@@ -78,7 +78,7 @@ classroom_obs_add_ca <- function(.data) {
 #' The scales to relabel go from yes to no, with the ones we are changing starting with 'Yes, but'
 #' and 'Not really'.
 #'
-#' @param response_column Column with scales as responses. Will be \code{response} if \code{tidy_forms_survey()}
+#' @param response_column Column with scales as responses. Will be \code{response} if \code{g2g_tidy_forms_survey()}
 #'      is used.
 #'
 #' @returns A character vector of the same length, with the scales transformed.
@@ -97,11 +97,11 @@ g2g_relabel_yesbut_notreally <- function(response_column) {
 #'
 #' With the \code{tntpmetrics} package you can calculate IPG scores. This function puts observation
 #' data in the proper format to be used by \code{tntpmetrics}. To use the function, take the raw
-#' classroom observation data and first transform it with the \code{tidy_forms_survey()} function
-#' and the \code{classroom_obs_add_ca()} function.
+#' classroom observation data and first transform it with the \code{g2g_tidy_forms_survey()} function
+#' and the \code{g2g_classroom_obs_add_ca()} function.
 #'
 #' @param .data The name of an R data frame containing classroom observations and placed into long form
-#'      with \code{tidy_forms_survey}, and containing the columns created by \code{classroom_obs_add_ca()}.
+#'      with \code{g2g_tidy_forms_survey}, and containing the columns created by \code{g2g_classroom_obs_add_ca()}.
 #' @param grade_column A string containing the column name containing the grade. For the grade column,
 #'      use 'K' or '0' for kindergarten. Use the whole number, as a string, for other grades.
 #' @param subject_name The name of the subject. Must be one of: "Math", "Literacy", "Science", or "Social Studies".
@@ -109,17 +109,17 @@ g2g_relabel_yesbut_notreally <- function(response_column) {
 #'      \code{id_cols} parameter of \code{pivot_wider()}. \code{.id} will be added if it is not included.
 #'
 #' @examples
-#' tidy_forms_survey(classroom_observations_math, 8:ncol(classroom_observations_math), c(3,6)) |>
-#'  classroom_obs_add_ca() |>
-#'  classroom_obs_add_tntpmetrics(grade_column = 'grade', subject_name = 'Math',
-#'                                id_cols = c('.id', 'when_did_the_observation_occur'))
+#' g2g_tidy_forms_survey(classroom_observations_math, 8:ncol(classroom_observations_math), c(3,6)) |>
+#'  g2g_classroom_obs_add_ca() |>
+#'  g2g_classroom_obs_add_tntpmetrics(grade_column = 'grade', subject_name = 'Math',
+#'                                    id_cols = c('.id', 'when_did_the_observation_occur'))
 #'
-#' @returns A data frame that can be used by \code{tntpmetrics} to calcualte IPG scores.
+#' @returns A data frame that can be used by \code{tntpmetrics} to calculate IPG scores.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-classroom_obs_add_tntpmetrics <- function(.data, grade_column, subject_name, id_cols) {
+g2g_classroom_obs_add_tntpmetrics <- function(.data, grade_column, subject_name, id_cols) {
 
   # make sure data contains required columns
   required_cols <- c('core_action_main', 'core_action_minor', 'response', grade_column, '.id')
@@ -129,7 +129,7 @@ classroom_obs_add_tntpmetrics <- function(.data, grade_column, subject_name, id_
 
   if (length(missing_cols) > 0) {
     stop(paste0("You are missing the following required column/s: ", paste0(missing_cols, collapse = ", "),
-                "\nPlease ensure you run `classroom_obs_add_ca()` prior to running this function."),
+                "\nPlease ensure you run `g2g_classroom_obs_add_ca()` prior to running this function."),
          call. = FALSE)
   }
 
@@ -212,9 +212,9 @@ classroom_obs_add_tntpmetrics <- function(.data, grade_column, subject_name, id_
 #'
 #' Classroom observations have a major and minor core action. This functions adds a column to the
 #' classroom observation dataset that combines descriptions of major and minor core actions into one column.
-#' This is useful for plots. This function should be used on data created with \code{forms_survey_calc_percentages()}.
+#' This is useful for plots. This function should be used on data created with \code{g2g_forms_survey_calc_percentages()}.
 #'
-#' @param .data Data set created with \code{forms_survey_calc_percentages()}.
+#' @param .data Data set created with \code{g2g_forms_survey_calc_percentages()}.
 #'
 #' @returns A data set that is the same as \code{.data}, but an additional column is added called \code{core_action}.
 #'

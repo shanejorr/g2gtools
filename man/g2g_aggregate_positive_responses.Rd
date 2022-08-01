@@ -14,7 +14,7 @@ g2g_aggregate_positive_responses(
 \arguments{
 \item{.data}{Input data frame. It must contain the aggregate percentage for each response option in long form.
 For example, each row must be a question and response option combination (question 1, strongly agree).
-It cannot be the raw data where each row is a response. The data set must be created with \code{forms_survey_calc_percentages()}.}
+It cannot be the raw data where each row is a response. The data set must be created with \code{g2g_forms_survey_calc_percentages()}.}
 
 \item{positive_responses}{A string vector of positive responses, for example \code{c('Agree', 'Strongly Agree')}}
 
@@ -39,9 +39,9 @@ input data frame, but it will have an additional column calls \code{.strong_resp
 }
 \examples{
 results <- teacher_pre_survey |>
-  tidy_forms_survey(8:30, 3) |>
+  g2g_tidy_forms_survey(8:30, 3) |>
   dplyr::mutate(assessment = 'Pre-survey') |>
-  forms_survey_calc_percentages('assessment') |>
+  g2g_forms_survey_calc_percentages('assessment') |>
   # the function should only be used on a data set with common scales
   # so, filter to only keep a single question stem since we know it will have the same scales
   dplyr::filter(stringr::str_detect(.data[['question_stem']], 'To what extent do you agree'))

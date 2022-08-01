@@ -7,7 +7,7 @@
 g2g_obs_combine_ca(.data)
 }
 \arguments{
-\item{.data}{Data set created with \code{forms_survey_calc_percentages()}.}
+\item{.data}{Data set created with \code{g2g_forms_survey_calc_percentages()}.}
 }
 \value{
 A data set that is the same as \code{.data}, but an additional column is added called \code{core_action}.
@@ -15,5 +15,5 @@ A data set that is the same as \code{.data}, but an additional column is added c
 \description{
 Classroom observations have a major and minor core action. This functions adds a column to the
 classroom observation dataset that combines descriptions of major and minor core actions into one column.
-This is useful for plots. This function should be used on data created with \code{forms_survey_calc_percentages()}.
+This is useful for plots. This function should be used on data created with \code{g2g_forms_survey_calc_percentages()}.
 }

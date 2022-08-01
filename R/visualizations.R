@@ -145,9 +145,9 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
 #' word '(continue)' to the question stem. Then, the questions will plot to different visualization when
 #' you iterate through stems, creating faceted charts.
 #'
-#' The function works with data created by \code{forms_survey_calc_percentages()}.
+#' The function works with data created by \code{gwg_forms_survey_calc_percentages()}.
 #'
-#' @param .data Input data frame made with \code{forms_survey_calc_percentages}.
+#' @param .data Input data frame made with \code{gwg_forms_survey_calc_percentages}.
 #' @param number_questions An integer, the number of questions per plot (per facet)
 #' @param grouping_columns Columns, as a string vector, that you want to group by when determining whether
 #'      the number of questions within the question stem is over the value set by \code{number_questions}.

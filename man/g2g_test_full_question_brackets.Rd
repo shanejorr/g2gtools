@@ -10,7 +10,7 @@ g2g_test_full_question_brackets(full_question_column)
 \item{full_question_column}{Vector representing the column to test.}
 }
 \description{
-'tidy_forms_survey' identifies the question stem and response options by looking for open and closed
+'g2g_tidy_forms_survey' identifies the question stem and response options by looking for open and closed
 brackets. The text within the brackets is the response option. To work properly,
 there can only be one set of open and closed brackets. This function tests to make sure that
 there is only one set of brackets, if there are any at all.

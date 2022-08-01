@@ -3,15 +3,15 @@ library(tidyverse)
 devtools::load_all()
 
 teacher_pre <- teacher_pre_survey |>
-  tidy_forms_survey(8:30, 3) |>
+  g2g_tidy_forms_survey(8:30, 3) |>
   mutate(assessment = 'Pre-training')
 
 teacher_post <- teacher_pre_survey |>
-  tidy_forms_survey(8:30, 3) |>
+  g2g_tidy_forms_survey(8:30, 3) |>
   mutate(assessment = 'Post-training')
 
 results <- bind_rows(teacher_pre, teacher_post) |>
-  forms_survey_calc_percentages('assessment')
+  g2g_forms_survey_calc_percentages('assessment')
 
 ## work with a single stem ----------------------
 

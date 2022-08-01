@@ -21,7 +21,7 @@ g2g_clean_column_names <- function(column_names) {
 
 #' Ensure full question column only contains one set of open and closed brackets
 #'
-#' 'tidy_forms_survey' identifies the question stem and response options by looking for open and closed
+#' 'g2g_tidy_forms_survey' identifies the question stem and response options by looking for open and closed
 #'      brackets. The text within the brackets is the response option. To work properly,
 #'      there can only be one set of open and closed brackets. This function tests to make sure that
 #'      there is only one set of brackets, if there are any at all.
@@ -284,7 +284,7 @@ g2g_compare_names <- function(.data, participants, pre_post_col) {
 #'
 #' @param .data Input data frame. It must contain the aggregate percentage for each response option in long form.
 #'      For example, each row must be a question and response option combination (question 1, strongly agree).
-#'      It cannot be the raw data where each row is a response. The data set must be created with \code{forms_survey_calc_percentages()}.
+#'      It cannot be the raw data where each row is a response. The data set must be created with \code{g2g_forms_survey_calc_percentages()}.
 #' @param positive_responses A string vector of positive responses, for example \code{c('Agree', 'Strongly Agree')}
 #' @param grouping_terms Any columns that you want to group by, such as years, demographics, or pre or post training. Represented
 #'      as a vector of strings.
@@ -299,9 +299,9 @@ g2g_compare_names <- function(.data, participants, pre_post_col) {
 #'
 #' @examples
 #' results <- teacher_pre_survey |>
-#'   tidy_forms_survey(8:30, 3) |>
+#'   g2g_tidy_forms_survey(8:30, 3) |>
 #'   dplyr::mutate(assessment = 'Pre-survey') |>
-#'   forms_survey_calc_percentages('assessment') |>
+#'   g2g_forms_survey_calc_percentages('assessment') |>
 #'   # the function should only be used on a data set with common scales
 #'   # so, filter to only keep a single question stem since we know it will have the same scales
 #'   dplyr::filter(stringr::str_detect(.data[['question_stem']], 'To what extent do you agree'))

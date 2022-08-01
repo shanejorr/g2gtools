@@ -4,7 +4,7 @@ test_that("Raw google forms data properly converts to tidy dataset", {
   question_columns <- 8:30
 
   # convert teacher pre survey to long / tidy form
-  tidy_survey <- tidy_forms_survey(teacher_pre_survey, question_columns, grouping_columns)
+  tidy_survey <- g2g_tidy_forms_survey(teacher_pre_survey, question_columns, grouping_columns)
 
   # total rows / unique respondents in raw data
   n_rows <- nrow(teacher_pre_survey)
@@ -42,12 +42,12 @@ test_that("Properly match high expectation questions to their TNTP metrics colum
   question_columns <- 8:30
 
   he_questions <- teacher_pre_survey  |>
-    tidy_forms_survey(question_columns, grouping_columns) |>
+    g2g_tidy_forms_survey(question_columns, grouping_columns) |>
     dplyr::filter(stringr::str_detect(question_stem, "statements about your state standards")) |>
     dplyr::pull(response_option)
 
   # test that everything works without an error
-  metric_responses <- teacher_survey_add_he_metric_colnames(he_questions)
+  metric_responses <- g2g_teacher_survey_add_he_metric_colnames(he_questions)
 
   testthat::expect_equal(metric_responses[1], "exp_fairtomaster")
   testthat::expect_equal(metric_responses[2], "exp_oneyearenough")
@@ -57,12 +57,12 @@ test_that("Properly match high expectation questions to their TNTP metrics colum
   # test that there is an error when there are not four metric responses
   three_metric_responses <- he_questions[metric_responses != "exp_fairtomaster"]
 
-  testthat::expect_error(teacher_survey_add_he_metric_colnames(three_metric_responses), "You failed.*exp_fairtomaster.*")
+  testthat::expect_error(g2g_teacher_survey_add_he_metric_colnames(three_metric_responses), "You failed.*exp_fairtomaster.*")
 
   # test that there is an error when there are too many questions
   additional_question <- c(he_questions, "One year is enough sdaffdsafa master these standards.")
 
-  testthat::expect_error(teacher_survey_add_he_metric_colnames(additional_question), "You have 5.*")
+  testthat::expect_error(g2g_teacher_survey_add_he_metric_colnames(additional_question), "You have 5.*")
 
 })
 
@@ -73,12 +73,12 @@ test_that("Create high expectations data set for tntpmetrics.", {
 
   # extract high expectations questions
   he_questions <- teacher_pre_survey |>
-    tidy_forms_survey(question_columns, grouping_columns) |>
+    g2g_tidy_forms_survey(question_columns, grouping_columns) |>
     dplyr::filter(stringr::str_detect(.data$question_stem, "statements about your state standards"))
 
   # create tntpmetrics olumns and extract one respondent to test
   test_metrics <- he_questions |>
-    teacher_survey_calc_high_expectations() |>
+    g2g_calc_high_expectations() |>
     dplyr::filter(.data$.id == 10)
 
   testthat::expect_equal(test_metrics$exp_fairtomaster, 2)
@@ -90,7 +90,7 @@ test_that("Create high expectations data set for tntpmetrics.", {
   bad_response_value <- he_questions |>
     dplyr::mutate(response = stringr::str_replace(.data$response, "^Agree$", "Agreee"))
 
-  testthat::expect_error(teacher_survey_calc_high_expectations(bad_response_value), "^The.*after filtering.*")
+  testthat::expect_error(g2g_calc_high_expectations(bad_response_value), "^The.*after filtering.*")
 
 })
 
@@ -108,8 +108,8 @@ test_that("Ensure percentages are properly calculated for surveys.", {
   total_num_responses <- 17
 
   pre_survey <- teacher_pre_survey %>%
-    tidy_forms_survey(question_columns) |>
-    forms_survey_calc_percentages() |>
+    g2g_tidy_forms_survey(question_columns) |>
+    g2g_forms_survey_calc_percentages() |>
     dplyr::filter(stringr::str_detect(response_option, col_to_test)) |>
     dplyr::select(response, .n_response, .n_question, .percent) |>
     dplyr::arrange(response)

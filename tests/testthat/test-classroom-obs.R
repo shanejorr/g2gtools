@@ -10,7 +10,7 @@ test_that("Determine major and minor core actions for classroom observations.", 
     response_option = c('test', rep(NA_character_, 4), "asdf (1a)", "dsaf (2b)")
   )
 
-  class_obs <- classroom_obs_add_ca(test_obs)
+  class_obs <- g2g_classroom_obs_add_ca(test_obs)
 
   ca_main <- c(NA_character_, '1', NA_character_, 'Culture of Learning', 'Demands of the Standards', '1', '2')
   ca_minor <- c(NA_character_, 'Overall', NA_character_, 'Culture of Learning', 'Demands of the Standards', 'a', 'b')
@@ -18,7 +18,7 @@ test_that("Determine major and minor core actions for classroom observations.", 
   expect_equal(class_obs$core_action_main, ca_main)
   expect_equal(class_obs$core_action_minor, ca_minor)
 
-  expect_error(classroom_obs_add_ca(test_obs[1]), regexp = ".*You are missing one.*")
+  expect_error(g2g_classroom_obs_add_ca(test_obs[1]), regexp = ".*You are missing one.*")
 
 
 })
@@ -37,7 +37,7 @@ test_that("Ensure we properly convert observations to TNTP Metrics dataset.", {
                  'Yes', 'Mostly')
   )
 
-  obs_metrics <- classroom_obs_add_tntpmetrics(obs_data, grade_column = 'grade', subject_name = 'Math',
+  obs_metrics <- g2g_classroom_obs_add_tntpmetrics(obs_data, grade_column = 'grade', subject_name = 'Math',
                                                id_cols = '.id')
 
   # ensure column names are equal

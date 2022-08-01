@@ -13,14 +13,14 @@
 #'
 #' @examples
 #' teacher_pre_survey |>
-#'    tidy_forms_survey(8:30, 3)
+#'    g2g_tidy_forms_survey(8:30, 3)
 #'
 #' @return A tibble in tidy format where each row represents a single person's response to a single question.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-tidy_forms_survey <- function(.data, question_columns, grouping_columns = NULL) {
+g2g_tidy_forms_survey <- function(.data, question_columns, grouping_columns = NULL) {
 
   # regular expression that identifies the response options
   question_stem_re <- " \\[.*\\]$"
@@ -73,12 +73,12 @@ tidy_forms_survey <- function(.data, question_columns, grouping_columns = NULL) 
 #' and pre-specified column name. This function creates the column name based on the high expectations question.
 #'
 #' @param response_option Vector of high expectations questions. This will be the 'response_option' column
-#'      if 'tidy_forms_survey()' is used.
+#'      if 'g2g_tidy_forms_survey()' is used.
 #'
 #' @importFrom rlang .data
 #'
 #' @keywords internal
-teacher_survey_add_he_metric_colnames <- function(response_option) {
+g2g_teacher_survey_add_he_metric_colnames <- function(response_option) {
 
   string_did_not_match <- 'Did not match'
 
@@ -142,21 +142,21 @@ teacher_survey_add_he_metric_colnames <- function(response_option) {
 #'
 #' The \code{tntpmetrics} package can be used to calculate high expectations metrics based on the common measures.
 #' This function converts the data from the pre and post teacher surveys into the format required by \code{tntpmetrics}.
-#' The input data must be created with \code{tidy_forms_survey}, or maintain the same form.
+#' The input data must be created with \code{g2g_tidy_forms_survey}, or maintain the same form.
 #'
-#' @param .data A data frame containing the survey responses, created with \code{tidy_forms_survey}.
+#' @param .data A data frame containing the survey responses, created with \code{g2g_tidy_forms_survey}.
 #'
 #' @returns A data frame that is in the correct format to be used by \code{tntpmetrics}.
 #'
 #' @examples
 #' teacher_pre_survey |>
-#'    tidy_forms_survey(8:30, 3) |>
-#'    teacher_survey_calc_high_expectations()
+#'    g2g_tidy_forms_survey(8:30, 3) |>
+#'    g2g_calc_high_expectations()
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-teacher_survey_calc_high_expectations <- function(.data) {
+g2g_calc_high_expectations <- function(.data) {
 
   # identify the grouping variables from the input data frame
   id_cols <- setdiff(colnames(.data), c('question_stem', 'response_option', 'response'))
@@ -176,7 +176,7 @@ teacher_survey_calc_high_expectations <- function(.data) {
     dplyr::filter(stringr::str_detect(.data$question_stem, "statements about your state standards")) |>
     dplyr::mutate(
       # add the column name required for tntpmetrics
-      tntp_metrics = teacher_survey_add_he_metric_colnames(.data$response_option),
+      tntp_metrics = g2g_teacher_survey_add_he_metric_colnames(.data$response_option),
       # convert the text response to an integer
       response = dplyr::recode(.data$response, !!!map_response_to_integer, .default = default_recode, .missing = NA_real_)
     )
@@ -185,7 +185,7 @@ teacher_survey_calc_high_expectations <- function(.data) {
   if (any(he$response == default_recode)) {
 
     stop(
-      c("The 'response' column that is created by 'tidy_forms_survey()' produced odd responses after filtering for high expectations questions.\n",
+      c("The 'response' column that is created by 'g2g_tidy_forms_survey()' produced odd responses after filtering for high expectations questions.\n",
         "Plese double check the 'response' column. It should contain the strings of the responses ('Agree', 'Disagree', ect.)"),
       call. = FALSE
     )
@@ -202,9 +202,9 @@ teacher_survey_calc_high_expectations <- function(.data) {
 #'
 #' The teacher survey contains questions that are largely on the 6 point Likert scale. This function
 #' calculates the percentage and number of responses for each question and response option. The data,
-#' \code{.data}, for this function should be created with \code{tidy_forms_survey}.
+#' \code{.data}, for this function should be created with \code{g2g_tidy_forms_survey}.
 #'
-#' @param .data A data frame containing the survey responses, created with \code{tidy_forms_survey}.
+#' @param .data A data frame containing the survey responses, created with \code{g2g_tidy_forms_survey}.
 #' @param grouping_columns A string or vector with the column names of columns that you want to group
 #'      the results by. This could include a column containing school names or demographic information.
 #' @param add_n The function creates a column called \code{.percent_pretty}. By default, FALSE, this column
@@ -220,15 +220,15 @@ teacher_survey_calc_high_expectations <- function(.data) {
 #'
 #' @examples
 #' teacher_pre_survey |>
-#'    tidy_forms_survey(8:30, 3) |>
-#'    forms_survey_calc_percentages()
+#'    g2g_tidy_forms_survey(8:30, 3) |>
+#'    g2g_forms_survey_calc_percentages()
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-forms_survey_calc_percentages <- function(.data, grouping_columns = NULL, add_n = FALSE) {
+g2g_forms_survey_calc_percentages <- function(.data, grouping_columns = NULL, add_n = FALSE) {
 
-  # column names from tidy_forms_survey function that contain question stems, questions, and response
+  # column names from g2g_tidy_forms_survey function that contain question stems, questions, and response
   questions_responses <- c('question_stem', 'response_option', 'response')
 
   df <- .data |>

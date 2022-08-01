@@ -7,7 +7,7 @@
 g2g_split_question_stems(.data, number_questions, grouping_columns)
 }
 \arguments{
-\item{.data}{Input data frame made with \code{forms_survey_calc_percentages}.}
+\item{.data}{Input data frame made with \code{gwg_forms_survey_calc_percentages}.}
 
 \item{number_questions}{An integer, the number of questions per plot (per facet)}
 
@@ -26,5 +26,5 @@ word '(continue)' to the question stem. Then, the questions will plot to differe
 you iterate through stems, creating faceted charts.
 }
 \details{
-The function works with data created by \code{forms_survey_calc_percentages()}.
+The function works with data created by \code{gwg_forms_survey_calc_percentages()}.
 }

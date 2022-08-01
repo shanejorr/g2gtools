@@ -7,7 +7,7 @@
 g2g_relabel_yesbut_notreally(response_column)
 }
 \arguments{
-\item{response_column}{Column with scales as responses. Will be \code{response} if \code{tidy_forms_survey()}
+\item{response_column}{Column with scales as responses. Will be \code{response} if \code{g2g_tidy_forms_survey()}
 is used.}
 }
 \value{
