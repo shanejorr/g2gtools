@@ -22,7 +22,7 @@ pre or post training, with a facet added after this function signifying question
 \item{text_var}{The variable name, as a string, representing the text to plot over the chart.
 This should be numeric and as a decimal between 0 and 1.}
 
-\item{color_pal}{Custom color palette to use. THis should be a vector with the values being
+\item{color_pal}{Custom color palette to use. This should be a vector with the values being
 the hex codes for the colors and the names being the unique scales from \code{fill_var}}
 }
 \description{

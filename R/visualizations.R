@@ -13,7 +13,7 @@
 #' @importFrom rlang .data
 #'
 #' @export
-add_slides_ppt <- function(doc, slide_plot, slide_header, plt_width, plt_height) {
+g2g_add_slides_ppt <- function(doc, slide_plot, slide_header, plt_width, plt_height) {
 
   # create new slide with default template
   doc <- officer::add_slide(doc, "Title and Content", 'Office Theme')
@@ -88,7 +88,7 @@ g2g_plt_theme_no_lines <- function() {
 #' @param fill_var The variable name, as a string, representing the response scales ('Agree').
 #' @param text_var The variable name, as a string, representing the text to plot over the chart.
 #'       This should be numeric and as a decimal between 0 and 1.
-#' @param color_pal Custom color palette to use. THis should be a vector with the values being
+#' @param color_pal Custom color palette to use. This should be a vector with the values being
 #'       the hex codes for the colors and the names being the unique scales from \code{fill_var}
 #'
 #' @importFrom rlang .data
