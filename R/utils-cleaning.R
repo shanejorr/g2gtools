@@ -325,7 +325,16 @@ g2g_aggregate_positive_responses <- function(.data, positive_responses, grouping
   if (only_keep_first_response) {
 
     .data <- .data |>
-      dplyr::mutate(.strong_response_percent = ifelse(.data[['response']] == positive_responses[1], .data[['.strong_response_percent']], NA_real_))
+      dplyr::mutate(.strong_response_percent = ifelse(.data[['response']] == positive_responses[1], .data[['.strong_response_percent']], NA_real_)) |>
+      dplyr::group_by_at(all_grouping_terms[-length(all_grouping_terms)]) |>
+      dplyr::mutate(
+        .group_id = dplyr::row_number(),
+        .has_strong_response = 'Strong response' %in% .data[['.scale_strength']],
+        .strong_response_percent = ifelse(
+          !.data[['.has_strong_response']] & .data[['.group_id']] == max(.data[['.group_id']]), 0, .data[['.strong_response_percent']])
+      ) |>
+      dplyr::select(-.data$.group_id, -.data$.has_strong_response) |>
+      dplyr::ungroup()
 
   }
 

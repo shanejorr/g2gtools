@@ -123,11 +123,13 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
       )
   }
 
+  text_offset <- ifelse(.data[[text_var]] < .03, .data[[text_var]]+.05, .data[[text_var]]-.02)
+
   ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
     ggplot2::geom_col() +
     ggplot2::geom_text(
-      ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), x = .data[[text_var]] - .03),
-      color = 'white', fontface='bold' # nudge_x = .03,
+      ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), x = text_offset - .03),
+      color = 'white', fontface='bold'
     ) +
     ggplot2::scale_fill_manual(values = color_pal) +
     ggplot2::scale_x_continuous(labels = scales::percent) +
