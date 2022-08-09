@@ -9,14 +9,21 @@
 #' @param slide_header The slide header, as a string.
 #' @param plt_width The width of the plot, in inches, when it is in the PPT presentation.
 #' @param plt_height The height of the plot, in inches, when it is in the PPT presentation.
+#' @param notes_text Text, as a string, of notes to add to slide. Entire note must be one string.
+#'      Use `\n` within the string to add line breaks. Defaults to `NULL`, or no notes.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_add_slides_ppt <- function(doc, slide_plot, slide_header, plt_width, plt_height) {
+g2g_add_slides_ppt <- function(doc, slide_plot, slide_header, plt_width, plt_height, notes_text = NULL) {
 
   # create new slide with default template
   doc <- officer::add_slide(doc, "Title and Content", 'Office Theme')
+
+  # determine width so that plot is centered
+  s_s <- officer::slide_size(doc)
+  s_w <- s_s$width # width of slides
+  left <- (s_w/2) - (plt_width/2)
 
   # create header text for ppt slide
   # header text will contain the major question
@@ -30,9 +37,16 @@ g2g_add_slides_ppt <- function(doc, slide_plot, slide_header, plt_width, plt_hei
   vec_plt <- rvg::dml(ggobj = slide_plot)
 
   # add plot to slide
-  slide_loc <- officer::ph_location(left = .5, top = 1.5, width = plt_width, height = plt_height, newlabel = "hello")
+  slide_loc <- officer::ph_location(left = left, top = 1.75, width = plt_width, height = plt_height, newlabel = "plot")
 
   doc <- officer::ph_with(doc, value = vec_plt, location = slide_loc)
+
+  # add notes, if needed
+  if (!is.null(notes_text)) {
+
+    doc <- officer::set_notes(doc, value = notes_text, location = officer::notes_location_type("body"))
+
+  }
 
   return(doc)
 
