@@ -101,11 +101,6 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
     stop("All 'x_var' values must be decimals between 0 and 1.", call. = FALSE)
   }
 
-  # make sure all numbers are between 0 and 1
-  if (!all(dplyr::between(.data[[text_var]][!is.na(.data[[text_var]])], 0, 1))) {
-    stop("All 'text_var' values must be decimals between 0 and 1.", call. = FALSE)
-  }
-
   # make sure all column are present
   col_names <- colnames(.data)
 
@@ -123,12 +118,12 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
       )
   }
 
-  text_offset <- ifelse(.data[[text_var]] < .03, .data[[text_var]]+.05, .data[[text_var]]-.02)
+  text_offset <- ifelse(.data[[text_var]] < .07, .04, .data[[text_var]]-.05)
 
   ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
     ggplot2::geom_col() +
     ggplot2::geom_text(
-      ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), x = text_offset - .03),
+      ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), x = text_offset),
       color = 'white', fontface='bold'
     ) +
     ggplot2::scale_fill_manual(values = color_pal) +

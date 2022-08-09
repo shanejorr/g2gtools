@@ -134,7 +134,7 @@ g2g_scale_order <- function(scale_name) {
 
   # palettes
   # for all palettes, the two highest values will be blue, the others will be gray
-  gray_colors <- c("#E2E2E2", "#C2C2C2", "#8A8A8A", "#474747")
+  gray_colors <- c("#F9F9F9", "#DADADA", "#AEAEAE", "#7E7E7E")
   blue_colors <- c("#00A4C7", "#81D2EB")
 
   gray_length <- length(gray_colors)
@@ -325,16 +325,21 @@ g2g_aggregate_positive_responses <- function(.data, positive_responses, grouping
   if (only_keep_first_response) {
 
     .data <- .data |>
-      dplyr::mutate(.strong_response_percent = ifelse(.data[['response']] == positive_responses[1], .data[['.strong_response_percent']], NA_real_)) |>
       dplyr::group_by_at(all_grouping_terms[-length(all_grouping_terms)]) |>
       dplyr::mutate(
         .group_id = dplyr::row_number(),
-        .has_strong_response = 'Strong response' %in% .data[['.scale_strength']],
-        .strong_response_percent = ifelse(
-          !.data[['.has_strong_response']] & .data[['.group_id']] == max(.data[['.group_id']]), 0, .data[['.strong_response_percent']])
+        .has_strong_response = 'Strong response' %in% .data[['.scale_strength']]
       ) |>
-      dplyr::select(-.data$.group_id, -.data$.has_strong_response) |>
-      dplyr::ungroup()
+      dplyr::group_by_at(all_grouping_terms) |>
+      dplyr::mutate(
+        .strong_response_percent = dplyr::case_when(
+          .data$.has_strong_response & .data$.scale_strength == 'Strong response' & .data$.group_id == min(.data$.group_id) ~ .data$.strong_response_percent,
+          !.data$.has_strong_response & .data$.scale_strength == 'Weak response' & .data$.group_id == min(.data$.group_id) ~ 0,
+          TRUE ~ NA_real_
+        )
+      ) |>
+      dplyr::ungroup() |>
+      dplyr::select(-.data$.group_id, -.data$.has_strong_response)
 
   }
 
