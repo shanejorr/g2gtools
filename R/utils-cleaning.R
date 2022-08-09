@@ -134,7 +134,7 @@ g2g_scale_order <- function(scale_name) {
 
   # palettes
   # for all palettes, the two highest values will be blue, the others will be gray
-  gray_colors <- c("#F9F9F9", "#DADADA", "#AEAEAE", "#7E7E7E")
+  gray_colors <- c("#eeeeee", "#cccccc", "#aaaaaa", "#888888")
   blue_colors <- c("#00A4C7", "#81D2EB")
 
   gray_length <- length(gray_colors)

@@ -56,7 +56,7 @@ test_that("Identify observations in pre and post datasets", {
 test_that("Ensure you get the right scale and color output", {
 
   proper_scales <- c('In All or Most Lessons', 'Often', 'Sometimes', 'Rarely', 'Never') |>
-    purrr::set_names(c('#00A4C7','#81D2EB',"#DADADA", "#AEAEAE", "#7E7E7E"))
+    purrr::set_names(c('#00A4C7','#81D2EB',"#cccccc", "#aaaaaa", "#888888"))
 
   tested_scales <- g2g_scale_order('how_often')
 
