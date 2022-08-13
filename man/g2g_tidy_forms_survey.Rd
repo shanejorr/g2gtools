@@ -4,7 +4,12 @@
 \alias{g2g_tidy_forms_survey}
 \title{Transform the pre and post training teacher survey into tidy format (long form)}
 \usage{
-g2g_tidy_forms_survey(.data, question_columns, grouping_columns = NULL)
+g2g_tidy_forms_survey(
+  .data,
+  question_columns,
+  grouping_columns = NULL,
+  question_option_re = " \\\\[.*\\\\]$"
+)
 }
 \arguments{
 \item{.data}{The name of an R data frame containing raw teacher survey data.}
@@ -15,6 +20,9 @@ that we want to include in the analysis.}
 \item{grouping_columns}{An integer or vector of integers representing column numbers of the columns
 that provide distinguishing characteristics of respondents that you might want to group on.
 This could be a teacher's email address, subjects taught, or demographic information about the teacher.}
+
+\item{question_option_re}{A regular expression that identifies the question option. Defaults to a regular
+expression that works with Google Forms \verb{(" \\\[.*\\\]$")}}
 }
 \value{
 A tibble in tidy format where each row represents a single person's response to a single question.

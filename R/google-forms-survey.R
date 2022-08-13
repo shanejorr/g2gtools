@@ -10,6 +10,8 @@
 #'      This could be a teacher's email address, subjects taught, or demographic information about the teacher.
 #' @param question_columns An integer or vector of integers representing column numbers for columns contain question answers
 #'     that we want to include in the analysis.
+#' @param question_option_re A regular expression that identifies the question option. Defaults to a regular
+#'     expression that works with Google Forms `(" \\[.*\\]$")`
 #'
 #' @examples
 #' teacher_pre_survey |>
@@ -20,10 +22,7 @@
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_tidy_forms_survey <- function(.data, question_columns, grouping_columns = NULL) {
-
-  # regular expression that identifies the response options
-  question_stem_re <- " \\[.*\\]$"
+g2g_tidy_forms_survey <- function(.data, question_columns, grouping_columns = NULL, question_option_re = " \\[.*\\]$") {
 
   grouping_var_names <- colnames(.data)[grouping_columns]
 
@@ -57,8 +56,8 @@ g2g_tidy_forms_survey <- function(.data, question_columns, grouping_columns = NU
   tidy_survey_results <- tidy_survey_results |>
   #create seperate columns for the question stem and the response option
   dplyr::mutate(
-    question_stem = stringr::str_remove(.data$full_question, !!question_stem_re) |> stringr::str_trim(),
-    response_option = stringr::str_extract(.data$full_question, !!question_stem_re) |> stringr::str_trim(),
+    question_stem = stringr::str_remove(.data$full_question, !!question_option_re) |> stringr::str_trim(),
+    response_option = stringr::str_extract(.data$full_question, !!question_option_re) |> stringr::str_trim(),
     response_option = stringr::str_remove_all(.data$response_option, "^\\[|\\]$")
   ) |>
   dplyr::select(.data$.id, g2g_clean_column_names(dplyr::all_of(grouping_var_names)), .data$question_stem, .data$response_option, .data$response)
