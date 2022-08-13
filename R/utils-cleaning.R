@@ -83,7 +83,9 @@ g2g_list_of_scales <- function() {
 
     yes_but = c('Yes', 'Yes, But Only in Some Areas', 'Not Really', 'No'),
 
-    almost = c('Almost Always', 'Often',  'Sometimes', 'Once in a While', 'Almost Never')
+    almost = c('Almost Always', 'Often',  'Sometimes', 'Once in a While', 'Almost Never'),
+
+    true = c('Very True', 'Mostly True', 'A Little True', 'Not True')
   )
 
 }
@@ -98,8 +100,9 @@ g2g_list_of_scales <- function() {
 #' -  'knowledge': Excellent Knowledge, Good Knowledge, Some Knowledge, A Little Knowledge, No Knowledge
 #' -  'how_often': In All or Most Lessons', Often, Sometimes, Rarely, Never
 #' -  'yes_notyet': Yes, Mostly, Somewhat, Not yet
-#' -  'yes_but': Yes, 'Yes, But Only in Some Areas', Not Really, No)
+#' -  'yes_but': Yes, 'Yes, But Only in Some Areas', Not Really, No
 #' -  'almost': Almost Always, Often,  Sometimes, Once in a While, Almost Never
+#' -  'true': Very True, Mostly True, A Little True, Not True
 #'
 #'
 #' @return A a named vector where the values are the scales in the proper order and the names are the
