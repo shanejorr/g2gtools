@@ -56,12 +56,46 @@ test_that("Identify observations in pre and post datasets", {
 test_that("Ensure you get the right scale and color output", {
 
   proper_scales <- c('In All or Most Lessons', 'Often', 'Sometimes', 'Rarely', 'Never') |>
-    purrr::set_names(c('#00A4C7','#81D2EB','#C2C2C2','#8A8A8A','#474747'))
+    purrr::set_names(c('#00A4C7','#81D2EB',"#cccccc", "#aaaaaa", "#888888"))
 
   tested_scales <- g2g_scale_order('how_often')
 
   expect_equal(tested_scales, proper_scales)
 
   expect_error(g2g_scale_order('how_oftena'), regexp = "Scale names must be.*")
+
+})
+
+test_that("Correclty aggregate positive responses", {
+
+  scales <- c('Strong 1', 'Strong 2', 'Weak 1', 'Weak 2')
+
+  test_data1 <- tibble::tibble(
+    response = scales,
+    .percent = rep(.25, 4),
+    question_stem = 'stem',
+    response_option = 'response option',
+    grouping = 'a'
+  )
+
+  test_data2 <- test_data1 |>
+    dplyr::mutate(grouping = 'b')
+
+  test_data <- dplyr::bind_rows(test_data1, test_data2) |>
+    dplyr::bind_rows(
+      test_data1 |>
+        dplyr::filter(response %in% scales[3:4]) |>
+        dplyr::mutate(grouping = 'c')
+    ) |>
+    dplyr::filter(!(grouping == 'a' & response == 'Strong 1'))
+
+  aggregate_responses <- test_data |>
+    g2g_aggregate_positive_responses(scales[1:2], 'grouping', only_keep_first_response = TRUE) |>
+    dplyr::arrange(.data$grouping, .data$.scale_strength, .data$response) |>
+    dplyr::pull(.data$.strong_response_percent)
+
+  expected_results <- c(.25, NA_real_, NA_real_, .5, NA_real_, NA_real_, NA_real_, 0, NA_real_)
+
+  expect_equal(aggregate_responses, expected_results)
 
 })

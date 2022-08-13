@@ -7,7 +7,7 @@
 g2g_forms_survey_calc_percentages(
   .data,
   grouping_columns = NULL,
-  add_n = FALSE
+  add_n = "none"
 )
 }
 \arguments{
@@ -16,17 +16,20 @@ g2g_forms_survey_calc_percentages(
 \item{grouping_columns}{A string or vector with the column names of columns that you want to group
 the results by. This could include a column containing school names or demographic information.}
 
-\item{add_n}{The function creates a column called \code{.percent_pretty}. By default, FALSE, this column
-contains the whole number as a percentage (70\%). If TRUE, then the number of responses is also
-added (70\% (10)).}
+\item{add_n}{One of 'none', '.percent_pretty', 'response_option Adds the number of responses. With '.percent_pretty' it adds
+adds the number of responses for a given question and scale to percentage number provided in
+\code{.percent_pretty} (75\% (n=10)). With 'response_option' the number of responses for the question are
+added to \code{response_option}.}
 }
 \value{
 A data frame that contains the percentage and number of responses for each response option
-and question. Three columns are added, all starting with a period (.):
+and question. Four columns are added, all starting with a period (.):
 \itemize{
 \item \code{.n_responses}: The number of responses for a given question and response option.
 \item \code{.n_total}: The total number of responses for the question.
 \item \code{.percent}: The percentage respondents that provided the given response for the question.
+\item \code{.percent_pretty}: A string of the percentage with the percentage sign added and the
+number of respondents added if \code{add_n = '.percent_pretty'}.
 }
 }
 \description{

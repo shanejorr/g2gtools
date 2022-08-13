@@ -4,7 +4,14 @@
 \alias{g2g_add_slides_ppt}
 \title{Add visualizations to Power Point slides}
 \usage{
-g2g_add_slides_ppt(doc, slide_plot, slide_header, plt_width, plt_height)
+g2g_add_slides_ppt(
+  doc,
+  slide_plot,
+  slide_header,
+  plt_width,
+  plt_height,
+  notes_text = NULL
+)
 }
 \arguments{
 \item{doc}{Document object. Created with \code{officer::read_pptx()}.}
@@ -16,6 +23,9 @@ g2g_add_slides_ppt(doc, slide_plot, slide_header, plt_width, plt_height)
 \item{plt_width}{The width of the plot, in inches, when it is in the PPT presentation.}
 
 \item{plt_height}{The height of the plot, in inches, when it is in the PPT presentation.}
+
+\item{notes_text}{Text, as a string, of notes to add to slide. Entire note must be one string.
+Use \verb{\\n} within the string to add line breaks. Defaults to \code{NULL}, or no notes.}
 }
 \description{
 Add ggplot plots to PPT slides as vector graphics. You must initialize the PPT deck with

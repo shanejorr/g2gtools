@@ -206,16 +206,19 @@ g2g_calc_high_expectations <- function(.data) {
 #' @param .data A data frame containing the survey responses, created with \code{g2g_tidy_forms_survey}.
 #' @param grouping_columns A string or vector with the column names of columns that you want to group
 #'      the results by. This could include a column containing school names or demographic information.
-#' @param add_n The function creates a column called \code{.percent_pretty}. By default, FALSE, this column
-#'      contains the whole number as a percentage (70%). If TRUE, then the number of responses is also
-#'      added (70% (10)).
+#' @param add_n One of 'none', '.percent_pretty', 'response_option Adds the number of responses. With '.percent_pretty' it adds
+#'      adds the number of responses for a given question and scale to percentage number provided in
+#'      \code{.percent_pretty} (75% (n=10)). With 'response_option' the number of responses for the question are
+#'      added to \code{response_option}.
 #'
 #' @returns A data frame that contains the percentage and number of responses for each response option
-#'      and question. Three columns are added, all starting with a period (.):
+#'      and question. Four columns are added, all starting with a period (.):
 #'
 #'  - \code{.n_responses}: The number of responses for a given question and response option.
 #'  - \code{.n_total}: The total number of responses for the question.
 #'  - \code{.percent}: The percentage respondents that provided the given response for the question.
+#'  - \code{.percent_pretty}: A string of the percentage with the percentage sign added and the
+#'        number of respondents added if \code{add_n = '.percent_pretty'}.
 #'
 #' @examples
 #' teacher_pre_survey |>
@@ -225,10 +228,14 @@ g2g_calc_high_expectations <- function(.data) {
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_forms_survey_calc_percentages <- function(.data, grouping_columns = NULL, add_n = FALSE) {
+g2g_forms_survey_calc_percentages <- function(.data, grouping_columns = NULL, add_n = 'none') {
 
   # column names from g2g_tidy_forms_survey function that contain question stems, questions, and response
   questions_responses <- c('question_stem', 'response_option', 'response')
+
+  add_n_options <- c('none', 'response_option', '.percent_pretty')
+
+  if (!add_n %in% add_n_options) stop(paste0("`add_n` must be one of '", paste0(add_n_options, collapse= "', "), "'"))
 
   df <- .data |>
     tidyr::drop_na(.data$response) |>
@@ -248,8 +255,10 @@ g2g_forms_survey_calc_percentages <- function(.data, grouping_columns = NULL, ad
     )
 
   # add n as well, if needed
-  if (add_n) {
+  if (add_n == '.percent_pretty') {
     df$.percent_pretty <- glue::glue("{df$.percent_pretty}\n(n={df$.n_response})")
+  } else if (add_n == 'response_option') {
+    df$response_option <- glue::glue("{df$response_option} (n={df$.n_question})")
   }
 
   return(df)

@@ -9,14 +9,21 @@
 #' @param slide_header The slide header, as a string.
 #' @param plt_width The width of the plot, in inches, when it is in the PPT presentation.
 #' @param plt_height The height of the plot, in inches, when it is in the PPT presentation.
+#' @param notes_text Text, as a string, of notes to add to slide. Entire note must be one string.
+#'      Use `\n` within the string to add line breaks. Defaults to `NULL`, or no notes.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_add_slides_ppt <- function(doc, slide_plot, slide_header, plt_width, plt_height) {
+g2g_add_slides_ppt <- function(doc, slide_plot, slide_header, plt_width, plt_height, notes_text = NULL) {
 
   # create new slide with default template
   doc <- officer::add_slide(doc, "Title and Content", 'Office Theme')
+
+  # determine width so that plot is centered
+  s_s <- officer::slide_size(doc)
+  s_w <- s_s$width # width of slides
+  left <- (s_w/2) - (plt_width/2)
 
   # create header text for ppt slide
   # header text will contain the major question
@@ -30,9 +37,16 @@ g2g_add_slides_ppt <- function(doc, slide_plot, slide_header, plt_width, plt_hei
   vec_plt <- rvg::dml(ggobj = slide_plot)
 
   # add plot to slide
-  slide_loc <- officer::ph_location(left = .5, top = 1.5, width = plt_width, height = plt_height, newlabel = "hello")
+  slide_loc <- officer::ph_location(left = left, top = 1.75, width = plt_width, height = plt_height, newlabel = "plot")
 
   doc <- officer::ph_with(doc, value = vec_plt, location = slide_loc)
+
+  # add notes, if needed
+  if (!is.null(notes_text)) {
+
+    doc <- officer::set_notes(doc, value = notes_text, location = officer::notes_location_type("body"))
+
+  }
 
   return(doc)
 
@@ -101,11 +115,6 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
     stop("All 'x_var' values must be decimals between 0 and 1.", call. = FALSE)
   }
 
-  # make sure all numbers are between 0 and 1
-  if (!all(dplyr::between(.data[[text_var]][!is.na(.data[[text_var]])], 0, 1))) {
-    stop("All 'text_var' values must be decimals between 0 and 1.", call. = FALSE)
-  }
-
   # make sure all column are present
   col_names <- colnames(.data)
 
@@ -123,12 +132,12 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
       )
   }
 
-  text_offset <- ifelse(.data[[text_var]] < .03, .data[[text_var]]+.05, .data[[text_var]]-.02)
+  text_offset <- ifelse(.data[[text_var]] < .07, .04, .data[[text_var]]-.05)
 
   ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
     ggplot2::geom_col() +
     ggplot2::geom_text(
-      ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), x = text_offset - .03),
+      ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), x = text_offset),
       color = 'white', fontface='bold'
     ) +
     ggplot2::scale_fill_manual(values = color_pal) +
