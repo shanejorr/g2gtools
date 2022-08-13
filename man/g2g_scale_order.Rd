@@ -26,6 +26,7 @@ Return a vector of scales in the proper order with colors
 \item 'yes_but': Yes, 'Yes, But Only in Some Areas', Not Really, No
 \item 'almost': Almost Always, Often,  Sometimes, Once in a While, Almost Never
 \item 'true': Very True, Mostly True, A Little True, Not True
+\item 'high': Extremely High, High, Slightly High, Somewhat High
 }
 }
 
