@@ -24,6 +24,7 @@ Return a vector of scales in the proper order with colors
 \item 'how_often': In All or Most Lessons', Often, Sometimes, Rarely, Never
 \item 'yes_notyet': Yes, Mostly, Somewhat, Not yet
 \item 'yes_but': Yes, 'Yes, But Only in Some Areas', Not Really, No)
+\item 'almost': Almost Always, Often,  Sometimes, Once in a While, Almost Never
 }
 }
 
