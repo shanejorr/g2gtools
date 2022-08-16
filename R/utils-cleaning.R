@@ -290,7 +290,7 @@ g2g_compare_names <- function(.data, participants, pre_post_col) {
 #'      It cannot be the raw data where each row is a response. The data set must be created with \code{g2g_forms_survey_calc_percentages()}.
 #' @param positive_responses A string vector of positive responses, for example \code{c('Agree', 'Strongly Agree')}
 #' @param grouping_terms Any columns that you want to group by, such as years, demographics, or pre or post training. Represented
-#'      as a vector of strings.
+#'      as a vector of strings. Defaults to `NULL`, which means there are no groupings.
 #' @param only_keep_first_response Boolean on whether the aggregate percentages should show up in all rows
 #'     or only the rows represented by the first response in \code{positive_responses}. Setting this to
 #'     \code{TRUE} is useful in stacked bar charts where you only want to show the percentages once and
@@ -314,7 +314,7 @@ g2g_compare_names <- function(.data, participants, pre_post_col) {
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_aggregate_positive_responses <- function(.data, positive_responses, grouping_terms, only_keep_first_response = FALSE) {
+g2g_aggregate_positive_responses <- function(.data, positive_responses, grouping_terms = NULL, only_keep_first_response = FALSE) {
 
   all_grouping_terms <- c('question_stem', 'response_option', grouping_terms, '.scale_strength')
 

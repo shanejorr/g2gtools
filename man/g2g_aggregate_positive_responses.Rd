@@ -7,7 +7,7 @@
 g2g_aggregate_positive_responses(
   .data,
   positive_responses,
-  grouping_terms,
+  grouping_terms = NULL,
   only_keep_first_response = FALSE
 )
 }
@@ -19,7 +19,7 @@ It cannot be the raw data where each row is a response. The data set must be cre
 \item{positive_responses}{A string vector of positive responses, for example \code{c('Agree', 'Strongly Agree')}}
 
 \item{grouping_terms}{Any columns that you want to group by, such as years, demographics, or pre or post training. Represented
-as a vector of strings.}
+as a vector of strings. Defaults to \code{NULL}, which means there are no groupings.}
 
 \item{only_keep_first_response}{Boolean on whether the aggregate percentages should show up in all rows
 or only the rows represented by the first response in \code{positive_responses}. Setting this to
