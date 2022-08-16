@@ -162,6 +162,7 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
 #' @param number_questions An integer, the number of questions per plot (per facet)
 #' @param grouping_columns Columns, as a string vector, that you want to group by when determining whether
 #'      the number of questions within the question stem is over the value set by \code{number_questions}.
+#'      Defaults to `NULL`, which is no groupings.
 #'
 #' @returns The same data frame as before, but question stems containing questions over the value
 #'      set by \code{number_questions} contain the word '(continued)' at the start of them.
@@ -169,7 +170,7 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_split_question_stems <- function(.data, number_questions, grouping_columns) {
+g2g_split_question_stems <- function(.data, number_questions, grouping_columns = NULL) {
 
   # test #
 

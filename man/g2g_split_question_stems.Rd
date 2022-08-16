@@ -4,7 +4,7 @@
 \alias{g2g_split_question_stems}
 \title{Create different question stems for stems with more than x number of questions}
 \usage{
-g2g_split_question_stems(.data, number_questions, grouping_columns)
+g2g_split_question_stems(.data, number_questions, grouping_columns = NULL)
 }
 \arguments{
 \item{.data}{Input data frame made with \code{gwg_forms_survey_calc_percentages}.}
@@ -12,7 +12,8 @@ g2g_split_question_stems(.data, number_questions, grouping_columns)
 \item{number_questions}{An integer, the number of questions per plot (per facet)}
 
 \item{grouping_columns}{Columns, as a string vector, that you want to group by when determining whether
-the number of questions within the question stem is over the value set by \code{number_questions}.}
+the number of questions within the question stem is over the value set by \code{number_questions}.
+Defaults to \code{NULL}, which is no groupings.}
 }
 \value{
 The same data frame as before, but question stems containing questions over the value
