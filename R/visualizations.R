@@ -52,6 +52,78 @@ g2g_add_slides_ppt <- function(doc, slide_plot, slide_header, plt_width, plt_hei
 
 }
 
+#' Add tables to Power Point slides
+#'
+#' Add tables to PPT slides. You must initialize the PPT deck with
+#' \code{doc <- officer::read_pptx()}. After adding tables to the deck with this function, you can
+#' write out the deck with \code{print(doc, target = 'file_name_of_deck.pptx')}
+#'
+#' @param doc Document object. Created with \code{officer::read_pptx()}.
+#' @param .data A data frame containing the table that will be added to a PPT slide.
+#' @param slide_header The slide header, as a string.
+#' @param col_lengths A numeric vector containing the length in inches of each column.
+#'      The vector's length should equal the number of columns.
+#' @param fontsize The font size of column names and table text, as an integer. Defaults to 12.
+#' @param notes_text Text, as a string, of notes to add to slide. Entire note must be one string.
+#'      Use `\n` within the string to add line breaks. Defaults to `NULL`, or no notes.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_add_table_ppt <- function(doc, .data, slide_header, col_lengths, fontsize = 12, notes_text = NULL) {
+
+  n_cols <- ncol(.data)
+
+  if (n_cols != length(col_lengths)) {
+    stop("The length of `col_length` should equal the number of columns in `.data`.", call. = FALSE)
+  }
+
+  # create new slide with default template
+  doc <- officer::add_slide(doc, "Title and Content", 'Office Theme')
+
+  # determine width so that plot is centered
+  s_s <- officer::slide_size(doc)
+  s_w <- s_s$width # width of slides
+  left <- (s_w/2) - (sum(col_lengths)/2)
+
+  cols <- seq(1, n_cols)
+
+  small_border = officer::fp_border(color="gray", width = 1)
+
+  flex_table <- .data |>
+    flextable::flextable() |>
+    flextable::width(j = cols, width = col_lengths, unit = "in") |>
+    flextable::border_inner_h(part="all", border = small_border) |>
+    flextable::border_inner_v(part="all", border = small_border) |>
+    flextable::font(fontname = "Segoe UI", part = "all") |>
+    flextable::fontsize(size = fontsize, part = "all") |>
+    flextable::bold(bold = TRUE, part = "header") |>
+    flextable::align(align = "left", part = "all")
+
+  # slide header
+  fpt <- officer::fp_text(font.size = 18, font.family = "Segoe UI Semibold")
+  header_text <- officer::fpar(officer::ftext(slide_header, fpt))
+
+  slide_loc <- officer::ph_location(left = left, top = 1.75, width = plt_width, height = plt_height, newlabel = "plot")
+
+  doc <- doc |>
+    officer::ph_with(
+      flex_table,
+      location = slide_loc
+    ) |>
+    officer::ph_with(value = header_text, location = officer::ph_location_type(type = "title"))
+
+  # add notes, if needed
+  if (!is.null(notes_text)) {
+
+    doc <- officer::set_notes(doc, value = notes_text, location = officer::notes_location_type("body"))
+
+  }
+
+  return(doc)
+
+}
+
 #' Basic theme setting fonts
 #'
 #' @importFrom rlang .data

@@ -24,7 +24,8 @@ Imports:
     rvg,
     scales,
     stringr,
-    tidyr
+    tidyr,
+    flextable
 URL: https://github.com/shanejorr/g2gtools
 BugReports: https://github.com/shanejorr/g2gtools/issues
 Depends: 
