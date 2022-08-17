@@ -25,7 +25,8 @@ Imports:
     scales,
     stringr,
     tidyr,
-    flextable
+    flextable,
+    lubridate
 URL: https://github.com/shanejorr/g2gtools
 BugReports: https://github.com/shanejorr/g2gtools/issues
 Depends: 
