@@ -116,7 +116,8 @@ g2g_teacher_survey_add_he_metric_colnames <- function(response_option) {
     stop(
       c("You failed to match any question to the following TNTP metrics: ", missing_metrics, ".\n",
         "Your data must contain all four questions to calculate high expectations.\n",
-        "Please review the spelling in the columns containing the high expectations question text."),
+        "Please review the spelling in the columns containing the high expectations question text.") |>
+        paste0(collapse = ""),
       call. = FALSE
     )
   }
