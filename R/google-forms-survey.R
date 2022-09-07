@@ -171,8 +171,8 @@ g2g_calc_high_expectations <- function(.data) {
   default_recode <- 99
 
   he <- .data |>
-    # only keep high expectations questions, which have the stem showin in the text
-    dplyr::filter(stringr::str_detect(.data$question_stem, "statements about your state standards")) |>
+    # only keep high expectations questions, which have the stem showin in the text, or include thw words 'high expectations'
+    dplyr::filter(stringr::str_detect(.data$question_stem, "statements about your state standards|[Hh]igh [Ee]xpect")) |>
     dplyr::mutate(
       # add the column name required for tntpmetrics
       tntp_metrics = g2g_teacher_survey_add_he_metric_colnames(.data$response_option),
