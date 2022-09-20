@@ -65,7 +65,7 @@ g2g_add_viz_ppt <- function(doc, slide_plot, slide_header, plt_width, plt_height
   vec_plt <- rvg::dml(ggobj = slide_plot)
 
   # add plot to slide
-  slide_loc <- officer::ph_location(left = left, top = 1.75, width = plt_width, height = plt_height, newlabel = "plot")
+  slide_loc <- officer::ph_location(left = left, top = 1.25, width = plt_width, height = plt_height, newlabel = "plot")
 
   doc <- officer::ph_with(doc, value = vec_plt, location = slide_loc)
 
@@ -128,7 +128,7 @@ g2g_add_table_ppt <- function(doc, .data, slide_header, col_lengths, fontsize = 
     flextable::bold(bold = TRUE, part = "header") |>
     flextable::align(align = "left", part = "all")
 
-  slide_loc <- officer::ph_location(left = left, top = 1.75, newlabel = "table")
+  slide_loc <- officer::ph_location(left = left, top = 1.25, newlabel = "table")
 
   doc <- doc |>
     officer::ph_with(
