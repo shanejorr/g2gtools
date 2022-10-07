@@ -147,3 +147,53 @@ g2g_add_table_ppt <- function(doc, .data, slide_header, col_lengths, fontsize = 
   return(doc)
 
 }
+
+#' Add custom notes to Power Point slides
+#'
+#' Predefined custom notes that can be added to Power Point slide notes to help explain the data.
+#'
+#' @param note_name The names of the predefined note. One of "HE score", "IPG score".
+#'
+#' @returns A string with the note, which can be added to a slide with the `notes_text` parameter of
+#'      `g2g_add_viz_ppt` or `g2g_add_table_ppt`.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_slide_notes <- function(note_name) {
+
+  he_score <- c(
+    "High expectations scores are single scores that incorporate all four HE questions.",
+    "They are calculated as follows:",
+    "- A HE score is first calculated for each teacher.",
+    "   - To calculate the score, each teacher's response is converted to a number, with Strongly Disagree being a 0 and Strongly Agree being a 5.",
+    "   - These four number values are then summed for each teacher. This is the teacher's HE score.",
+    "- The overall HE score that you see in the table is the average of all teacher HE scores.",
+    "- A teacher has high expectations if the teacher's HE score is greater than or equal to 12.",
+    "- Therefore, the percentage of teachers with HE is the percentage of teachers with HE scores greater than or equal to 12."
+  ) |>
+    stringr::str_c(collapse = '\n')
+
+  ipg_score <- c(
+    "IPG scores are single scores that incorporate the following Core Actions.",
+    "- Core Action 1A",
+    "- Core Action 1B",
+    "- Core Action 1C",
+    "- Core Action 2 Overall",
+    "- Core Action 3 Overall",
+    "- Culture of Learning",
+    "For Core Action 1 items, teachers receive 1 point for a Yes a 0 points for a No.",
+    "Other items are assigned points as follows: 1 (Not Yet), 2 (Somewhat), 3 (Mostly), and 4 (Yes).",
+    "All points are summed for each teacher to arrive at the teacher's IPG score.",
+    "The overall score is the average of all teacher scores."
+  ) |>
+    stringr::str_c(collapse = '\n')
+
+  list_of_notes <- list(
+    'HE score' = he_score,
+    "IPG score" = ipg_score
+  )
+
+  list_of_notes[[note_name]]
+
+}

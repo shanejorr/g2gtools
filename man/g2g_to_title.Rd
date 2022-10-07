@@ -10,7 +10,7 @@ g2g_to_title(x)
 \item{x}{Vector that you want converted to title case.}
 }
 \description{
-When converting to title case, most R function fail to proeprly account for words that should
+When converting to title case, most R function fail to properly account for words that should
 not be capitalized in title case such as 'and' and 'the'. \code{g2g_to_title} converts to title
 case, but does not convert common words. Among other purposes, the function is useful for
 placing scales in the case that is required by most g2g tools.

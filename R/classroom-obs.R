@@ -153,7 +153,7 @@ g2g_classroom_obs_add_tntpmetrics <- function(.data, grade_column, subject_name,
     dplyr::filter(.data$tntp_metric == 'no match') |>
     dplyr::distinct(.data$core_action_main, .data$core_action_minor)
 
-  message("The following major and minor core action combinations were not matched. Make sure this is correct:")
+  message("The following major and minor core action combinations were not matched. Make sure none of these items are required to calculate IPG scores.")
   print(actions_not_matches)
 
   # remove items that did not match, as they are not required for TNTP metrics

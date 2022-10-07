@@ -161,7 +161,7 @@ g2g_calc_high_expectations <- function(.data) {
   # identify the grouping variables from the input data frame
   id_cols <- setdiff(colnames(.data), c('question_stem', 'response_option', 'response'))
 
-  # relatinship between text response and number required for tntpmetrics
+  # relationship between text response and number required for tntpmetrics
   map_response_to_integer <- c(
     "Strongly Disagree" = 0, "Disagree" = 1, "Somewhat Disagree" = 2,
     "Somewhat Agree" = 3, "Agree" = 4, "Strongly Agree" = 5
@@ -172,7 +172,7 @@ g2g_calc_high_expectations <- function(.data) {
   default_recode <- 99
 
   he <- .data |>
-    # only keep high expectations questions, which have the stem showin in the text, or include thw words 'high expectations'
+    # only keep high expectations questions, which have the stem show in in the text, or include the words 'high expectations'
     dplyr::filter(stringr::str_detect(.data$question_stem, "statements about your state standards|[Hh]igh [Ee]xpect")) |>
     dplyr::mutate(
       # add the column name required for tntpmetrics
