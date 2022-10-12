@@ -88,8 +88,10 @@ g2g_classroom_obs_add_ca <- function(.data) {
 #' @export
 g2g_relabel_yesbut_notreally <- function(response_column) {
 
-  stringr::str_replace(response_column, "^Yes, but only in some areas.*", "Yes, but only in some areas") |>
-    stringr::str_replace("^Not really.*", "Not really")
+  g2g_to_title(response_column) |>
+    stringr::str_replace("^Yes, but Only.*", "Yes, But Only in Some Areas") |>
+    stringr::str_replace("^Not Really.*", "Not Really") |>
+    stringr::str_remove("[.]$")
 
 }
 

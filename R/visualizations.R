@@ -11,9 +11,7 @@ g2g_plt_base_theme <- function() {
       axis.text = ggplot2::element_text(size = 10),
       axis.title = ggplot2::element_text(size=12),
       strip.text = ggplot2::element_text(size = 10),
-      panel.background = ggplot2::element_rect(size=0.5, color = 'gray')#,
-      #text = ggplot2::element_text(family="Segoe UI")
-      #plot.title = element_text(family = "Segoe UI")
+      panel.background = ggplot2::element_rect(size=0.5, color = 'gray')
     )
 
 }
@@ -61,6 +59,10 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
     stop("All 'x_var' values must be decimals between 0 and 1.", call. = FALSE)
   }
 
+  # the legend should have two rows if there are more than four options and one row otherwise
+  num_legend_items <- dplyr::n_distinct(.data[[fill_var]])
+  num_legend_rows <- if (num_legend_items > 4) 2 else 1
+
   # make sure all column are present
   col_names <- colnames(.data)
 
@@ -90,7 +92,7 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
     ggplot2::scale_x_continuous(labels = scales::percent) +
     g2g_plt_theme_no_lines() +
     ggplot2::theme(legend.position = 'bottom') +
-    ggplot2::guides(fill=ggplot2::guide_legend(nrow=2,byrow=TRUE))
+    ggplot2::guides(fill=ggplot2::guide_legend(nrow=num_legend_rows, byrow=TRUE))
 
 }
 

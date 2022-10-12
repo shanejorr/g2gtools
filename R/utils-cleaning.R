@@ -74,7 +74,7 @@ g2g_list_of_scales <- function() {
 
   list(
     agree_disagree = c('Strongly Agree', 'Agree', 'Somewhat Agree', 'Somewhat Disagree', 'Disagree', 'Strongly Disagree'),
-    knowledge = c('Excellent knowledge', 'Good Knowledge', 'Some Knowledge', 'A Little Knowledge', 'No Knowledge'),
+    knowledge = c('Excellent Knowledge', 'Good Knowledge', 'Some Knowledge', 'A Little Knowledge', 'No Knowledge'),
     how_often = c('In All or Most Lessons', 'Often', 'Sometimes', 'Rarely', 'Never'),
     yes_notyet = c('Yes', 'Mostly', 'Somewhat', 'Not Yet'),
     yes_but = c('Yes', 'Yes, But Only in Some Areas', 'Not Really', 'No'),
@@ -365,7 +365,7 @@ g2g_aggregate_positive_responses <- function(.data, positive_responses, grouping
 g2g_to_title <- function(x) {
 
   words_not_to_convert <- c(
-    'and', 'a', 'the', 'as', 'but', 'for', 'if', 'nor', 'or', 'so', 'yet',
+    'and', 'a', 'the', 'as', 'but', 'for', 'if', 'nor', 'or', 'so',
     'as', 'at', 'by', 'for', 'in', 'of', 'off', 'on', 'per', 'to', 'up', 'via'
   )
 
