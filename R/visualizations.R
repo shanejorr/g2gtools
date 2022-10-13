@@ -8,9 +8,9 @@ g2g_plt_base_theme <- function() {
   ggplot2::theme_minimal() +
     ggplot2::theme(
       legend.text = ggplot2::element_text(size = 10),
-      axis.text = ggplot2::element_text(size = 10),
+      axis.text = ggplot2::element_text(size = 12),
       axis.title = ggplot2::element_text(size=12),
-      strip.text = ggplot2::element_text(size = 10),
+      strip.text = ggplot2::element_text(size = 12),
       panel.background = ggplot2::element_rect(size=0.5, color = 'gray')
     )
 
@@ -59,8 +59,11 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
     stop("All 'x_var' values must be decimals between 0 and 1.", call. = FALSE)
   }
 
+  # the fill column must be a factor
+  if (!is.factor(.data[[fill_var]])) stop("`fill_var` must be a factor")
+
   # the legend should have two rows if there are more than four options and one row otherwise
-  num_legend_items <- dplyr::n_distinct(.data[[fill_var]])
+  num_legend_items <- length(levels(.data[[fill_var]]))
   num_legend_rows <- if (num_legend_items > 4) 2 else 1
 
   # make sure all column are present
