@@ -107,6 +107,11 @@ test_that("Ensure instructional practices scores are properly calculated.", {
 
   testthat::expect_equal(inst_prac_score$inst_practice_score, c(3, 3))
 
+  df_error <- df |>
+    dplyr::bind_rows(data.frame(term = 'pre', responses = 'test'))
+
+  testthat::expect_error(g2g_calc_inst_practices(df_error, 'responses', 'term'), regexp = "One of your responses")
+
 })
 
 test_that("Ensure percentages are properly calculated for surveys.", {

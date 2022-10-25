@@ -221,9 +221,8 @@ g2g_calc_inst_practices <- function(.data, response_col, grouping_col = NULL) {
   if (!all(.data[[response_col]] %in% scales)) {
     stop(
       paste0(
-        c('One of your responses is not on the proper scale for instructional practices',
-        'Scales should be:', paste0(scales, collapse = ", "), collapse = '\n')
-      )
+        c('One of your responses is not on the proper scale for instructional practices.\nScales should be:\n', paste0(scales, collapse = ", "))
+      ), call. = FALSE
     )
   }
 
