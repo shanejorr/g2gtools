@@ -94,6 +94,21 @@ test_that("Create high expectations data set for tntpmetrics.", {
 
 })
 
+test_that("Ensure instructional practices scores are properly calculated.", {
+
+  inst_scales <- g2g_list_of_scales()[['how_often']]
+
+  df <- data.frame(
+    term = rep(c('Pre', 'Post'), each = length(inst_scales)),
+    responses = rep(inst_scales, 2)
+  )
+
+  inst_prac_score <- g2g_calc_inst_practices(df, 'responses', 'term')
+
+  testthat::expect_equal(inst_prac_score$inst_practice_score, c(3, 3))
+
+})
+
 test_that("Ensure percentages are properly calculated for surveys.", {
 
   question_columns <- 8:30

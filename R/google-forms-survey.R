@@ -198,6 +198,46 @@ g2g_calc_high_expectations <- function(.data) {
 
 }
 
+#' Calculate a single score for all instructional practices questions
+#'
+#' Calculate a single score for all instructional practices questions that is the average response,
+#' after converting scales to numbers. The scale is converted to numbers with 0 being never and 5
+#' being In All or Most Lessons.
+#'
+#' @param .data The data set, filtered to only include instructional practice questions.
+#' @param response_col Column name, as string, containing scale responses.
+#' @param grouping_col Column to group scores by.
+#'
+#' @returns A data frame with the scores.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_calc_inst_practices <- function(.data, response_col, grouping_col = NULL) {
+
+  scales <- g2g_list_of_scales()[['how_often']]
+
+  # test to make sure responses are on the proper scale
+  if (!all(.data[[response_col]] %in% scales)) {
+    stop(
+      paste0(
+        c('One of your responses is not on the proper scale for instructional practices',
+        'Scales should be:', paste0(scales, collapse = ", "), collapse = '\n')
+      )
+    )
+  }
+
+  scale_numbers <- rev(seq_along(scales))
+
+  scale_mapping <- scale_numbers |> purrr::set_names(scales)
+
+  .data |>
+    dplyr::mutate(scale_numeric= dplyr::recode(.data[[response_col]], !!!scale_mapping)) |>
+    dplyr::group_by_at(grouping_col) |>
+    dplyr::summarize(inst_practice_score = mean(.data$scale_numeric, na.rm = TRUE))
+
+}
+
 #' Calculate the percentage and number of responses for each question.
 #'
 #' The teacher survey contains questions that are largely on the 6 point Likert scale. This function
