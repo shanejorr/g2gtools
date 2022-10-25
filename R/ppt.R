@@ -152,7 +152,7 @@ g2g_add_table_ppt <- function(doc, .data, slide_header, col_lengths, fontsize = 
 #'
 #' Predefined custom notes that can be added to Power Point slide notes to help explain the data.
 #'
-#' @param note_name The names of the predefined note. One of "HE score", "IPG score".
+#' @param note_name The names of the predefined note. One of "HE score", "IPG score", or "Inst Practice score".
 #'
 #' @returns A string with the note, which can be added to a slide with the `notes_text` parameter of
 #'      `g2g_add_viz_ppt` or `g2g_add_table_ppt`.
@@ -189,9 +189,18 @@ g2g_slide_notes <- function(note_name) {
   ) |>
     stringr::str_c(collapse = '\n')
 
+  instr_practice_score <- c(
+    "The instructional practice score is an aggregate sore for all instructional practices questions.",
+    "The score is calculated by first converting the scale responses to numbers.",
+    "'Never' is scored a 1 and 'In All or Most Lessons' is scored a 5'.",
+    "The final instructional practice score is the average of all these numeric responses."
+  ) |>
+    stringr::str_c(collapse = '\n')
+
   list_of_notes <- list(
     'HE score' = he_score,
-    "IPG score" = ipg_score
+    "IPG score" = ipg_score,
+    'Inst Practice score' = instr_practice_score
   )
 
   list_of_notes[[note_name]]
