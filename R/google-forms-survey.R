@@ -198,6 +198,45 @@ g2g_calc_high_expectations <- function(.data) {
 
 }
 
+
+# teacher_pre_survey |>
+#   g2g_tidy_forms_survey(8:30, 3) |>
+#   g2g_calc_high_expectations()
+
+#' Calculate average HE scores and percentage of teacher with HE for given group
+#'
+#' The \code{tntpmetrics} package can be used to calculate high expectations metrics based on the common measures and
+#' the function \code{g2g_calc_high_expectations} is used to put data into a format accepted by \code{tntpmetrics}.
+#' This function acts as a wrapper around those two functions by taking data created with \code{g2g_tidy_forms_survey},
+#' using \code{g2g_calc_high_expectations} to put the data in the proper format for calculating high expectations,
+#' calculating high expectations for each teacher with \code{tntpmetrics::make_metric('expectations')},
+#' and then calculating average high expectations scores and the percentage of teachers with high
+#' expectations per group.
+#'
+#' @param .data Data set returned from \code{g2g_tidy_forms_survey} and containing the four primary HE questions.
+#' @param grouping_term Column name, as a string, to group by when calculating averages. Use `NULL`
+#'      (default) for no groups.
+#'
+#' @returns A data frame with high expectations scores and the percentage of teachers with high expectations..
+#'
+#' @examples
+#' teacher_pre_survey |>
+#'   g2g_tidy_forms_survey(8:30, 3) |>
+#'   g2g_calc_high_expectations_averages()
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_calc_high_expectations_averages <- function(.data, grouping_term = NULL) {
+
+  .data |>
+    g2g_calc_high_expectations() |>
+    tntpmetrics::make_metric('expectations') |>
+    dplyr::group_by_at(grouping_term) |>
+    dplyr::summarize(dplyr::across(dplyr::starts_with('cm_'), ~mean(.x, na.rm = TRUE)))
+
+}
+
 #' Calculate a single score for all instructional practices questions
 #'
 #' Calculate a single score for all instructional practices questions that is the average response,

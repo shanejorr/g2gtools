@@ -94,6 +94,29 @@ test_that("Create high expectations data set for tntpmetrics.", {
 
 })
 
+test_that("Ensure HE scores are calculated correctly.", {
+
+  teacher_survey <- teacher_pre_survey |>
+     g2g_tidy_forms_survey(8:30, 3)
+
+  he_scores <- teacher_survey |>
+    g2g_calc_high_expectations_averages()
+
+  testthat::expect_equal(round(he_scores$cm_expectations[1], 2), 12.82)
+  testthat::expect_equal(round(he_scores$cm_binary_expectations[1], 2), 0.76)
+  testthat::expect_equal(nrow(he_scores), 1)
+
+  he_scores_groups <- teacher_survey |>
+    dplyr::mutate(term = 'a') |>
+    dplyr::bind_rows(teacher_survey |> dplyr::mutate(term = 'b')) |>
+    g2g_calc_high_expectations_averages(grouping_term = 'term')
+
+  testthat::expect_equal(round(he_scores_groups$cm_expectations, 2), rep(12.82, 2))
+  testthat::expect_equal(round(he_scores_groups$cm_binary_expectations, 2), rep(0.76, 2))
+  testthat::expect_equal(nrow(he_scores_groups), 2)
+
+})
+
 test_that("Ensure instructional practices scores are properly calculated.", {
 
   inst_scales <- g2g_list_of_scales()[['how_often']]
