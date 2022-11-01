@@ -229,11 +229,33 @@ g2g_calc_high_expectations <- function(.data) {
 #' @export
 g2g_calc_high_expectations_averages <- function(.data, grouping_term = NULL) {
 
-  .data |>
+  # create error message depending on column
+  custom_stop_message <- function(column_to_check) {
+
+    num_range <- if (column_to_check == 'cm_expectations') '0 to 20' else '0 to 1'
+
+    paste0(
+      "All values in the column ", column_to_check, " must be between ", num_range, ".\nOne the values in this column is outside the range.\n",
+      "Ensure the values in ", column_to_check, " are between ", num_range, "."
+    )
+
+  }
+
+  he_scores <- .data |>
     g2g_calc_high_expectations() |>
     tntpmetrics::make_metric('expectations') |>
     dplyr::group_by_at(grouping_term) |>
     dplyr::summarize(dplyr::across(dplyr::starts_with('cm_'), ~mean(.x, na.rm = TRUE)))
+
+  if (!all(dplyr::between(he_scores$cm_expectations, 0, 20))) {
+    stop(custom_stop_message('cm_expectations'), call. = FALSE)
+  }
+
+  if (!all(dplyr::between(he_scores$cm_binary_expectations, 0, 1))) {
+    stop(custom_stop_message('cm_binary_expectations'), call. = FALSE)
+  }
+
+  return(he_scores)
 
 }
 
@@ -269,10 +291,19 @@ g2g_calc_inst_practices <- function(.data, response_col, grouping_col = NULL) {
 
   scale_mapping <- scale_numbers |> purrr::set_names(scales)
 
-  .data |>
+  inst_practice <- .data |>
     dplyr::mutate(scale_numeric= dplyr::recode(.data[[response_col]], !!!scale_mapping)) |>
     dplyr::group_by_at(grouping_col) |>
     dplyr::summarize(inst_practice_score = mean(.data$scale_numeric, na.rm = TRUE))
+
+  if (!all(dplyr::between(inst_practice$inst_practice_score, 1, 5))) {
+    stop(
+      paste0("Instructional practice scores must be between 1 and 5. You have numbers outside this range.\n",
+             "Please double check your data (.data)."),
+      call. = FALSE)
+  }
+
+  return(inst_practice)
 
 }
 

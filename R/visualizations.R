@@ -7,10 +7,12 @@ g2g_plt_base_theme <- function() {
 
   ggplot2::theme_minimal() +
     ggplot2::theme(
-      legend.text = ggplot2::element_text(size = 10),
-      axis.text = ggplot2::element_text(size = 12),
-      axis.title = ggplot2::element_text(size=12),
-      strip.text = ggplot2::element_text(size = 12),
+      plot.title = ggplot2::element_text(size = 13, face='bold'),
+      plot.subtitle = ggplot2::element_text(size = 13),
+      legend.text = ggplot2::element_text(size = 12),
+      axis.text = ggplot2::element_text(size = 13),
+      axis.title = ggplot2::element_text(size=13),
+      strip.text = ggplot2::element_text(size = 13),
       panel.background = ggplot2::element_rect(size=0.5, color = 'gray')
     )
 
@@ -29,6 +31,42 @@ g2g_plt_theme_no_lines <- function() {
       panel.grid.major = ggplot2::element_blank(),
       panel.grid.minor = ggplot2::element_blank(),
     )
+
+}
+
+#' Create a basic horizontal bar chart
+#'
+#' Creates a horizontal bar chart. This function can be used as-is, but is primarily used to build
+#' more complex plots. For example, \code{g2g_viz_high_expectations()} relies on this function
+#' to create the underlying bar charts.
+#'
+#' @param .data The data set to visualize.
+#' @param x_var The column name, as a string, of the variable (categorical) on the x axis.
+#' @param y_var The column name, as a string, of the variable (numeric) on the y axis.
+#' @param text_var The column name, as a string, of the variable to show as text. This will be the same
+#'      number as the variable in `y_var`, but users may want to round it or convert it to a percentage.
+#' @param text_offset Defined how many units the text should offset horizontally from the y variable.
+#'      Use negative numbers to show the text within the bar and positive numbers to place the text
+#'      above the bar.
+#' @param fill_color The color, as a string or hex number, of the bars for the bar chart.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset, fill_color = 'gray') {
+
+  # all x axis values should be unique
+  if (!nrow(.data) == dplyr::n_distinct(.data[[x_var]])) {
+    stop("All values in the column `x_var` must be unique", call. = FALSE)
+  }
+
+  ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]])) +
+    ggplot2::geom_col(fill = fill_color) +
+    ggplot2::geom_text(
+      ggplot2::aes(label = .data[[text_var]], y = .data[[y_var]] + text_offset),
+      color = 'white', fontface='bold', size = 6
+    )  +
+    g2g_plt_theme_no_lines()
 
 }
 
@@ -107,9 +145,9 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
 #' word '(continue)' to the question stem. Then, the questions will plot to different visualization when
 #' you iterate through stems, creating faceted charts.
 #'
-#' The function works with data created by \code{gwg_forms_survey_calc_percentages()}.
+#' The function works with data created by \code{g2g_forms_survey_calc_percentages()}.
 #'
-#' @param .data Input data frame made with \code{gwg_forms_survey_calc_percentages}.
+#' @param .data Input data frame made with \code{g2g_forms_survey_calc_percentages}.
 #' @param number_questions An integer, the number of questions per plot (per facet)
 #' @param grouping_columns Columns, as a string vector, that you want to group by when determining whether
 #'      the number of questions within the question stem is over the value set by \code{number_questions}.
@@ -139,5 +177,118 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns =
     dplyr::left_join(unique_questions, by = c(grouping_columns, 'question_stem', 'response_option')) |>
     dplyr::mutate(question_stem = ifelse(.data$cont, glue::glue("(continued) {.data$question_stem}"), .data$question_stem)) |>
     dplyr::select(-.data$cont)
+
+}
+
+#' Bar chart of high expectations score and the percentage of teachers with high expectations
+#'
+#' Create two bar chart visualizations in one plot. One containing average high expectations scores and the other
+#' showing the percentage of teachers with high expectations. The data used in the bar charts must
+#' come from \code{g2g_calc_high_expectations_averages()}.
+#'
+#' @param .data Input data frame made with \code{g2g_forms_survey_calc_percentages()}.
+#' @param x_axis Column name, as a string vector, containing the categories you want to compare.
+#'      These will be the x-axis in the plot
+#'
+#' @returns A single plot containing two bar chart plots.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_viz_high_expectations <- function(.data, x_axis) {
+
+  # ensure the two cm columns are present
+  col_names <- colnames(.data)
+
+  req_cols <- c('cm_expectations', 'cm_binary_expectations')
+
+  if (!all(req_cols %in% col_names)) {
+
+    stop(
+      paste(
+        "Your data (.data) is missing one of the following required columns: ", paste(req_cols, collapse = ", "),
+        "\nEnsure you used `g2g_forms_survey_calc_percentages()` to create your data."
+      ), call. = FALSE
+    )
+
+  }
+
+  # expectations score
+  plt_he_scores <- .data |>
+    dplyr::mutate(cm_expectations_text = round(.data[['cm_expectations']], 1)) |>
+    g2g_viz_basic_bar(x_axis, 'cm_expectations', 'cm_expectations_text', - 1.35, fill_color = "#00A4C7") +
+    ggplot2::labs(
+      title = 'Average High Expectations Score*\n  ',
+      x = NULL,
+      y = NULL
+    ) +
+    ggplot2::ylim(c(0, 20)) +
+    ggplot2::theme(
+      plot.title = ggplot2::element_text(hjust = 0.5, size = 13, face='bold'),
+      plot.margin = ggplot2::unit(c(0,5,0,0), "cm")
+    )
+
+  plt_he_perc <- .data |>
+    dplyr::mutate(cm_binary_expectations_text = scales::percent(.data[['cm_binary_expectations']], accuracy = 1)) |>
+    g2g_viz_basic_bar(x_axis, 'cm_binary_expectations', 'cm_binary_expectations_text', - .075, fill_color = "#EA8835") +
+    ggplot2::scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+    ggplot2::labs(
+      title = "Percentage of Teachers\nWith High Expectations",
+      x = NULL,
+      y = NULL
+    ) +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, size = 13, face='bold'))
+
+  plts <- patchwork::wrap_plots(plt_he_scores, plt_he_perc) +
+    patchwork::plot_annotation(
+      theme = ggplot2::theme(plot.caption = ggplot2::element_text(hjust = 0, size = 12)),
+      caption = '*A score 12 or higher represents high expectations.'
+    )
+
+  return(plts)
+
+}
+
+#' Bar chart of instructional practice scores
+#'
+#' Creates a bar chart of instructional practice scores. The data used in the bar charts must
+#' come from \code{g2g_calc_inst_practices()}.
+#'
+#' @param .data Input data frame made with \code{g2g_calc_inst_practices()}.
+#' @param x_axis Column name, as a string vector, containing the categories you want to compare.
+#'      These will be the x-axis in the plot
+#'
+#' @returns A single plot containing instructional practice scores.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_viz_inst_practice <- function(.data, x_axis) {
+
+  col_names <- colnames(.data)
+
+  req_cols <- c('inst_practice_score')
+
+  if (!all(req_cols %in% col_names)) {
+
+    stop(
+      paste(
+        "Your data (.data) is missing the following required columns: ", paste(req_cols, collapse = ", "),
+        "\nEnsure you used `g2g_calc_inst_practices()` to create your data."
+      ), call. = FALSE
+    )
+
+  }
+
+  .data |>
+    dplyr::mutate(inst_practice_score_text = round(.data[['inst_practice_score']], 1)) |>
+    g2g_viz_basic_bar(x_axis, 'inst_practice_score', 'inst_practice_score_text', - .5, fill_color = "#00A4C7") +
+    ggplot2::labs(
+      title = 'Average Instructional Practice Score',
+      x = NULL,
+      y = NULL
+    ) +
+    ggplot2::ylim(c(0, 5)) +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, size = 13, face='bold'))
 
 }
