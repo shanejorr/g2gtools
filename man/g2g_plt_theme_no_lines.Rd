@@ -4,7 +4,10 @@
 \alias{g2g_plt_theme_no_lines}
 \title{G2G ggplot theme that contains no lines}
 \usage{
-g2g_plt_theme_no_lines()
+g2g_plt_theme_no_lines(...)
+}
+\arguments{
+\item{...}{Parameters for \code{g2g_plt_base_theme()}}
 }
 \description{
 G2G ggplot theme that contains no lines

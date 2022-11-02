@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualizations.R
 \name{g2g_viz_basic_bar}
 \alias{g2g_viz_basic_bar}
-\title{Create a basic horizontal bar chart}
+\title{Create a basic vertical bar chart}
 \usage{
 g2g_viz_basic_bar(
   .data,
@@ -30,7 +30,7 @@ above the bar.}
 \item{fill_color}{The color, as a string or hex number, of the bars for the bar chart.}
 }
 \description{
-Creates a horizontal bar chart. This function can be used as-is, but is primarily used to build
+Creates a vertical bar chart. This function can be used as-is, but is primarily used to build
 more complex plots. For example, \code{g2g_viz_high_expectations()} relies on this function
 to create the underlying bar charts.
 }

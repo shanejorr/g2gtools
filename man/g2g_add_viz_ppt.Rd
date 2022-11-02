@@ -8,9 +8,10 @@ g2g_add_viz_ppt(
   doc,
   slide_plot,
   slide_header,
-  plt_width,
-  plt_height,
-  notes_text = NULL
+  plt_width = 9.5,
+  plt_height = 5,
+  notes_text = NULL,
+  vector_plt = FALSE
 )
 }
 \arguments{
@@ -26,6 +27,9 @@ g2g_add_viz_ppt(
 
 \item{notes_text}{Text, as a string, of notes to add to slide. Entire note must be one string.
 Use \verb{\\n} within the string to add line breaks. Defaults to \code{NULL}, or no notes.}
+
+\item{vector_plt}{Should the visualization render as a vector graphic in power point. TRUE for yes,
+FALSE for no. Defaults to TRUE.}
 }
 \description{
 Add ggplot plots to PPT slides as vector graphics. You must initialize the PPT deck with

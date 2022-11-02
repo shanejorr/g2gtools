@@ -1,31 +1,53 @@
 #' Basic theme setting fonts
 #'
+#' @param text_font Font for texts. Defaults to Arial narrow.
+#' @param horizontal_barchart Is the plot a horizontal bar chart? TRUE if yes, FALSE if no.
+#'      If the plot is a horizontal bar chart, the x axis text is smaller than the y axis text.
+#' @param center_title Should the plot title be centered on the plot? TRUE for yes, FALSE for no.
+#'
 #' @importFrom rlang .data
 #'
 #' @keywords internal
-g2g_plt_base_theme <- function() {
+g2g_plt_base_theme <- function(text_font = "Segoe UI", horizontal_barchart = FALSE, center_title = FALSE) {
 
-  ggplot2::theme_minimal() +
+  if (!horizontal_barchart %in% c(TRUE, FALSE)) stop("`horizontal_barchart` must be either TRUE or FALSE", call. = FALSE)
+  if (!center_title %in% c(TRUE, FALSE)) stop("`center_title` must be either TRUE or FALSE", call. = FALSE)
+
+  y_axis_size <- if (horizontal_barchart) 13 else 12
+
+  thm <- ggplot2::theme_minimal(base_family = text_font) +
     ggplot2::theme(
       plot.title = ggplot2::element_text(size = 13, face='bold'),
       plot.subtitle = ggplot2::element_text(size = 13),
       legend.text = ggplot2::element_text(size = 12),
-      axis.text = ggplot2::element_text(size = 13),
+      axis.text.y = ggplot2::element_text(size = y_axis_size),
+      axis.text.x = ggplot2::element_text(size = 12),
       axis.title = ggplot2::element_text(size=13),
       strip.text = ggplot2::element_text(size = 13),
       panel.background = ggplot2::element_rect(size=0.5, color = 'gray')
     )
 
+  if (center_title) {
+
+    thm <- thm +
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
+
+  }
+
+  return(thm)
+
 }
 
 #' G2G ggplot theme that contains no lines
 #'
+#' @param ... Parameters for `g2g_plt_base_theme()`
+#'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_plt_theme_no_lines <- function() {
+g2g_plt_theme_no_lines <- function(...) {
 
-  g2g_plt_base_theme() +
+  g2g_plt_base_theme(...) +
     ggplot2::theme(
       axis.ticks = ggplot2::element_blank(),
       panel.grid.major = ggplot2::element_blank(),
@@ -34,9 +56,9 @@ g2g_plt_theme_no_lines <- function() {
 
 }
 
-#' Create a basic horizontal bar chart
+#' Create a basic vertical bar chart
 #'
-#' Creates a horizontal bar chart. This function can be used as-is, but is primarily used to build
+#' Creates a vertical bar chart. This function can be used as-is, but is primarily used to build
 #' more complex plots. For example, \code{g2g_viz_high_expectations()} relies on this function
 #' to create the underlying bar charts.
 #'
@@ -66,7 +88,7 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset, fill_c
       ggplot2::aes(label = .data[[text_var]], y = .data[[y_var]] + text_offset),
       color = 'white', fontface='bold', size = 6
     )  +
-    g2g_plt_theme_no_lines()
+    g2g_plt_theme_no_lines(horizontal_barchart = FALSE)
 
 }
 
@@ -86,11 +108,12 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset, fill_c
 #'       This should be numeric and as a decimal between 0 and 1.
 #' @param color_pal Custom color palette to use. This should be a vector with the values being
 #'       the hex codes for the colors and the names being the unique scales from \code{fill_var}
+#' @param ... Parameters for `g2g_plt_base_theme()`
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var, color_pal) {
+g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var, color_pal, ...) {
 
   # make sure all numbers are between 0 and 1
   if (!all(dplyr::between(.data[[x_var]][!is.na(.data[[x_var]])], 0, 1))) {
@@ -131,7 +154,7 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
     ) +
     ggplot2::scale_fill_manual(values = color_pal) +
     ggplot2::scale_x_continuous(labels = scales::percent) +
-    g2g_plt_theme_no_lines() +
+    g2g_plt_theme_no_lines(horizontal_barchart = TRUE, ...) +
     ggplot2::theme(legend.position = 'bottom') +
     ggplot2::guides(fill=ggplot2::guide_legend(nrow=num_legend_rows, byrow=TRUE))
 
@@ -283,7 +306,7 @@ g2g_viz_inst_practice <- function(.data, x_axis) {
 
   .data |>
     dplyr::mutate(inst_practice_score_text = round(.data[['inst_practice_score']], 1)) |>
-    g2g_viz_basic_bar(x_axis, 'inst_practice_score', 'inst_practice_score_text', - .5, fill_color = "#00A4C7") +
+    g2g_viz_basic_bar(x_axis, 'inst_practice_score', 'inst_practice_score_text', - .3, fill_color = "#00A4C7") +
     ggplot2::labs(
       title = 'Average Instructional Practice Score',
       x = NULL,

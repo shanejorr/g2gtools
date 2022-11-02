@@ -44,11 +44,15 @@ g2g_create_deck_ppt <- function(title, subtitle) {
 #' @param plt_height The height of the plot, in inches, when it is in the PPT presentation.
 #' @param notes_text Text, as a string, of notes to add to slide. Entire note must be one string.
 #'      Use `\n` within the string to add line breaks. Defaults to `NULL`, or no notes.
+#' @param vector_plt Should the visualization render as a vector graphic in power point. TRUE for yes,
+#'      FALSE for no. Defaults to TRUE.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_add_viz_ppt <- function(doc, slide_plot, slide_header, plt_width, plt_height, notes_text = NULL) {
+g2g_add_viz_ppt <- function(doc, slide_plot, slide_header, plt_width = 9.5, plt_height = 5, notes_text = NULL, vector_plt = TRUE) {
+
+  if (!vector_plt %in% c(TRUE, FALSE)) stop("`vector_plt` must be either TRUE or FALSE", call. = FALSE)
 
   # create new slide with default template
   doc <- officer::add_slide(doc, "Title Only", 'TNTP Template 2013')
@@ -61,13 +65,15 @@ g2g_add_viz_ppt <- function(doc, slide_plot, slide_header, plt_width, plt_height
   # add header text to slide
   doc <- officer::ph_with(doc, value = slide_header, location = officer::ph_location_type(type = "title"))
 
-  #convert plot to vector graphic
-  vec_plt <- rvg::dml(ggobj = slide_plot)
+  #convert plot to vector graphic, if needed
+  if (vector_plt) {
+    slide_plot <- rvg::dml(ggobj = slide_plot)
+  }
 
   # add plot to slide
   slide_loc <- officer::ph_location(left = left, top = 1.25, width = plt_width, height = plt_height, newlabel = "plot")
 
-  doc <- officer::ph_with(doc, value = vec_plt, location = slide_loc)
+  doc <- officer::ph_with(doc, value = slide_plot, location = slide_loc)
 
   # add notes, if needed
   if (!is.null(notes_text)) {
@@ -77,6 +83,28 @@ g2g_add_viz_ppt <- function(doc, slide_plot, slide_header, plt_width, plt_height
   }
 
   return(doc)
+
+}
+
+#' Calculate optimal height for a visualizations that is being inserted into a PPT.
+#'
+#' This function is useful for horizontal bar charts. It calculates an optimal height for the plot
+#' when it is placed into the PPT based on the number of rows in the horizontal bar chart.
+#'
+#' @param column_with_rows The column, as a vector, of your data that will be the rows in the
+#'      horizontal bar chart. The number of rows should equal the number of unique items in this column.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_ppt_calculate_plot_height <- function(column_with_rows) {
+
+  plt_height_multiplier <- .77
+
+  # find number of questions to determine plot height
+  n_questions <- length(unique(column_with_rows))
+
+  plt_height_multiplier*n_questions+2
 
 }
 

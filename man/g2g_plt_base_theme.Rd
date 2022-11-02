@@ -4,7 +4,19 @@
 \alias{g2g_plt_base_theme}
 \title{Basic theme setting fonts}
 \usage{
-g2g_plt_base_theme()
+g2g_plt_base_theme(
+  text_font = "Segoe UI",
+  horizontal_barchart = FALSE,
+  center_title = FALSE
+)
+}
+\arguments{
+\item{text_font}{Font for texts. Defaults to Arial narrow.}
+
+\item{horizontal_barchart}{Is the plot a horizontal bar chart? TRUE if yes, FALSE if no.
+If the plot is a horizontal bar chart, the x axis text is smaller than the y axis text.}
+
+\item{center_title}{Should the plot title be centered on the plot? TRUE for yes, FALSE for no.}
 }
 \description{
 Basic theme setting fonts

@@ -4,7 +4,15 @@
 \alias{g2g_viz_stacked_bar_percent}
 \title{Stacked horizontal bar chart showing Likert item responses}
 \usage{
-g2g_viz_stacked_bar_percent(.data, x_var, y_var, fill_var, text_var, color_pal)
+g2g_viz_stacked_bar_percent(
+  .data,
+  x_var,
+  y_var,
+  fill_var,
+  text_var,
+  color_pal,
+  ...
+)
 }
 \arguments{
 \item{.data}{The data set to visualize. It must be aggregated results in tidy format. Each row is a
@@ -24,6 +32,8 @@ This should be numeric and as a decimal between 0 and 1.}
 
 \item{color_pal}{Custom color palette to use. This should be a vector with the values being
 the hex codes for the colors and the names being the unique scales from \code{fill_var}}
+
+\item{...}{Parameters for \code{g2g_plt_base_theme()}}
 }
 \description{
 Creates a stacked horizontal bar chart showing Likert items and responses. Data must be percentages.
