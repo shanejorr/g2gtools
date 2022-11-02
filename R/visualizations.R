@@ -188,14 +188,15 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns =
 #'
 #' @param .data Input data frame made with \code{g2g_forms_survey_calc_percentages()}.
 #' @param x_axis Column name, as a string vector, containing the categories you want to compare.
-#'      These will be the x-axis in the plot
+#'      These will be the x-axis in the plot.
+#' @param space_between_plots The amount of space, in points ('pt') between plots. Defaults to 40.
 #'
 #' @returns A single plot containing two bar chart plots.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_high_expectations <- function(.data, x_axis) {
+g2g_viz_high_expectations <- function(.data, x_axis, space_between_plots = 50) {
 
   # ensure the two cm columns are present
   col_names <- colnames(.data)
@@ -225,7 +226,7 @@ g2g_viz_high_expectations <- function(.data, x_axis) {
     ggplot2::ylim(c(0, 20)) +
     ggplot2::theme(
       plot.title = ggplot2::element_text(hjust = 0.5, size = 13, face='bold'),
-      plot.margin = ggplot2::unit(c(0,5,0,0), "cm")
+      plot.margin = ggplot2::margin(t = 0, r = space_between_plots, b = 0, l = 0, unit = "pt")
     )
 
   plt_he_perc <- .data |>
