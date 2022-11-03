@@ -11,6 +11,7 @@ g2g_add_viz_ppt(
   plt_width = 9.5,
   plt_height = 5,
   notes_text = NULL,
+  text_box = NULL,
   vector_plt = TRUE
 )
 }
@@ -27,6 +28,8 @@ g2g_add_viz_ppt(
 
 \item{notes_text}{Text, as a string, of notes to add to slide. Entire note must be one string.
 Use \verb{\\n} within the string to add line breaks. Defaults to \code{NULL}, or no notes.}
+
+\item{text_box}{Text to add under a graph in a text box. Default is NULL, which is no text.}
 
 \item{vector_plt}{Should the visualization render as a vector graphic in power point. TRUE for yes,
 FALSE for no. Defaults to TRUE.}

@@ -135,6 +135,9 @@ g2g_classroom_obs_add_tntpmetrics <- function(.data, grade_column, subject_name,
          call. = FALSE)
   }
 
+  # can only have one subject
+  if (length(subject_name) != 1) stop("There can only be one `subject_name`. You had more than one.", call. = FALSE)
+
   # recoding mapping of responses to match tntpmetrics requirements
   recode_responses_ca_one <- c('Not Yet' = 0, 'Yes' = 1)
   recode_responses_ca_others <- c(
@@ -207,6 +210,43 @@ g2g_classroom_obs_add_tntpmetrics <- function(.data, grade_column, subject_name,
     dplyr::select(dplyr::all_of(id_cols), 'form', dplyr::everything())
 
   return(.data)
+
+}
+
+#' Calculate average IPG scores
+#'
+#' Calculates average IPG scores for identified groups. Data must be created with `g2g_tidy_forms_survey`
+#' and `g2g_classroom_obs_add_ca`
+#'
+#' @param .data Data set created with `g2g_tidy_forms_survey` and `g2g_classroom_obs_add_ca`
+#' @param grade_column The column name, as a string, that contains the grade.
+#' @param subject_name A single value, as a string, representing the subject for the observations.
+#'      Cannot have multiple subjects.
+#' @param grouping_terms Column name or names, as a string or vector of strings, containing categories we want to group by when averaging
+#'      IPG scores. Each unique value in this column will be a distinct row in the final output.
+#'
+#' @examples
+#' g2g_tidy_forms_survey(classroom_observations_math, 8:ncol(classroom_observations_math), c(3,6)) |>
+#'     g2g_classroom_obs_add_ca() |>
+#'     g2g_calc_avg_ipg(grade_column = 'grade', subject_name = 'Math',
+#'     grouping_terms = 'when_did_the_observation_occur')
+#'
+#' @returns A data frame with average IPG scores. Each row is a different group identified in `grouping_terms`.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_calc_avg_ipg <- function(.data, grade_column, subject_name, grouping_terms = NULL) {
+
+  id_cols <- c(".id", grouping_terms)
+
+  .data |>
+    g2g_classroom_obs_add_tntpmetrics(
+      grade_column = grade_column, subject_name = subject_name, id_cols = id_cols
+    ) |>
+    tntpmetrics::make_metric('ipg') |>
+    dplyr::group_by_at(grouping_terms) |>
+    dplyr::summarize(dplyr::across(dplyr::starts_with('cm_'), ~mean(.x, na.rm = TRUE)))
 
 }
 

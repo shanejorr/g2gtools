@@ -144,13 +144,18 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
       )
   }
 
-  text_offset <- ifelse(.data[[text_var]] < .07, .04, .data[[text_var]]-.05)
+  text_offset <- dplyr::case_when(
+    .data[[text_var]] < .08 ~ .05,
+    .data[[text_var]] > .08 & .data[[text_var]] < 1 ~ .data[[text_var]] - .06,
+    .data[[text_var]] == 1 ~ .data[[text_var]] - .08,
+    TRUE ~ .06
+  )
 
   ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
     ggplot2::geom_col() +
     ggplot2::geom_text(
       ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), x = text_offset),
-      color = 'white', fontface='bold'
+      color = 'white', fontface='bold', size = 4.586111
     ) +
     ggplot2::scale_fill_manual(values = color_pal) +
     ggplot2::scale_x_continuous(labels = scales::percent) +
@@ -212,7 +217,7 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns =
 #' @param .data Input data frame made with \code{g2g_forms_survey_calc_percentages()}.
 #' @param x_axis Column name, as a string vector, containing the categories you want to compare.
 #'      These will be the x-axis in the plot.
-#' @param space_between_plots The amount of space, in points ('pt') between plots. Defaults to 40.
+#' @param space_between_plots The amount of space,in points ('pt') between plots. Defaults to 40.
 #'
 #' @returns A single plot containing two bar chart plots.
 #'
@@ -224,7 +229,7 @@ g2g_viz_high_expectations <- function(.data, x_axis, space_between_plots = 50) {
   # ensure the two cm columns are present
   col_names <- colnames(.data)
 
-  req_cols <- c('cm_expectations', 'cm_binary_expectations')
+  req_cols <- c('cm_expectations', 'cm_binary_expectations', x_axis)
 
   if (!all(req_cols %in% col_names)) {
 
@@ -242,7 +247,7 @@ g2g_viz_high_expectations <- function(.data, x_axis, space_between_plots = 50) {
     dplyr::mutate(cm_expectations_text = round(.data[['cm_expectations']], 1)) |>
     g2g_viz_basic_bar(x_axis, 'cm_expectations', 'cm_expectations_text', - 1.35, fill_color = "#00A4C7") +
     ggplot2::labs(
-      title = 'Average High Expectations Score*\n  ',
+      title = 'Average High Expectations Score\n  ',
       x = NULL,
       y = NULL
     ) +
@@ -265,8 +270,7 @@ g2g_viz_high_expectations <- function(.data, x_axis, space_between_plots = 50) {
 
   plts <- patchwork::wrap_plots(plt_he_scores, plt_he_perc) +
     patchwork::plot_annotation(
-      theme = ggplot2::theme(plot.caption = ggplot2::element_text(hjust = 0, size = 12)),
-      caption = '*A score 12 or higher represents high expectations.'
+      theme = ggplot2::theme(plot.caption = ggplot2::element_text(hjust = 0, size = 12))
     )
 
   return(plts)
@@ -314,5 +318,75 @@ g2g_viz_inst_practice <- function(.data, x_axis) {
     ) +
     ggplot2::ylim(c(0, 5)) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, size = 13, face='bold'))
+
+}
+
+#' Bar charts of IPG scores
+#'
+#' Create two bar chart visualizations in one plot. One containing average IPG scores and the other
+#' showing the percentage of teachers with strong instruction. The data used in the bar charts must
+#' come from \code{g2g_calc_inst_practices()}.
+#'
+#' @param .data Input data frame made with \code{g2g_forms_survey_calc_percentages()}.
+#' @param x_axis Column name, as a string vector, containing the categories you want to compare.
+#'      These will be the x-axis in the plot.
+#' @param space_between_plots The amount of space,in points ('pt') between plots. Defaults to 40.
+#'
+#' @returns A single plot containing two bar chart plots.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_viz_ipg <- function(.data, x_axis, space_between_plots = 50) {
+
+  # ensure the two cm columns are present
+  col_names <- colnames(.data)
+
+  req_cols <- c('cm_ipg', 'cm_binary_ipg', x_axis)
+
+  if (!all(req_cols %in% col_names)) {
+
+    stop(
+      paste(
+        "Your data (.data) is missing one of the following required columns: ", paste(req_cols, collapse = ", "),
+        "\nEnsure you used `g2g_forms_survey_calc_percentages()` to create your data."
+      ), call. = FALSE
+    )
+
+  }
+
+  # expectations score
+  plt_ipg_scores <- .data |>
+    dplyr::mutate(cm_ipg_text = round(.data[['cm_ipg']], 1)) |>
+    g2g_viz_basic_bar(x_axis, 'cm_ipg', 'cm_ipg_text', -0.15, fill_color = "#00A4C7") +
+    ggplot2::labs(
+      title = 'Average Observation Score\n  ',
+      x = NULL,
+      y = NULL
+    ) +
+    ggplot2::ylim(c(0, 3)) +
+    ggplot2::theme(
+      plot.title = ggplot2::element_text(hjust = 0.5, size = 13, face='bold'),
+      plot.margin = ggplot2::margin(t = 0, r = space_between_plots, b = 0, l = 0, unit = "pt")
+    )
+
+  plt_ipg_perc <- .data |>
+    dplyr::mutate(cm_binary_ipg_text = scales::percent(.data[['cm_binary_ipg']], accuracy = 1)) |>
+    g2g_viz_basic_bar(x_axis, 'cm_binary_ipg', 'cm_binary_ipg_text', - .075, fill_color = "#EA8835") +
+    ggplot2::scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+    ggplot2::labs(
+      title = "Percentage of Observations\nWith Strong Instruction",
+      x = NULL,
+      y = NULL
+    ) +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, size = 13, face='bold'))
+
+  plts <- patchwork::wrap_plots(plt_ipg_scores, plt_ipg_perc) +
+    patchwork::plot_annotation(
+      theme = ggplot2::theme(plot.caption = ggplot2::element_text(hjust = 0, size = 12))#,
+      #caption = 'Observation scores fall between 0 and 3.\nA score 2 or higher represents strong instruction.'
+    )
+
+  return(plts)
 
 }

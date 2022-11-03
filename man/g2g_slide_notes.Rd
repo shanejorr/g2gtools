@@ -7,7 +7,8 @@
 g2g_slide_notes(note_name)
 }
 \arguments{
-\item{note_name}{The names of the predefined note. One of "HE score", "IPG score", or "Inst Practice score".}
+\item{note_name}{The names of the predefined note. One of: "HE score", HE score" summary,
+"IPG score", "IPG score summary", "Inst Practice score", "Inst Practice score summary".}
 }
 \value{
 A string with the note, which can be added to a slide with the \code{notes_text} parameter of

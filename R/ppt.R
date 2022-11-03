@@ -44,13 +44,14 @@ g2g_create_deck_ppt <- function(title, subtitle) {
 #' @param plt_height The height of the plot, in inches, when it is in the PPT presentation.
 #' @param notes_text Text, as a string, of notes to add to slide. Entire note must be one string.
 #'      Use `\n` within the string to add line breaks. Defaults to `NULL`, or no notes.
+#' @param text_box Text to add under a graph in a text box. Default is NULL, which is no text.
 #' @param vector_plt Should the visualization render as a vector graphic in power point. TRUE for yes,
 #'      FALSE for no. Defaults to TRUE.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_add_viz_ppt <- function(doc, slide_plot, slide_header, plt_width = 9.5, plt_height = 5, notes_text = NULL, vector_plt = TRUE) {
+g2g_add_viz_ppt <- function(doc, slide_plot, slide_header, plt_width = 9.5, plt_height = 5, notes_text = NULL, text_box = NULL, vector_plt = TRUE) {
 
   if (!vector_plt %in% c(TRUE, FALSE)) stop("`vector_plt` must be either TRUE or FALSE", call. = FALSE)
 
@@ -62,6 +63,24 @@ g2g_add_viz_ppt <- function(doc, slide_plot, slide_header, plt_width = 9.5, plt_
   s_w <- s_s$width # width of slides
   left <- (s_w/2) - (plt_width/2)
 
+  # determine height so plot is centered
+  default_height <- 1.25
+  footer_height <- .4
+  s_h <- s_s$height
+  h_middle <- ((s_h - default_height)/2) - (plt_height / 2)
+  top <- h_middle + default_height - footer_height
+  top <- if (top < default_height) default_height else top
+
+  # location of text to add under plot
+  text_box_height <- .3
+  text_adj_height <- .25
+  text_location <- top + plt_height + text_box_height - text_adj_height
+
+  # adjust plot height if there is a text box
+  if (!is.null(text_box)) {
+    top <- top + text_box_height - text_adj_height - .1
+  }
+
   # add header text to slide
   doc <- officer::ph_with(doc, value = slide_header, location = officer::ph_location_type(type = "title"))
 
@@ -71,9 +90,22 @@ g2g_add_viz_ppt <- function(doc, slide_plot, slide_header, plt_width = 9.5, plt_
   }
 
   # add plot to slide
-  slide_loc <- officer::ph_location(left = left, top = 1.25, width = plt_width, height = plt_height, newlabel = "plot")
+  slide_loc <- officer::ph_location(left = left, top = top, width = plt_width, height = plt_height, newlabel = "plot")
 
   doc <- officer::ph_with(doc, value = slide_plot, location = slide_loc)
+
+  # add text box, if needed
+  if (!is.null(text_box)) {
+    text_format <- officer::fpar(
+      officer::ftext(
+        text_box,
+        officer::fp_text(font.size = 14, bold = TRUE, font.family = "Segoe UI", italic = TRUE, color = "#00A4C7")
+      ),
+      fp_p = officer::fp_par(text.align = "center")
+    )
+    text_loc <- officer::ph_location(left = .25, top = text_location, width = s_w - .5, height = .75)
+    doc <- officer::ph_with(doc, value = text_format, location = text_loc)
+  }
 
   # add notes, if needed
   if (!is.null(notes_text)) {
@@ -180,7 +212,8 @@ g2g_add_table_ppt <- function(doc, .data, slide_header, col_lengths, fontsize = 
 #'
 #' Predefined custom notes that can be added to Power Point slide notes to help explain the data.
 #'
-#' @param note_name The names of the predefined note. One of "HE score", "IPG score", or "Inst Practice score".
+#' @param note_name The names of the predefined note. One of: "HE score", HE score" summary,
+#'      "IPG score", "IPG score summary", "Inst Practice score", "Inst Practice score summary".
 #'
 #' @returns A string with the note, which can be added to a slide with the `notes_text` parameter of
 #'      `g2g_add_viz_ppt` or `g2g_add_table_ppt`.
@@ -192,18 +225,20 @@ g2g_slide_notes <- function(note_name) {
 
   he_score <- c(
     "High expectations scores are single scores that incorporate all four HE questions.",
-    "They are calculated as follows:",
+    "Scores fall between 0 and 20. A teacher has high expectations if the teacher's HE score is greater than or equal to 12.",
+    "HE scores are calculated as follows:",
     "- A HE score is first calculated for each teacher.",
     "   - To calculate the score, each teacher's response is converted to a number, with Strongly Disagree being a 0 and Strongly Agree being a 5.",
     "   - These four number values are then summed for each teacher. This is the teacher's HE score.",
-    "- The overall HE score that you see in the table is the average of all teacher HE scores.",
-    "- A teacher has high expectations if the teacher's HE score is greater than or equal to 12.",
-    "- Therefore, the percentage of teachers with HE is the percentage of teachers with HE scores greater than or equal to 12."
+    "- The overall HE score that you see in the table is the average of all teacher HE scores."
   ) |>
     stringr::str_c(collapse = '\n')
 
+  he_score_summary <- "High expectations scores fall between 0 and 20. A score of 12 or higher represents high expectations."
+
   ipg_score <- c(
-    "IPG scores are single scores that incorporate the following Core Actions.",
+    "IPG scores (observation scores) are single scores that incorporate the following Core Actions.",
+    "They fall between 0 and 3, and 2 or higher represents strong instruction.",
     "- Core Action 1A",
     "- Core Action 1B",
     "- Core Action 1C",
@@ -217,19 +252,35 @@ g2g_slide_notes <- function(note_name) {
   ) |>
     stringr::str_c(collapse = '\n')
 
+  ipg_score_summary <- "Observation scores fall between 0 and 3. A score of 2 or higher represents strong instruction."
+
   instr_practice_score <- c(
     "The instructional practice score is an aggregate sore for all instructional practices questions.",
     "The score is calculated by first converting the scale responses to numbers.",
     "'Never' is scored a 1 and 'In All or Most Lessons' is scored a 5'.",
-    "The final instructional practice score is the average of all these numeric responses."
+    "The final instructional practice score is the average of all these numeric responses and falls between 1 and 5."
   ) |>
     stringr::str_c(collapse = '\n')
 
+  instr_practice_score_summary <- "Instructional practice scores fall between 1 and 5."
+
   list_of_notes <- list(
     'HE score' = he_score,
+    'HE score summary' = he_score_summary,
     "IPG score" = ipg_score,
-    'Inst Practice score' = instr_practice_score
+    'IPG score summary' = ipg_score_summary,
+    'Inst Practice score' = instr_practice_score,
+    'Inst Practice score summary' = instr_practice_score_summary
   )
+
+  if (!note_name %in% names(list_of_notes)) {
+
+    all_names <- paste0(names(list_of_notes), collapse = ", '")
+
+    stop(
+      paste0("`note_names` must be one of: ", "'", all_names, "'.")
+    )
+  }
 
   list_of_notes[[note_name]]
 
