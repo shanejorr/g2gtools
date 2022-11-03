@@ -11,7 +11,7 @@ g2g_add_viz_ppt(
   plt_width = 9.5,
   plt_height = 5,
   notes_text = NULL,
-  vector_plt = FALSE
+  vector_plt = TRUE
 )
 }
 \arguments{
