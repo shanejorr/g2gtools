@@ -24,7 +24,8 @@ g2g_plt_base_theme <- function(text_font = "Segoe UI", horizontal_barchart = FAL
       axis.text.x = ggplot2::element_text(size = 12),
       axis.title = ggplot2::element_text(size=13),
       strip.text = ggplot2::element_text(size = 13),
-      panel.background = ggplot2::element_rect(size=0.5, color = 'gray')
+      panel.background = ggplot2::element_rect(size=0.5, color = 'gray'),
+      plot.caption = ggplot2::element_text(hjust = 0, size = 12)
     )
 
   if (center_title) {
@@ -383,8 +384,7 @@ g2g_viz_ipg <- function(.data, x_axis, space_between_plots = 50) {
 
   plts <- patchwork::wrap_plots(plt_ipg_scores, plt_ipg_perc) +
     patchwork::plot_annotation(
-      theme = ggplot2::theme(plot.caption = ggplot2::element_text(hjust = 0, size = 12))#,
-      #caption = 'Observation scores fall between 0 and 3.\nA score 2 or higher represents strong instruction.'
+      theme = ggplot2::theme(plot.caption = ggplot2::element_text(hjust = 0, size = 12))
     )
 
   return(plts)
