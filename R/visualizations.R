@@ -110,11 +110,13 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset, fill_c
 #' @param color_pal Custom color palette to use. This should be a vector with the values being
 #'       the hex codes for the colors and the names being the unique scales from \code{fill_var}
 #' @param ... Parameters for `g2g_plt_base_theme()`
+#' @param text_location The variable name, as a string, of the location of the text on the x axis, between 0 and 1. If `NULL`, the default,
+#'       the location will be the same as `text_var`.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var, color_pal, ...) {
+g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_location = NULL, ...) {
 
   # make sure all numbers are between 0 and 1
   if (!all(dplyr::between(.data[[x_var]][!is.na(.data[[x_var]])], 0, 1))) {
@@ -145,12 +147,16 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
       )
   }
 
-  text_offset <- dplyr::case_when(
-    .data[[text_var]] < .08 ~ .05,
-    .data[[text_var]] > .08 & .data[[text_var]] < 1 ~ .data[[text_var]] - .06,
-    .data[[text_var]] == 1 ~ .data[[text_var]] - .08,
-    TRUE ~ .06
-  )
+  if (is.null(text_location)) {
+    text_offset <- dplyr::case_when(
+      .data[[text_var]] < .08 ~ .05,
+      .data[[text_var]] > .08 & .data[[text_var]] < 1 ~ .data[[text_var]] - .06,
+      .data[[text_var]] == 1 ~ .data[[text_var]] - .08,
+      TRUE ~ .06
+    )
+  } else {
+    text_offset <- .data[[text_location]]
+  }
 
   ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
     ggplot2::geom_col() +
