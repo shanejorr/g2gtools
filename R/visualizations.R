@@ -111,9 +111,9 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset, fill_c
 #'       This should be numeric and as a decimal between 0 and 1.
 #' @param color_pal Custom color palette to use. This should be a vector with the values being
 #'       the hex codes for the colors and the names being the unique scales from \code{fill_var}
-#' @param ... Parameters for `g2g_plt_base_theme()`
 #' @param text_location The variable name, as a string, of the location of the text on the x axis, between 0 and 1. If `NULL`, the default,
 #'       the location will be the same as `text_var`.
+#' @param ... Parameters for `g2g_plt_base_theme()`
 #'
 #' @importFrom rlang .data
 #'
@@ -435,41 +435,26 @@ g2g_viz_checks <- function(.data, x_var, y_var, fill_var, text_var) {
 #' @export
 g2g_viz_likert_centered <- function(.data, x_var, y_var, fill_var, color_pal) {
 
+  g2g_viz_checks(.data, x_var, y_var, fill_var, text_var = NULL)
+
+  # find positive, negative, and neutral scales
   number_of_scales <- length(color_pal)
-  number_scales_each_category <- floor(number_of_scales/2)
 
   has_neutral <- !(number_of_scales %% 2 == 0)
 
-  positive_scales_int <- 1:number_scales_each_category
-  negative_scales_int <- (number_of_scales-number_scales_each_category+1):number_of_scales
-  neutral_scales_int <- if (has_neutral) ceiling(number_of_scales/2) else NULL
+  # clean the data and extract the positive, negative, and neutral scales
+  data_and_scales <- g2g_helper_clean_viz_likert_centered(.data, x_var, y_var, fill_var, color_pal, has_neutral, number_of_scales)
+  df <- data_and_scales$df
+  neutral_scales <- data_and_scales$scales$neutral
 
-  positive_scales <- names(color_pal)[positive_scales_int]
-  negative_scales <- names(color_pal)[negative_scales_int]
-  neutral_scales <- if (has_neutral) names(color_pal)[neutral_scales_int] else NULL
-
-  .data <- .data |>
-    tidyr::drop_na(.data[[fill_var]], .data[[fill_var]]) |>
-    dplyr::mutate(
-      !!fill_var := factor(.data[[fill_var]], levels = c(negative_scales, positive_scales, neutral_scales)),
-      !!x_var := ifelse(.data[[fill_var]] %in% negative_scales, .data[[x_var]] * -1, .data[[x_var]]),
-      x_intercet = ifelse(.data[[fill_var]] %in% neutral_scales, NA_integer_, 0),
-      response_category = dplyr::case_when(
-        .data[[fill_var]] %in% positive_scales ~ 'Positive',
-        .data[[fill_var]] %in% negative_scales ~ 'Negative',
-        .data[[fill_var]] %in% neutral_scales ~ 'Neutral',
-        TRUE ~ 'Failed to match response'
-      )
-    ) |>
-    dplyr::group_by(.data[[y_var]],response_category) |>
-    dplyr::mutate(category_cumulative = sum(.data[[x_var]])) |>
-    dplyr::ungroup()
+  # used to get rid of 'no visible bindings' message
+  intercept <- neutral_response <- NULL
 
   if (has_neutral) {
-    .data$neutral_response <- ifelse(.data[[fill_var]] == neutral_scales, 'Neutral Responses', 'Positive / Negative Responses') |>
+    df$neutral_response <- ifelse(df[[fill_var]] == neutral_scales, 'Neutral Responses', 'Positive / Negative Responses') |>
       forcats::fct_relevel('Positive / Negative Responses')
 
-    max_neutral <- max(.data[[x_var]][.data$neutral_response == 'Neutral Responses'])
+    max_neutral <- max(df[[x_var]][df$neutral_response == 'Neutral Responses'])
 
     axis_limit_neutral <- dplyr::case_when(
       max_neutral < .25 ~ .25,
@@ -490,12 +475,12 @@ g2g_viz_likert_centered <- function(.data, x_var, y_var, fill_var, color_pal) {
 
   axis_label_percent <- function(x) scales::percent(abs(x), accuracy = 1)
 
-  text_offset <- .05
+  text_offset <- .075
 
-  plt <- ggplot2::ggplot(.data, ggplot2::aes(x = .data[[x_var]], y = .data[[y_var]], fill = .data[[fill_var]])) +
+  plt <- ggplot2::ggplot(df, ggplot2::aes(x = .data[[x_var]], y = .data[[y_var]], fill = .data[[fill_var]])) +
     ggplot2::geom_col() +
     ggplot2::scale_fill_manual(values = color_pal) +
-    ggplot2::geom_vline(data = x_intercepts, ggplot2::aes(xintercept = intercept), linetype = 2) +
+    ggplot2::geom_vline(data = x_intercepts, ggplot2::aes(xintercept = .data[[intercept]]), linetype = 2) +
     ggplot2::geom_text(
       ggplot2::aes(
         x = ifelse(.data[['category_cumulative']] < 0, .data[['category_cumulative']] - text_offset, .data[['category_cumulative']] + text_offset),
@@ -521,5 +506,59 @@ g2g_viz_likert_centered <- function(.data, x_var, y_var, fill_var, color_pal) {
   }
 
   return(plt)
+
+}
+
+#' Clean data prior to creating plot for `g2g_viz_likert_centered`
+#'
+#' @inheritParams g2g_viz_likert_centered
+#' @param has_neutral Boolean. Whether data has a neutral category
+#' @param number_of_scales The total number of scales. Must be a single integer.
+#'
+#' @returns data.frame that is used in `g2g_viz_likert_centered`.
+#'
+#' @importFrom rlang .data
+#' @importFrom rlang :=
+#'
+#' @keywords internal
+g2g_helper_clean_viz_likert_centered <- function(.data, x_var, y_var, fill_var, color_pal, has_neutral, number_of_scales) {
+
+  number_scales_each_category <- floor(number_of_scales/2)
+
+  positive_scales_int <- 1:number_scales_each_category
+  negative_scales_int <- (number_of_scales-number_scales_each_category+1):number_of_scales
+  neutral_scales_int <- if (has_neutral) ceiling(number_of_scales/2) else NULL
+
+  positive_scales <- names(color_pal)[positive_scales_int]
+  negative_scales <- names(color_pal)[negative_scales_int]
+  neutral_scales <- if (has_neutral) names(color_pal)[neutral_scales_int] else NULL
+
+  df <- .data |>
+    tidyr::drop_na(.data[[fill_var]], .data[[fill_var]]) |>
+    dplyr::mutate(
+      !!fill_var := factor(.data[[fill_var]], levels = c(negative_scales, positive_scales, neutral_scales)),
+      !!x_var := ifelse(.data[[fill_var]] %in% negative_scales, .data[[x_var]] * -1, .data[[x_var]]),
+      x_intercet = ifelse(.data[[fill_var]] %in% neutral_scales, NA_integer_, 0),
+      response_category = dplyr::case_when(
+        .data[[fill_var]] %in% positive_scales ~ 'Positive',
+        .data[[fill_var]] %in% negative_scales ~ 'Negative',
+        .data[[fill_var]] %in% neutral_scales ~ 'Neutral',
+        TRUE ~ 'Failed to match response'
+      )
+    ) |>
+    dplyr::group_by(.data[[y_var]], .data[['response_category']]) |>
+    dplyr::mutate(category_cumulative = sum(.data[[x_var]])) |>
+    dplyr::ungroup()
+
+  if (any(df$response_category == 'Failed to match response')) stop("We had a problem determining whether your scales were positive or negative. Please recheck your data and parameters.", call. = FALSE)
+
+  list(
+    df = df,
+    scales = list(
+      positive = positive_scales,
+      negative = negative_scales,
+      neutral = neutral_scales
+    )
+  )
 
 }

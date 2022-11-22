@@ -2,6 +2,7 @@
 # It is not included in the package build.
 library(g2gtools)
 
+devtools::load_all()
 
 
 color_pal <- c(Good = "#00A4C7", OK = "#C1C2C4", Bad = "#EA8835")
@@ -10,11 +11,13 @@ x_var <- 'percentage'
 y_var <- 'question'
 fill_var <- 'response'
 
-.data <- data.frame(
+dfa <- data.frame(
   question = rep(c('Question 1', 'Question 2'), 3),
-  response = rep(c('Good', 'OK', 'Bad'), each = 2),
+  response = rep(c('Good', 'OK', 'Bad'), each = 2) |> factor(levels = names(color_pal)),
   percentage = rep(.33333, 6)
 )
+
+g2g_viz_likert_centered(dfa, x_var, y_var, fill_var, color_pal)
 
 number_of_scales <- length(color_pal)
 number_scales_each_category <- floor(number_of_scales/2)

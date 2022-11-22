@@ -29,7 +29,8 @@ Imports:
     lubridate,
     tntpmetrics,
     patchwork,
-    ggh4x
+    ggh4x,
+    forcats
 Remotes: github::adamMaier/tntpmetrics
 URL: https://github.com/shanejorr/g2gtools
 BugReports: https://github.com/shanejorr/g2gtools/issues

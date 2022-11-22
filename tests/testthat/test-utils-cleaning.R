@@ -66,7 +66,7 @@ test_that("Ensure you get the right scale and color output", {
 
 })
 
-test_that("Correclty aggregate positive responses", {
+test_that("Correctly aggregate positive responses", {
 
   scales <- c('Strong 1', 'Strong 2', 'Weak 1', 'Weak 2')
 
@@ -99,3 +99,45 @@ test_that("Correclty aggregate positive responses", {
   expect_equal(aggregate_responses, expected_results)
 
 })
+
+test_that("Properly create data set for g2g_viz_likert_centered", {
+
+  color_pal <- c(Good = "#00A4C7", OK = "#C1C2C4", Bad = "#EA8835")
+
+  x_var <- 'percentage'
+  y_var <- 'question'
+  fill_var <- 'response'
+
+  df <- data.frame(
+    question = rep(c('Question 1', 'Question 2'), 3),
+    response = rep(c('Good', 'OK', 'Bad'), each = 2) |> factor(levels = names(color_pal)),
+    percentage = rep(.33333, 6)
+  )
+
+  # find positive, negative, and neutral scales
+  number_of_scales <- length(color_pal)
+
+  has_neutral <- !(number_of_scales %% 2 == 0)
+
+  # clean the data and extract the positive, negative, and neutral scales
+  data_and_scales <- g2g_helper_clean_viz_likert_centered(df, x_var, y_var, fill_var, color_pal, has_neutral, number_of_scales)
+
+  expectation_df <- tibble::tribble(
+    ~question, ~response, ~percentage, ~x_intercet, ~response_category, ~category_cumulative,
+    "Question 1",    "Good",     0.33333,           0,         "Positive",              0.33333,
+    "Question 2",    "Good",     0.33333,           0,         "Positive",              0.33333,
+    "Question 1",      "OK",     0.33333,          NA,          "Neutral",              0.33333,
+    "Question 2",      "OK",     0.33333,          NA,          "Neutral",              0.33333,
+    "Question 1",     "Bad",    -0.33333,           0,         "Negative",             -0.33333,
+    "Question 2",     "Bad",    -0.33333,           0,         "Negative",             -0.33333
+  ) |>
+    dplyr::mutate(response = factor(response,levels = c("Bad","Good","OK")))
+
+  expect_equal(data_and_scales$df, expectation_df)
+  expect_equal(data_and_scales$scales$positive, "Good")
+  expect_equal(data_and_scales$scales$negative, "Bad")
+  expect_equal(data_and_scales$scales$neutral, "OK")
+
+})
+
+
