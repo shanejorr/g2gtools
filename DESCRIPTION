@@ -28,7 +28,8 @@ Imports:
     flextable,
     lubridate,
     tntpmetrics,
-    patchwork
+    patchwork,
+    ggh4x
 Remotes: github::adamMaier/tntpmetrics
 URL: https://github.com/shanejorr/g2gtools
 BugReports: https://github.com/shanejorr/g2gtools/issues

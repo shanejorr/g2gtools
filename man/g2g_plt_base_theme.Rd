@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualizations.R
 \name{g2g_plt_base_theme}
 \alias{g2g_plt_base_theme}
-\title{Basic theme setting fonts}
+\title{Basic theme settings}
 \usage{
 g2g_plt_base_theme(
   text_font = "Segoe UI",
@@ -19,6 +19,5 @@ If the plot is a horizontal bar chart, the x axis text is smaller than the y axi
 \item{center_title}{Should the plot title be centered on the plot? TRUE for yes, FALSE for no.}
 }
 \description{
-Basic theme setting fonts
+Basic theme settings
 }
-\keyword{internal}

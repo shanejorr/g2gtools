@@ -1,4 +1,4 @@
-#' Basic theme setting fonts
+#' Basic theme settings
 #'
 #' @param text_font Font for texts. Defaults to Arial narrow.
 #' @param horizontal_barchart Is the plot a horizontal bar chart? TRUE if yes, FALSE if no.
@@ -7,7 +7,7 @@
 #'
 #' @importFrom rlang .data
 #'
-#' @keywords internal
+#' @export
 g2g_plt_base_theme <- function(text_font = "Segoe UI", horizontal_barchart = FALSE, center_title = FALSE) {
 
   if (!horizontal_barchart %in% c(TRUE, FALSE)) stop("`horizontal_barchart` must be either TRUE or FALSE", call. = FALSE)
@@ -25,7 +25,9 @@ g2g_plt_base_theme <- function(text_font = "Segoe UI", horizontal_barchart = FAL
       axis.title = ggplot2::element_text(size=13),
       strip.text = ggplot2::element_text(size = 13),
       panel.background = ggplot2::element_rect(size=0.5, color = 'gray'),
-      plot.caption = ggplot2::element_text(hjust = 0, size = 12)
+      plot.caption = ggplot2::element_text(hjust = 0, size = 12),
+      panel.grid.minor = ggplot2::element_blank(),
+      legend.position = 'bottom'
     )
 
   if (center_title) {
@@ -118,34 +120,12 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset, fill_c
 #' @export
 g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_location = NULL, ...) {
 
-  # make sure all numbers are between 0 and 1
-  if (!all(dplyr::between(.data[[x_var]][!is.na(.data[[x_var]])], 0, 1))) {
-    stop("All 'x_var' values must be decimals between 0 and 1.", call. = FALSE)
-  }
-
-  # the fill column must be a factor
-  if (!is.factor(.data[[fill_var]])) stop("`fill_var` must be a factor")
+  # ensure entered parameters are correct
+  g2g_viz_checks(.data, x_var, y_var, fill_var, text_var)
 
   # the legend should have two rows if there are more than four options and one row otherwise
   num_legend_items <- length(levels(.data[[fill_var]]))
   num_legend_rows <- if (num_legend_items > 4) 2 else 1
-
-  # make sure all column are present
-  col_names <- colnames(.data)
-
-  viz_cols <- c(x_var, y_var, fill_var, text_var)
-
-  viz_in_colnames <- viz_cols %in% col_names
-
-  if(!all(viz_in_colnames)) {
-    stop(
-      paste0(
-        "The following column names are not in your data (.data): '",
-        paste0(viz_cols[!viz_in_colnames], collapse = ", '"),
-        "'"),
-      call. = FALSE
-      )
-  }
 
   if (is.null(text_location)) {
     text_offset <- dplyr::case_when(
@@ -394,5 +374,152 @@ g2g_viz_ipg <- function(.data, x_axis, space_between_plots = 50) {
     )
 
   return(plts)
+
+}
+
+#' Perform checks for visualizations to ensure entered parameters are correct
+#'
+#' @importFrom rlang .data
+#'
+#' @keywords internal
+g2g_viz_checks <- function(.data, x_var, y_var, fill_var, text_var) {
+
+  # make sure all numbers are between 0 and 1
+  if (!all(dplyr::between(.data[[x_var]][!is.na(.data[[x_var]])], 0, 1))) {
+    stop("All 'x_var' values must be decimals between 0 and 1.", call. = FALSE)
+  }
+
+  # the fill column must be a factor
+  if (!is.factor(.data[[fill_var]])) stop("`fill_var` must be a factor")
+
+  # make sure all column are present
+  col_names <- colnames(.data)
+
+  viz_cols <- c(x_var, y_var, fill_var, text_var)
+
+  viz_in_colnames <- viz_cols %in% col_names
+
+  if(!all(viz_in_colnames)) {
+    stop(
+      paste0(
+        "The following column names are not in your data (.data): '",
+        paste0(viz_cols[!viz_in_colnames], collapse = ", '"),
+        "'"),
+      call. = FALSE
+    )
+  }
+
+  return(NULL)
+
+}
+
+#' Plot all Likert scale items centered on 0
+#'
+#' Creates horizontal bar chart with scales centered on 0. Positive scales extend to the right of 0,
+#' while negative scales extend to the left of 0. Neutral scale items are placed in their own plot to
+#' the right of the plto containing positive and negative scales.
+#'
+#' @param .data The data set to visualize. It must be aggregated results in tidy format. Each row is a
+#'     single question and response option ('Agree'), and the aggregate percentage of respondents
+#'     - as a decimal (.75) - answering with the given response option.
+#' @param x_var The x variable name, as a string. This should be numeric and as a decimal between 0 and 1.
+#'       It represents the percentage of respondents for the given question and response option.
+#' @param y_var The x variable name, as a string. This could be questions or a column signifying
+#'       pre or post training, with a facet added after this function signifying questions.
+#' @param fill_var The variable name, as a string, representing the response scales ('Agree').
+#' @param color_pal Custom color palette to use. This should be a vector with the values being
+#'       the hex codes for the colors and the names being the unique scales from \code{fill_var}
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_viz_likert_centered <- function(.data, x_var, y_var, fill_var, color_pal) {
+
+  number_of_scales <- length(color_pal)
+  number_scales_each_category <- floor(number_of_scales/2)
+
+  has_neutral <- !(number_of_scales %% 2 == 0)
+
+  positive_scales_int <- 1:number_scales_each_category
+  negative_scales_int <- (number_of_scales-number_scales_each_category+1):number_of_scales
+  neutral_scales_int <- if (has_neutral) ceiling(number_of_scales/2) else NULL
+
+  positive_scales <- names(color_pal)[positive_scales_int]
+  negative_scales <- names(color_pal)[negative_scales_int]
+  neutral_scales <- if (has_neutral) names(color_pal)[neutral_scales_int] else NULL
+
+  .data <- .data |>
+    tidyr::drop_na(.data[[fill_var]], .data[[fill_var]]) |>
+    dplyr::mutate(
+      !!fill_var := factor(.data[[fill_var]], levels = c(negative_scales, positive_scales, neutral_scales)),
+      !!x_var := ifelse(.data[[fill_var]] %in% negative_scales, .data[[x_var]] * -1, .data[[x_var]]),
+      x_intercet = ifelse(.data[[fill_var]] %in% neutral_scales, NA_integer_, 0),
+      response_category = dplyr::case_when(
+        .data[[fill_var]] %in% positive_scales ~ 'Positive',
+        .data[[fill_var]] %in% negative_scales ~ 'Negative',
+        .data[[fill_var]] %in% neutral_scales ~ 'Neutral',
+        TRUE ~ 'Failed to match response'
+      )
+    ) |>
+    dplyr::group_by(.data[[y_var]],response_category) |>
+    dplyr::mutate(category_cumulative = sum(.data[[x_var]])) |>
+    dplyr::ungroup()
+
+  if (has_neutral) {
+    .data$neutral_response <- ifelse(.data[[fill_var]] == neutral_scales, 'Neutral Responses', 'Positive / Negative Responses') |>
+      forcats::fct_relevel('Positive / Negative Responses')
+
+    max_neutral <- max(.data[[x_var]][.data$neutral_response == 'Neutral Responses'])
+
+    axis_limit_neutral <- dplyr::case_when(
+      max_neutral < .25 ~ .25,
+      max_neutral < .5 ~ .5,
+      max_neutral < .75 ~ .75,
+      max_neutral < .25 ~ .25,
+      TRUE ~ 1
+    )
+
+    x_intercepts <- data.frame(neutral_response = c('Positive / Negative Responses','Neutral Responses'), intercept = c(0, NA_integer_))
+    x_intercepts$neutral_response <- forcats::fct_relevel(x_intercepts$neutral_response, 'Positive / Negative Responses')
+
+  } else {
+
+    x_intercepts <- data.frame(neutral_response = c('Positive / Negative Responses'), intercept = 0)
+
+  }
+
+  axis_label_percent <- function(x) scales::percent(abs(x), accuracy = 1)
+
+  text_offset <- .05
+
+  plt <- ggplot2::ggplot(.data, ggplot2::aes(x = .data[[x_var]], y = .data[[y_var]], fill = .data[[fill_var]])) +
+    ggplot2::geom_col() +
+    ggplot2::scale_fill_manual(values = color_pal) +
+    ggplot2::geom_vline(data = x_intercepts, ggplot2::aes(xintercept = intercept), linetype = 2) +
+    ggplot2::geom_text(
+      ggplot2::aes(
+        x = ifelse(.data[['category_cumulative']] < 0, .data[['category_cumulative']] - text_offset, .data[['category_cumulative']] + text_offset),
+        label = scales::percent(abs(.data[['category_cumulative']]), accuracy = 1)
+      ), size = 4.586111
+    ) +
+    g2g_plt_base_theme(horizontal_barchart = TRUE)
+
+
+  if (has_neutral) {
+
+    plt <- plt +
+      ggplot2::facet_wrap(ggplot2::vars(neutral_response), ncol = 2, scales = "free_x") +
+      ggh4x::scale_x_facet(neutral_response == 'Positive / Negative Responses', limits = c(-1, 1), breaks = seq(-1, 1, .25), labels = axis_label_percent) +
+      ggh4x::scale_x_facet(neutral_response == 'Neutral Responses', limits = c(0, axis_limit_neutral), breaks = seq(0, axis_limit_neutral, .25), labels = axis_label_percent) +
+      ggh4x::force_panelsizes(cols = c(1, .2))
+
+  } else {
+
+    plt <- plt +
+      ggplot2::scale_x_continuous(limits = c(-1, 1), breaks = seq(-1, 1, .25), labels = axis_label_percent)
+
+  }
+
+  return(plt)
 
 }
