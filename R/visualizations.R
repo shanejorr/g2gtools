@@ -144,7 +144,7 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
       ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), x = text_offset),
       color = 'white', fontface='bold', size = 4.586111
     ) +
-    ggplot2::scale_fill_manual(values = color_pal) +
+    ggplot2::scale_fill_manual(values = color_pal, drop = FALSE) +
     ggplot2::scale_x_continuous(labels = scales::percent) +
     g2g_plt_theme_no_lines(horizontal_barchart = TRUE, ...) +
     ggplot2::theme(legend.position = 'bottom') +
@@ -477,10 +477,16 @@ g2g_viz_likert_centered <- function(.data, x_var, y_var, fill_var, color_pal) {
 
   text_offset <- .075
 
+  legend_order <- c(rev(data_and_scales$scales$negative), rev(data_and_scales$scales$positive), data_and_scales$scales$neutral)
+
   plt <- ggplot2::ggplot(df, ggplot2::aes(x = .data[[x_var]], y = .data[[y_var]], fill = .data[[fill_var]])) +
     ggplot2::geom_col() +
-    ggplot2::scale_fill_manual(values = color_pal) +
-    ggplot2::geom_vline(data = x_intercepts, ggplot2::aes(xintercept = .data[[intercept]]), linetype = 2) +
+    ggplot2::scale_fill_manual(
+      values = color_pal, drop = FALSE,
+      breaks = legend_order,
+      labels = legend_order
+    ) +
+    ggplot2::geom_vline(data = x_intercepts, ggplot2::aes(xintercept = .data[['intercept']]), linetype = 2, size = 2) +
     ggplot2::geom_text(
       ggplot2::aes(
         x = ifelse(.data[['category_cumulative']] < 0, .data[['category_cumulative']] - text_offset, .data[['category_cumulative']] + text_offset),
@@ -494,8 +500,8 @@ g2g_viz_likert_centered <- function(.data, x_var, y_var, fill_var, color_pal) {
 
     plt <- plt +
       ggplot2::facet_wrap(ggplot2::vars(neutral_response), ncol = 2, scales = "free_x") +
-      ggh4x::scale_x_facet(neutral_response == 'Positive / Negative Responses', limits = c(-1, 1), breaks = seq(-1, 1, .25), labels = axis_label_percent) +
-      ggh4x::scale_x_facet(neutral_response == 'Neutral Responses', limits = c(0, axis_limit_neutral), breaks = seq(0, axis_limit_neutral, .25), labels = axis_label_percent) +
+      ggh4x::scale_x_facet(neutral_response == 'Positive / Negative Responses', limits = c(-1.1, 1.1), breaks = seq(-1, 1, .25), labels = axis_label_percent) +
+      ggh4x::scale_x_facet(neutral_response == 'Neutral Responses', limits = c(0, axis_limit_neutral+.1), breaks = seq(0, axis_limit_neutral, .25), labels = axis_label_percent) +
       ggh4x::force_panelsizes(cols = c(1, .2))
 
   } else {
@@ -558,6 +564,11 @@ g2g_helper_clean_viz_likert_centered <- function(.data, x_var, y_var, fill_var, 
       positive = positive_scales,
       negative = negative_scales,
       neutral = neutral_scales
+    ),
+    scales_int = list(
+      positive = positive_scales_int,
+      negative = negative_scales_int,
+      neutral = neutral_scales_int
     )
   )
 
