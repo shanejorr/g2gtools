@@ -11,11 +11,12 @@ x_var <- 'percentage'
 y_var <- 'question'
 fill_var <- 'response'
 
-dfa <- data.frame(
+.data <- data.frame(
   question = rep(c('Question 1', 'Question 2'), 3),
   response = rep(c('Good', 'OK', 'Bad'), each = 2) |> factor(levels = names(color_pal)),
   percentage = rep(.33333, 6)
-)
+) |>
+  dplyr::filter(response != 'OK')
 
 g2g_viz_likert_centered(dfa, x_var, y_var, fill_var, color_pal)
 
