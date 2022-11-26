@@ -482,7 +482,7 @@ g2g_viz_likert_centered <- function(.data, x_var, y_var, fill_var, color_pal) {
 
   axis_label_percent <- function(x) scales::percent(abs(x), accuracy = 1)
 
-  text_offset <- .075
+  text_offset <- .1
 
   legend_order <- c(rev(data_and_scales$scales$negative), rev(data_and_scales$scales$positive), data_and_scales$scales$neutral)
 
