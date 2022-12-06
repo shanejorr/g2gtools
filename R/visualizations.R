@@ -483,14 +483,21 @@ g2g_viz_likert_centered <- function(.data, x_var, y_var, fill_var, color_pal) {
   df <- data_and_scales$df
   neutral_scales <- data_and_scales$scales$neutral
 
+  pos_neg_response_label <- 'Positive / Negative\nResponses'
+  neutral_response_lavel <- 'Neutral\nResponses'
+
   # used to get rid of 'no visible bindings' message
   intercept <- neutral_response <- NULL
 
   if (has_neutral) {
-    df$neutral_response <- ifelse(df[[fill_var]] == neutral_scales, 'Neutral Responses', 'Positive / Negative Responses') |>
-      forcats::fct_relevel('Positive / Negative Responses')
+    df$neutral_response <- ifelse(df[[fill_var]] == neutral_scales, 'Neutral\nResponses', 'Positive / Negative\nResponses') |>
+      forcats::fct_relevel('Positive / Negative\nResponses')
 
-    max_neutral <- max(df[[x_var]][df$neutral_response == 'Neutral Responses'])
+    neutral_responses <- df[[x_var]][df$neutral_response == 'Neutral\nResponses']
+
+    # return .10 if there are no neutral response,
+    # if there are neutral responses, return the max
+    max_neutral <- if (is.null(neutral_responses) | length(neutral_responses) == 0) .10 else max(neutral_responses)
 
     axis_limit_neutral <- dplyr::case_when(
       max_neutral < .25 ~ .25,
@@ -500,18 +507,18 @@ g2g_viz_likert_centered <- function(.data, x_var, y_var, fill_var, color_pal) {
       TRUE ~ 1
     )
 
-    x_intercepts <- data.frame(neutral_response = c('Positive / Negative Responses','Neutral Responses'), intercept = c(0, NA_integer_))
-    x_intercepts$neutral_response <- forcats::fct_relevel(x_intercepts$neutral_response, 'Positive / Negative Responses')
+    x_intercepts <- data.frame(neutral_response = c('Positive / Negative\nResponses', 'Neutral\nResponses'), intercept = c(0, NA_integer_))
+    x_intercepts$neutral_response <- forcats::fct_relevel(x_intercepts$neutral_response, 'Positive / Negative\nResponses')
 
   } else {
 
-    x_intercepts <- data.frame(neutral_response = c('Positive / Negative Responses'), intercept = 0)
+    x_intercepts <- data.frame(neutral_response = c('Positive / Negative\nResponses'), intercept = 0)
 
   }
 
   axis_label_percent <- function(x) scales::percent(abs(x), accuracy = 1)
 
-  text_offset <- .075
+  text_offset <- .1
 
   legend_order <- c(rev(data_and_scales$scales$negative), rev(data_and_scales$scales$positive), data_and_scales$scales$neutral)
 
@@ -522,7 +529,7 @@ g2g_viz_likert_centered <- function(.data, x_var, y_var, fill_var, color_pal) {
       breaks = legend_order,
       labels = legend_order
     ) +
-    ggplot2::geom_vline(data = x_intercepts, ggplot2::aes(xintercept = .data[['intercept']]), linetype = 2, size = 2) +
+    ggplot2::geom_vline(data = x_intercepts, ggplot2::aes(xintercept = .data[['intercept']]), linetype = 1, linewidth = 1.2, alpha = .7) +
     ggplot2::geom_text(
       ggplot2::aes(
         x = ifelse(.data[['category_cumulative']] < 0, .data[['category_cumulative']] - text_offset, .data[['category_cumulative']] + text_offset),
@@ -536,8 +543,8 @@ g2g_viz_likert_centered <- function(.data, x_var, y_var, fill_var, color_pal) {
 
     plt <- plt +
       ggplot2::facet_wrap(ggplot2::vars(neutral_response), ncol = 2, scales = "free_x") +
-      ggh4x::scale_x_facet(neutral_response == 'Positive / Negative Responses', limits = c(-1.1, 1.1), breaks = seq(-1, 1, .25), labels = axis_label_percent) +
-      ggh4x::scale_x_facet(neutral_response == 'Neutral Responses', limits = c(0, axis_limit_neutral+.1), breaks = seq(0, axis_limit_neutral, .25), labels = axis_label_percent) +
+      ggh4x::scale_x_facet(neutral_response == 'Positive / Negative\nResponses', limits = c(-1.1, 1.1), breaks = seq(-1, 1, .25), labels = axis_label_percent) +
+      ggh4x::scale_x_facet(neutral_response == 'Neutral\nResponses', limits = c(0, axis_limit_neutral+.1), breaks = seq(0, axis_limit_neutral, .25), labels = axis_label_percent) +
       ggh4x::force_panelsizes(cols = c(1, .2))
 
   } else {
