@@ -72,13 +72,15 @@ g2g_plt_theme_no_lines <- function(...) {
 #'      number as the variable in `y_var`, but users may want to round it or convert it to a percentage.
 #' @param text_offset Defined how many units the text should offset horizontally from the y variable.
 #'      Use negative numbers to show the text within the bar and positive numbers to place the text
-#'      above the bar.
+#'      above the bar. Defaults to 0, which is the `y_var` value.
 #' @param fill_color The color, as a string or hex number, of the bars for the bar chart.
+#' @param text_color The color of the text on the bar chart. Default is 'black'.
+#' @param text_size The size of the text on the bar chart. Default is 6.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset, fill_color = 'gray') {
+g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fill_color = 'gray', text_color = 'black', text_size = 6) {
 
   # all x axis values should be unique
   if (!nrow(.data) == dplyr::n_distinct(.data[[x_var]])) {
@@ -89,9 +91,43 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset, fill_c
     ggplot2::geom_col(fill = fill_color) +
     ggplot2::geom_text(
       ggplot2::aes(label = .data[[text_var]], y = .data[[y_var]] + text_offset),
-      color = 'white', fontface='bold', size = 6
+      color = text_color, size = text_size
     )  +
     g2g_plt_theme_no_lines(horizontal_barchart = FALSE)
+
+}
+
+#' Create a vertical bar chart with grouping variables for colors. Groups are dodged.
+#'
+#' @param .data The data set to visualize.
+#' @param x_var The column name, as a string, of the variable (categorical) on the x axis.
+#' @param y_var The column name, as a string, of the variable (numeric) on the y axis.
+#' @param text_var The column name, as a string, of the variable to show as text. This will be the same
+#'      number as the variable in `y_var`, but users may want to round it or convert it to a percentage.
+#' @param color_pal Named vector of the custom color palette to use.
+#' @param text_offset Defined how many units the text should offset horizontally from the y variable.
+#'      Use negative numbers to show the text within the bar and positive numbers to place the text
+#'      above the bar. Defaults to 0, which is the `y_var` value.
+#' @param fill_var The color, as a string or hex number, of the bars for the bar chart.
+#' @param text_color The color of the text on the bar chart. Default is 'black'.
+#' @param text_size The size of the text on the bar chart. Default is 6.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_offset = 0, text_color = 'black', text_size = 6) {
+
+  ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
+    ggplot2::geom_col(position = ggplot2::position_dodge2(preserve = "single")) +
+    ggplot2::geom_text(
+      ggplot2::aes(label = .data[[text_var]], y = .data[[y_var]] + text_offset, group = .data[[fill_var]]),
+      color = text_color, size = text_size,
+      position = ggplot2::position_dodge(width=.9)
+    ) +
+    ggplot2::scale_x_discrete(drop=FALSE) +
+    ggplot2::scale_fill_manual(values = color_pal, drop = FALSE) +
+    g2g_plt_theme_no_lines() +
+    ggplot2::theme(legend.position = 'bottom')
 
 }
 
