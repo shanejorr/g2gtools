@@ -373,7 +373,7 @@ g2g_viz_inst_practice <- function(.data, x_axis) {
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_ipg <- function(.data, x_axis, space_between_plots = 50) {
+g2g_viz_ipg <- function(.data, x_axis, space_between_plots = 50.) {
 
   # ensure the two cm columns are present
   col_names <- colnames(.data)
@@ -394,13 +394,13 @@ g2g_viz_ipg <- function(.data, x_axis, space_between_plots = 50) {
   # expectations score
   plt_ipg_scores <- .data |>
     dplyr::mutate(cm_ipg_text = round(.data[['cm_ipg']], 1)) |>
-    g2g_viz_basic_bar(x_axis, 'cm_ipg', 'cm_ipg_text', -0.15, fill_color = "#00A4C7") +
+    g2g_viz_basic_bar(x_axis, 'cm_ipg', 'cm_ipg_text', 0.1, fill_color = "#00A4C7") +
     ggplot2::labs(
       title = 'Average Observation Score\n  ',
       x = NULL,
       y = NULL
     ) +
-    ggplot2::ylim(c(0, 3)) +
+    ggplot2::scale_y_continuous(limits= c(0,3.1),breaks=seq(0,3, 1)) +
     ggplot2::theme(
       plot.title = ggplot2::element_text(hjust = 0.5, size = 13, face='bold'),
       plot.margin = ggplot2::margin(t = 0, r = space_between_plots, b = 0, l = 0, unit = "pt")
@@ -408,8 +408,8 @@ g2g_viz_ipg <- function(.data, x_axis, space_between_plots = 50) {
 
   plt_ipg_perc <- .data |>
     dplyr::mutate(cm_binary_ipg_text = scales::percent(.data[['cm_binary_ipg']], accuracy = 1)) |>
-    g2g_viz_basic_bar(x_axis, 'cm_binary_ipg', 'cm_binary_ipg_text', - .075, fill_color = "#EA8835") +
-    ggplot2::scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+    g2g_viz_basic_bar(x_axis, 'cm_binary_ipg', 'cm_binary_ipg_text', 0.04, fill_color = "#EA8835") +
+    ggplot2::scale_y_continuous(labels = scales::percent, limits = c(0, 1.1),breaks = seq(0,1,.25)) +
     ggplot2::labs(
       title = "Percentage of Observations\nWith Strong Instruction",
       x = NULL,
