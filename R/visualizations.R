@@ -75,12 +75,12 @@ g2g_plt_theme_no_lines <- function(...) {
 #'      above the bar. Defaults to 0, which is the `y_var` value.
 #' @param fill_color The color, as a string or hex number, of the bars for the bar chart.
 #' @param text_color The color of the text on the bar chart. Default is 'black'.
-#' @param text_size The size of the text on the bar chart. Default is 6.
+#' @param text_size The size of the text on the bar chart. Default is 4.11.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fill_color = 'gray', text_color = 'black', text_size = 6) {
+g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fill_color = 'gray', text_color = 'black', text_size = 4.11) {
 
   # all x axis values should be unique
   if (!nrow(.data) == dplyr::n_distinct(.data[[x_var]])) {
@@ -110,24 +110,37 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fi
 #'      above the bar. Defaults to 0, which is the `y_var` value.
 #' @param fill_var The color, as a string or hex number, of the bars for the bar chart.
 #' @param text_color The color of the text on the bar chart. Default is 'black'.
-#' @param text_size The size of the text on the bar chart. Default is 6.
+#' @param text_size The size of the text on the bar chart. Default is 4.11.
+#' @param add_vertical_lines Boolean, whether to add a vertical line between each fill group. Default is FALSE.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_offset = 0, text_color = 'black', text_size = 6) {
+g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_offset = 0, text_color = 'black', text_size = 4.11, add_vertical_lines = FALSE) {
 
-  ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
-    ggplot2::geom_col(position = ggplot2::position_dodge2(preserve = "single")) +
+  plt<- ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
+    ggplot2::geom_col(width = .75, position = ggplot2::position_dodge2(width = .75, preserve = "single")) +
     ggplot2::geom_text(
       ggplot2::aes(label = .data[[text_var]], y = .data[[y_var]] + text_offset, group = .data[[fill_var]]),
       color = text_color, size = text_size,
-      position = ggplot2::position_dodge(width=.9)
+      position = ggplot2::position_dodge(width=.75)
     ) +
     ggplot2::scale_x_discrete(drop=FALSE) +
     ggplot2::scale_fill_manual(values = color_pal, drop = FALSE) +
     g2g_plt_theme_no_lines() +
     ggplot2::theme(legend.position = 'bottom')
+
+  if (add_vertical_lines) {
+
+    num_groups <- dplyr::n_distinct(.data[[x_var]])
+    x_intercepts <- seq(1.5, num_groups-.5, 1)
+
+    plt <- plt +
+      ggplot2::geom_vline(xintercept = x_intercepts, color = 'gray')
+
+  }
+
+  return(plt)
 
 }
 

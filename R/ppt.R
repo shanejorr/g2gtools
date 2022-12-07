@@ -285,3 +285,33 @@ g2g_slide_notes <- function(note_name) {
   list_of_notes[[note_name]]
 
 }
+
+#' Create notes based on items in your data
+#'
+#' Your data might contain information that is useful for notes. For example, one column might contain
+#' categories (CA1a, CA1b, etc.) and a different column might contain descriptions of the category.
+#' This function creates notes from the categories and descriptions. it is of the format, "category: description".
+#'
+#' @param .data A data frame containing columns with the categories and descriptions.
+#' @param note_category Column name, as a string, of the column containing the category (CA1a, CA1b, etc.)
+#' @param note_description Column name, as a string, of the column containing the description of the category.
+#' @param note_title A string that will be placed on the top of the note.
+#'
+#' @returns A string with the note, which can be added to a slide with the `notes_text` parameter of
+#'      `g2g_add_viz_ppt` or `g2g_add_table_ppt`.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_notes_from_data <- function(.data, note_category, note_description, note_title = NULL) {
+
+  custom_note <- .data |>
+    dplyr::mutate(full_description = glue::glue("- {.data[[note_category]]}: {.data[[note_description]]}")) |>
+    dplyr::distinct(.data[['full_description']]) |>
+    dplyr::pull(.data[['full_description']]) |>
+    stringr::str_wrap(400, exdent = 5) |>
+    stringr::str_c(collapse = "\n")
+
+  stringr::str_c(note_title, "\n", custom_note)
+
+}
