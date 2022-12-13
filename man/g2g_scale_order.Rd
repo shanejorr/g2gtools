@@ -22,7 +22,8 @@ Return a vector of scales in the proper order with colors
 \item 'agree_disagree': Strongly Agree, Agree, Somewhat Agree, Somewhat Disagree, Disagree, Strongly Disagree
 \item 'knowledge': Excellent Knowledge, Good Knowledge, Some Knowledge, A Little Knowledge, No Knowledge
 \item 'how_often': In All or Most Lessons', Often, Sometimes, Rarely, Never
-\item 'yes_notyet': Yes, Mostly, Somewhat, Not yet
+\item 'yes_notyet': Yes, Not Yet
+\item 'yes_mostly_somewhat_notyet': Yes, Mostly, Somewhat, Not Yet
 \item 'yes_but': Yes, 'Yes, But Only in Some Areas', Not Really, No
 \item 'almost': Almost Always, Often,  Sometimes, Once in a While, Almost Never
 \item 'true': Very True, Mostly True, A Little True, Not True

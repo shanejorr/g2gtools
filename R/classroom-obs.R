@@ -326,3 +326,30 @@ g2g_first_or_last <- function(.data, grouping_columns, date_column) {
     dplyr::ungroup()
 
 }
+
+#' Find the scales for observations based on the Core Action
+#'
+#' @param core_action The core action whose scale is needed. String.
+#'      Options are '1', '2', '3', 'RFS', 'Demands of the Standards', 'Culture of Learning'.
+#'
+#' @returns A vector with the scales for the core action, in order
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_obs_map_scales <- function(core_action) {
+
+  lower_case_ca <- stringr::str_to_lower(core_action)
+
+  useable_core_actions <- c('1', '2', '3', 'RFS', 'Demands of the Standards', 'Culture of Learning')
+  useable_ca_lower <- stringr::str_to_lower(useable_core_actions)
+
+  if (!lower_case_ca %in% stringr::str_to_lower(useable_core_actions)) stop(paste0("`core_action` must be one of: ", paste0(useable_core_actions, collapse = ", ")), call. = FALSE)
+
+  dplyr::case_when(
+    lower_case_ca == 'demands of the standards' ~ g2g_scale_order('yes_but'),
+    lower_case_ca == '1' ~ g2g_scale_order('yes_notyet'),
+    lower_case_ca %in% c('2', '3', 'culture of learning', 'rfs') ~ g2g_scale_order('yes_mostly_somewhat_notyet')
+  )
+
+}

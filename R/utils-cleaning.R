@@ -76,7 +76,8 @@ g2g_list_of_scales <- function() {
     agree_disagree = c('Strongly Agree', 'Agree', 'Somewhat Agree', 'Somewhat Disagree', 'Disagree', 'Strongly Disagree'),
     knowledge = c('Excellent Knowledge', 'Good Knowledge', 'Some Knowledge', 'A Little Knowledge', 'No Knowledge'),
     how_often = c('In All or Most Lessons', 'Often', 'Sometimes', 'Rarely', 'Never'),
-    yes_notyet = c('Yes', 'Mostly', 'Somewhat', 'Not Yet'),
+    yes_notyet = c('Yes', 'Not Yet'),
+    yes_mostly_somewhat_notyet = c('Yes', 'Mostly', 'Somewhat', 'Not Yet'),
     yes_but = c('Yes', 'Yes, But Only in Some Areas', 'Not Really', 'No'),
     almost = c('Almost Always', 'Often',  'Sometimes', 'Once in a While', 'Almost Never'),
     true = c('Very True', 'Mostly True', 'A Little True', 'Not True'),
@@ -95,7 +96,8 @@ g2g_list_of_scales <- function() {
 #' -  'agree_disagree': Strongly Agree, Agree, Somewhat Agree, Somewhat Disagree, Disagree, Strongly Disagree
 #' -  'knowledge': Excellent Knowledge, Good Knowledge, Some Knowledge, A Little Knowledge, No Knowledge
 #' -  'how_often': In All or Most Lessons', Often, Sometimes, Rarely, Never
-#' -  'yes_notyet': Yes, Mostly, Somewhat, Not yet
+#' -  'yes_notyet': Yes, Not Yet
+#' -  'yes_mostly_somewhat_notyet': Yes, Mostly, Somewhat, Not Yet
 #' -  'yes_but': Yes, 'Yes, But Only in Some Areas', Not Really, No
 #' -  'almost': Almost Always, Often,  Sometimes, Once in a While, Almost Never
 #' -  'true': Very True, Mostly True, A Little True, Not True
@@ -142,9 +144,11 @@ g2g_scale_order <- function(scale_name) {
 
   gray_length <- length(gray_colors)
 
-  num_grays <- scale_length - 2
+  num_blues <- if (scale_length == 2) 1 else 2
 
-  pal <- c(blue_colors, gray_colors[(gray_length-(num_grays-1)):gray_length])
+  num_grays <- scale_length - num_blues
+
+  pal <- c(blue_colors[1:num_blues], gray_colors[(gray_length-(num_grays-1)):gray_length])
 
   single_scale |>
     purrr::set_names(pal)
