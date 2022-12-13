@@ -347,9 +347,10 @@ g2g_obs_map_scales <- function(core_action) {
   if (!lower_case_ca %in% stringr::str_to_lower(useable_core_actions)) stop(paste0("`core_action` must be one of: ", paste0(useable_core_actions, collapse = ", ")), call. = FALSE)
 
   dplyr::case_when(
-    lower_case_ca == 'demands of the standards' ~ g2g_scale_order('yes_but'),
-    lower_case_ca == '1' ~ g2g_scale_order('yes_notyet'),
-    lower_case_ca %in% c('2', '3', 'culture of learning', 'rfs') ~ g2g_scale_order('yes_mostly_somewhat_notyet')
-  )
+    lower_case_ca == 'demands of the standards' ~ list(g2g_scale_order('yes_but')),
+    lower_case_ca == '1' ~ list(g2g_scale_order('yes_notyet')),
+    lower_case_ca %in% c('2', '3', 'culture of learning', 'rfs') ~ list(g2g_scale_order('yes_mostly_somewhat_notyet'))
+  ) |>
+    unlist()
 
 }
