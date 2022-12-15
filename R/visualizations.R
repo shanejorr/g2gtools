@@ -178,8 +178,8 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
 
   if (is.null(text_location)) {
     text_offset <- dplyr::case_when(
-      .data[[text_var]] < .08 ~ .05,
-      .data[[text_var]] > .08 & .data[[text_var]] < 1 ~ .data[[text_var]] - .06,
+      .data[[text_var]] < .09 ~ .05,
+      .data[[text_var]] > .09 & .data[[text_var]] < 1 ~ .data[[text_var]] - .06,
       .data[[text_var]] == 1 ~ .data[[text_var]] - .08,
       TRUE ~ .06
     )

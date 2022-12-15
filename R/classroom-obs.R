@@ -341,16 +341,26 @@ g2g_obs_map_scales <- function(core_action) {
 
   lower_case_ca <- stringr::str_to_lower(core_action)
 
-  useable_core_actions <- c('1', '2', '3', 'RFS', 'Demands of the Standards', 'Culture of Learning')
+  useable_core_actions <- c('1', '2', '3', 'RFS', 'Reading Foundational Skills', 'Demands of the Standards', 'Culture of Learning', 'CoL')
   useable_ca_lower <- stringr::str_to_lower(useable_core_actions)
+  lower_case_ca <- dplyr::case_when(
+    stringr::str_detect(lower_case_ca, "^reading") ~ 'rfs',
+    stringr::str_detect(lower_case_ca, "^culture") ~ 'col',
+    TRUE ~ lower_case_ca
+  )
 
   if (!lower_case_ca %in% stringr::str_to_lower(useable_core_actions)) stop(paste0("`core_action` must be one of: ", paste0(useable_core_actions, collapse = ", ")), call. = FALSE)
 
-  dplyr::case_when(
+  scale_order <- dplyr::case_when(
     lower_case_ca == 'demands of the standards' ~ list(g2g_scale_order('yes_but')),
     lower_case_ca == '1' ~ list(g2g_scale_order('yes_notyet')),
-    lower_case_ca %in% c('2', '3', 'culture of learning', 'rfs') ~ list(g2g_scale_order('yes_mostly_somewhat_notyet'))
+    lower_case_ca %in% c('2', '3', 'col', 'rfs') ~ list(g2g_scale_order('yes_mostly_somewhat_notyet')),
+    TRUE ~ list('Failed to match')
   ) |>
     unlist()
+
+  if ('Failed to match' %in% scale_order) stop("There was an issue finding your scales. Please check the spelling of `core_action`.", call. = FALSE)
+
+  return(scale_order)
 
 }
