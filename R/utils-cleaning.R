@@ -369,7 +369,7 @@ g2g_aggregate_positive_responses <- function(.data, positive_responses, grouping
 g2g_to_title <- function(x) {
 
   words_not_to_convert <- c(
-    'and', 'a', 'the', 'as', 'but', 'for', 'if', 'nor', 'or', 'so',
+    'and', 'a', 'the', 'as', 'for', 'if', 'nor', 'or', 'so',
     'as', 'at', 'by', 'for', 'in', 'of', 'off', 'on', 'per', 'to', 'up', 'via'
   )
 
