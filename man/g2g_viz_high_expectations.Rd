@@ -4,13 +4,23 @@
 \alias{g2g_viz_high_expectations}
 \title{Bar chart of high expectations score and the percentage of teachers with high expectations}
 \usage{
-g2g_viz_high_expectations(.data, x_axis, space_between_plots = 50)
+g2g_viz_high_expectations(
+  .data,
+  x_axis,
+  plots_to_return = "both",
+  space_between_plots = 50
+)
 }
 \arguments{
 \item{.data}{Input data frame made with \code{g2g_forms_survey_calc_percentages()}.}
 
 \item{x_axis}{Column name, as a string vector, containing the categories you want to compare.
 These will be the x-axis in the plot.}
+
+\item{plots_to_return}{String identifying which type of data to return. 'percentages' returns a single plot
+showing the percentage of teachers with high expectations, 'scores' returns a single plot showing high
+expectations scores, while 'both' returns a single plot containing two visualizations, one with
+scores and one with percentages.}
 
 \item{space_between_plots}{The amount of space,in points ('pt') between plots. Defaults to 40.}
 }

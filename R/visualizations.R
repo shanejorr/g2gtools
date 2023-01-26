@@ -253,6 +253,10 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns =
 #' @param .data Input data frame made with \code{g2g_forms_survey_calc_percentages()}.
 #' @param x_axis Column name, as a string vector, containing the categories you want to compare.
 #'      These will be the x-axis in the plot.
+#' @param plots_to_return String identifying which type of data to return. 'percentages' returns a single plot
+#'      showing the percentage of teachers with high expectations, 'scores' returns a single plot showing high
+#'      expectations scores, while 'both' returns a single plot containing two visualizations, one with
+#'      scores and one with percentages.
 #' @param space_between_plots The amount of space,in points ('pt') between plots. Defaults to 40.
 #'
 #' @returns A single plot containing two bar chart plots.
@@ -260,7 +264,7 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns =
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_high_expectations <- function(.data, x_axis, space_between_plots = 50) {
+g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', space_between_plots = 50) {
 
   # ensure the two cm columns are present
   col_names <- colnames(.data)
@@ -278,38 +282,66 @@ g2g_viz_high_expectations <- function(.data, x_axis, space_between_plots = 50) {
 
   }
 
+  he_perc_fill_color <- if (plots_to_return == 'percentages') "#00A4C7" else "#EA8835"
+
   # expectations score
   plt_he_scores <- .data |>
     dplyr::mutate(cm_expectations_text = round(.data[['cm_expectations']], 1)) |>
     g2g_viz_basic_bar(x_axis, 'cm_expectations', 'cm_expectations_text', - 1.35, fill_color = "#00A4C7") +
-    ggplot2::labs(
-      title = 'Average High Expectations Score\n  ',
-      x = NULL,
-      y = NULL
-    ) +
-    ggplot2::ylim(c(0, 20)) +
-    ggplot2::theme(
-      plot.title = ggplot2::element_text(hjust = 0.5, size = 13, face='bold'),
-      plot.margin = ggplot2::margin(t = 0, r = space_between_plots, b = 0, l = 0, unit = "pt")
-    )
+    ggplot2::ylim(c(0, 20))
 
   plt_he_perc <- .data |>
     dplyr::mutate(cm_binary_expectations_text = scales::percent(.data[['cm_binary_expectations']], accuracy = 1)) |>
-    g2g_viz_basic_bar(x_axis, 'cm_binary_expectations', 'cm_binary_expectations_text', - .075, fill_color = "#EA8835") +
-    ggplot2::scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
-    ggplot2::labs(
-      title = "Percentage of Teachers\nWith High Expectations",
-      x = NULL,
-      y = NULL
-    ) +
-    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, size = 13, face='bold'))
+    g2g_viz_basic_bar(x_axis, 'cm_binary_expectations', 'cm_binary_expectations_text', - .075, fill_color = he_perc_fill_color) +
+    ggplot2::scale_y_continuous(labels = scales::percent, limits = c(0, 1))
 
-  plts <- patchwork::wrap_plots(plt_he_scores, plt_he_perc) +
-    patchwork::plot_annotation(
-      theme = ggplot2::theme(plot.caption = ggplot2::element_text(hjust = 0, size = 12))
-    )
+  if (plots_to_return == 'percentages') {
 
-  return(plts)
+    plt_he_perc <- plt_he_perc +
+      ylab('Perc. of teachers with high expectations') +
+      xlab(NULL)
+
+    return(plt_he_perc)
+
+  } else if (plots_to_return == 'scores') {
+
+    plt_he_scores <- plt_he_scores +
+      ylab('Avg. high expectations score') +
+      xlab(NULL)
+
+    return(plt_he_scores)
+
+  } else if (plots_to_return == 'both') {
+
+    plt_he_scores <- plt_he_scores +
+      ggplot2::labs(
+        title = 'Average High Expectations Score\n  ',
+        x = NULL,
+        y = NULL
+      ) +
+      ggplot2::theme(
+        plot.title = ggplot2::element_text(hjust = 0.5, size = 13, face='bold'),
+        plot.margin = ggplot2::margin(t = 0, r = space_between_plots, b = 0, l = 0, unit = "pt")
+      )
+
+    plt_he_perc <- plt_he_perc +
+      ggplot2::labs(
+        title = "Percentage of Teachers\nWith High Expectations",
+        x = NULL,
+        y = NULL
+      ) +
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, size = 13, face='bold'))
+
+    plts <- patchwork::wrap_plots(plt_he_scores, plt_he_perc) +
+      patchwork::plot_annotation(
+        theme = ggplot2::theme(plot.caption = ggplot2::element_text(hjust = 0, size = 12))
+      )
+
+    return(plts)
+
+  } else {
+    stop('`plots_to_return` must be either `percentages`, `scores`, or `both`.', call. = FALSE)
+  }
 
 }
 
