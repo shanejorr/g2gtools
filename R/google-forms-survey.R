@@ -43,9 +43,9 @@ g2g_tidy_forms_survey <- function(.data, question_columns, grouping_columns = NU
     # add a column that uniquely identifies each respondent
     # needed so when we convert to long form we can still identify individual respondents
     dplyr::mutate(.id = dplyr::row_number()) |>
-    dplyr::select(.data$.id, !!grouping_columns, !!question_columns) |>
+    dplyr::select(".id", dplyr::all_of(grouping_columns), dplyr::all_of(question_columns)) |>
     # convert to long form with the questions and responses as the columns we will make distinct
-    tidyr::pivot_longer(cols = -c(.data$.id, dplyr::all_of(grouping_var_names)), names_to = 'full_question', values_to = 'response') |>
+    tidyr::pivot_longer(cols = -c(".id", dplyr::all_of(grouping_var_names)), names_to = 'full_question', values_to = 'response') |>
     dplyr::rename_with(~g2g_clean_column_names(.x))
 
   # ensure there is no more than one set of open and closed brackets. We cannot seperate the question stem
@@ -60,7 +60,7 @@ g2g_tidy_forms_survey <- function(.data, question_columns, grouping_columns = NU
     response_option = stringr::str_extract(.data$full_question, !!question_option_re) |> stringr::str_trim(),
     response_option = stringr::str_remove_all(.data$response_option, "^\\[|\\]$")
   ) |>
-  dplyr::select(.data$.id, g2g_clean_column_names(dplyr::all_of(grouping_var_names)), .data$question_stem, .data$response_option, .data$response)
+  dplyr::select(".id", g2g_clean_column_names(grouping_var_names), "question_stem", "response_option", "response")
 
   return(tidy_survey_results)
 
@@ -348,7 +348,7 @@ g2g_forms_survey_calc_percentages <- function(.data, grouping_columns = NULL, ad
   if (!add_n %in% add_n_options) stop(paste0("`add_n` must be one of '", paste0(add_n_options, collapse= "', "), "'"))
 
   df <- .data |>
-    tidyr::drop_na(.data$response) |>
+    tidyr::drop_na("response") |>
     # calculate the number of responses for each response option
     dplyr::group_by_at(c(grouping_columns, questions_responses)) |>
     dplyr::count(name = '.n_response') |>

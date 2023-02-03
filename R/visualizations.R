@@ -195,7 +195,8 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
     ) +
     ggplot2::scale_fill_manual(values = color_pal, drop = FALSE) +
     ggplot2::scale_x_continuous(labels = scales::percent) +
-    g2g_plt_theme_no_lines(horizontal_barchart = TRUE, ...) +
+    # g2g_plt_theme_no_lines(horizontal_barchart = TRUE, ...) +
+    ggplot2::theme_minimal() +
     ggplot2::theme(legend.position = 'bottom') +
     ggplot2::guides(fill=ggplot2::guide_legend(nrow=num_legend_rows, byrow=TRUE))
 
@@ -230,17 +231,17 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns =
   if (!is.numeric(number_questions)) stop("`number_questions` must be an integer", call. = FALSE)
 
   unique_questions <- .data |>
-    dplyr::select(dplyr::all_of(grouping_columns), .data$question_stem, .data$response_option) |>
+    dplyr::select(dplyr::all_of(grouping_columns), "question_stem", "response_option") |>
     dplyr::distinct() |>
     dplyr::group_by_at(c(grouping_columns, 'question_stem')) |>
     dplyr::mutate(n = dplyr::row_number()) |>
     dplyr::mutate(cont = ifelse(.data$n > !!number_questions, TRUE, FALSE)) |>
-    dplyr::select(-.data$n)
+    dplyr::select(-"n")
 
   .data |>
     dplyr::left_join(unique_questions, by = c(grouping_columns, 'question_stem', 'response_option')) |>
     dplyr::mutate(question_stem = ifelse(.data$cont, glue::glue("(continued) {.data$question_stem}"), .data$question_stem)) |>
-    dplyr::select(-.data$cont)
+    dplyr::select(-"cont")
 
 }
 
@@ -298,16 +299,16 @@ g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', s
   if (plots_to_return == 'percentages') {
 
     plt_he_perc <- plt_he_perc +
-      ylab('Perc. of teachers with high expectations') +
-      xlab(NULL)
+      ggplot2::ylab('Perc. of teachers with high expectations') +
+      ggplot2::xlab(NULL)
 
     return(plt_he_perc)
 
   } else if (plots_to_return == 'scores') {
 
     plt_he_scores <- plt_he_scores +
-      ylab('Avg. high expectations score') +
-      xlab(NULL)
+      ggplot2::ylab('Avg. high expectations score') +
+      ggplot2::xlab(NULL)
 
     return(plt_he_scores)
 
@@ -628,7 +629,7 @@ g2g_helper_clean_viz_likert_centered <- function(.data, x_var, y_var, fill_var, 
   neutral_scales <- if (has_neutral) names(color_pal)[neutral_scales_int] else NULL
 
   df <- .data |>
-    tidyr::drop_na(.data[[fill_var]], .data[[fill_var]]) |>
+    tidyr::drop_na(dplyr::all_of(fill_var)) |>
     dplyr::mutate(
       !!fill_var := factor(.data[[fill_var]], levels = c(negative_scales, positive_scales, neutral_scales)),
       !!x_var := ifelse(.data[[fill_var]] %in% negative_scales, .data[[x_var]] * -1, .data[[x_var]]),

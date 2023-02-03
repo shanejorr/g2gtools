@@ -346,7 +346,7 @@ g2g_aggregate_positive_responses <- function(.data, positive_responses, grouping
         )
       ) |>
       dplyr::ungroup() |>
-      dplyr::select(-.data$.group_id, -.data$.has_strong_response)
+      dplyr::select(-c(".group_id", ".has_strong_response"))
 
   }
 
