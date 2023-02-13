@@ -1,6 +1,6 @@
 #' Basic theme settings
 #'
-#' @param text_font Font for texts. Defaults to Arial narrow.
+#' @param text_font Font for texts. Defaults to 'Segoe UI'.
 #' @param horizontal_barchart Is the plot a horizontal bar chart? TRUE if yes, FALSE if no.
 #'      If the plot is a horizontal bar chart, the x axis text is smaller than the y axis text.
 #' @param center_title Should the plot title be centered on the plot? TRUE for yes, FALSE for no.
