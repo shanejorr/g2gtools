@@ -11,6 +11,7 @@ g2g_viz_stacked_bar_percent(
   fill_var,
   text_var,
   color_pal,
+  text_size = 4.586111,
   text_location = NULL,
   ...
 )
@@ -33,6 +34,9 @@ This should be numeric and as a decimal between 0 and 1.}
 
 \item{color_pal}{Custom color palette to use. This should be a vector with the values being
 the hex codes for the colors and the names being the unique scales from \code{fill_var}}
+
+\item{text_size}{Size of the text that represents the numbers within the bar chart. Defaults to 4.586111, which is 13 point font size.
+Font size can be converted to \code{text_size} with this formula: \verb{font size / (14/5)}.}
 
 \item{text_location}{The variable name, as a string, of the location of the text on the x axis, between 0 and 1. If \code{NULL}, the default,
 the location will be the same as \code{text_var}.}

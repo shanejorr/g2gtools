@@ -11,7 +11,7 @@ g2g_plt_base_theme(
 )
 }
 \arguments{
-\item{text_font}{Font for texts. Defaults to Arial narrow.}
+\item{text_font}{Font for texts. Defaults to 'Segoe UI'.}
 
 \item{horizontal_barchart}{Is the plot a horizontal bar chart? TRUE if yes, FALSE if no.
 If the plot is a horizontal bar chart, the x axis text is smaller than the y axis text.}

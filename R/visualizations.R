@@ -160,6 +160,8 @@ g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, co
 #'       This should be numeric and as a decimal between 0 and 1.
 #' @param color_pal Custom color palette to use. This should be a vector with the values being
 #'       the hex codes for the colors and the names being the unique scales from \code{fill_var}
+#' @param text_size Size of the text that represents the numbers within the bar chart. Defaults to 4.586111, which is 13 point font size.
+#'       Font size can be converted to `text_size` with this formula: `font size / (14/5)`.
 #' @param text_location The variable name, as a string, of the location of the text on the x axis, between 0 and 1. If `NULL`, the default,
 #'       the location will be the same as `text_var`.
 #' @param ... Parameters for `g2g_plt_base_theme()`
@@ -167,7 +169,7 @@ g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, co
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_location = NULL, ...) {
+g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_size = 4.586111, text_location = NULL, ...) {
 
   # ensure entered parameters are correct
   g2g_viz_checks(.data, x_var, y_var, fill_var, text_var)
@@ -191,11 +193,10 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
     ggplot2::geom_col() +
     ggplot2::geom_text(
       ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), x = text_offset),
-      color = 'white', fontface='bold', size = 4.586111
+      color = 'white', fontface='bold', size = text_size
     ) +
     ggplot2::scale_fill_manual(values = color_pal, drop = FALSE) +
     ggplot2::scale_x_continuous(labels = scales::percent) +
-    # g2g_plt_theme_no_lines(horizontal_barchart = TRUE, ...) +
     ggplot2::theme_minimal() +
     ggplot2::theme(legend.position = 'bottom') +
     ggplot2::guides(fill=ggplot2::guide_legend(nrow=num_legend_rows, byrow=TRUE))
