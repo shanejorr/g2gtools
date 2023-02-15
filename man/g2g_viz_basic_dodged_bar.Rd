@@ -14,7 +14,8 @@ g2g_viz_basic_dodged_bar(
   text_offset = 0,
   text_color = "black",
   text_size = 4.11,
-  add_vertical_lines = FALSE
+  add_vertical_lines = FALSE,
+  ...
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ above the bar. Defaults to 0, which is the \code{y_var} value.}
 \item{text_size}{The size of the text on the bar chart. Default is 4.11.}
 
 \item{add_vertical_lines}{Boolean, whether to add a vertical line between each fill group. Default is FALSE.}
+
+\item{...}{Parameters for \code{g2g_plt_theme_no_lines}.}
 }
 \description{
 Create a vertical bar chart with grouping variables for colors. Groups are dodged.

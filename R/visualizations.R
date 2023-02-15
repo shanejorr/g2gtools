@@ -4,28 +4,27 @@
 #' @param horizontal_barchart Is the plot a horizontal bar chart? TRUE if yes, FALSE if no.
 #'      If the plot is a horizontal bar chart, the x axis text is smaller than the y axis text.
 #' @param center_title Should the plot title be centered on the plot? TRUE for yes, FALSE for no.
+#' @param font_size Font size to use for text. Title and axis titles will be one point above this font size.
+#'       Defaults to 12. 9 is recommended for document, as this is the TNTP font size
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_plt_base_theme <- function(text_font = "Segoe UI", horizontal_barchart = FALSE, center_title = FALSE) {
+g2g_plt_base_theme <- function(text_font = "Segoe UI", horizontal_barchart = FALSE, center_title = FALSE, font_size = 12) {
 
   if (!horizontal_barchart %in% c(TRUE, FALSE)) stop("`horizontal_barchart` must be either TRUE or FALSE", call. = FALSE)
   if (!center_title %in% c(TRUE, FALSE)) stop("`center_title` must be either TRUE or FALSE", call. = FALSE)
 
-  y_axis_size <- if (horizontal_barchart) 13 else 12
-
   thm <- ggplot2::theme_minimal(base_family = text_font) +
     ggplot2::theme(
-      plot.title = ggplot2::element_text(size = 13, face='bold'),
-      plot.subtitle = ggplot2::element_text(size = 13),
-      legend.text = ggplot2::element_text(size = 12),
-      axis.text.y = ggplot2::element_text(size = y_axis_size),
-      axis.text.x = ggplot2::element_text(size = 12),
-      axis.title = ggplot2::element_text(size=13),
-      strip.text = ggplot2::element_text(size = 13),
+      plot.title = ggplot2::element_text(size = font_size + 1, face='bold'),
+      plot.subtitle = ggplot2::element_text(size = font_size),
+      legend.text = ggplot2::element_text(size = font_size),
+      axis.text = ggplot2::element_text(size = font_size),
+      axis.title = ggplot2::element_text(size=font_size + 1),
+      strip.text = ggplot2::element_text(size = font_size),
       panel.background = ggplot2::element_rect(size=0.5, color = 'gray'),
-      plot.caption = ggplot2::element_text(hjust = 0, size = 12),
+      plot.caption = ggplot2::element_text(hjust = 0, size = font_size),
       panel.grid.minor = ggplot2::element_blank(),
       legend.position = 'bottom'
     )
@@ -76,11 +75,12 @@ g2g_plt_theme_no_lines <- function(...) {
 #' @param fill_color The color, as a string or hex number, of the bars for the bar chart.
 #' @param text_color The color of the text on the bar chart. Default is 'black'.
 #' @param text_size The size of the text on the bar chart. Default is 4.11.
+#' @param ... Parameters for `g2g_plt_theme_no_lines`.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fill_color = 'gray', text_color = 'black', text_size = 4.11) {
+g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fill_color = 'gray', text_color = 'black', text_size = 4.11, ...) {
 
   # all x axis values should be unique
   if (!nrow(.data) == dplyr::n_distinct(.data[[x_var]])) {
@@ -93,7 +93,7 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fi
       ggplot2::aes(label = .data[[text_var]], y = .data[[y_var]] + text_offset),
       color = text_color, size = text_size
     )  +
-    g2g_plt_theme_no_lines(horizontal_barchart = FALSE)
+    g2g_plt_theme_no_lines(horizontal_barchart = FALSE, ...)
 
 }
 
@@ -112,11 +112,12 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fi
 #' @param text_color The color of the text on the bar chart. Default is 'black'.
 #' @param text_size The size of the text on the bar chart. Default is 4.11.
 #' @param add_vertical_lines Boolean, whether to add a vertical line between each fill group. Default is FALSE.
+#' @param ... Parameters for `g2g_plt_theme_no_lines`.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_offset = 0, text_color = 'black', text_size = 4.11, add_vertical_lines = FALSE) {
+g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_offset = 0, text_color = 'black', text_size = 4.11, add_vertical_lines = FALSE, ...) {
 
   plt<- ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
     ggplot2::geom_col(width = .75, position = ggplot2::position_dodge2(width = .75, preserve = "single")) +
@@ -127,8 +128,7 @@ g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, co
     ) +
     ggplot2::scale_x_discrete(drop=FALSE) +
     ggplot2::scale_fill_manual(values = color_pal, drop = FALSE) +
-    g2g_plt_theme_no_lines() +
-    ggplot2::theme(legend.position = 'bottom')
+    g2g_plt_theme_no_lines(...)
 
   if (add_vertical_lines) {
 
@@ -197,8 +197,7 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
     ) +
     ggplot2::scale_fill_manual(values = color_pal, drop = FALSE) +
     ggplot2::scale_x_continuous(labels = scales::percent) +
-    ggplot2::theme_minimal() +
-    ggplot2::theme(legend.position = 'bottom') +
+    g2g_plt_base_theme(...) +
     ggplot2::guides(fill=ggplot2::guide_legend(nrow=num_legend_rows, byrow=TRUE))
 
 }

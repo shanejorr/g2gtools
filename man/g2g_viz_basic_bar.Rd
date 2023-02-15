@@ -12,7 +12,8 @@ g2g_viz_basic_bar(
   text_offset = 0,
   fill_color = "gray",
   text_color = "black",
-  text_size = 4.11
+  text_size = 4.11,
+  ...
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ above the bar. Defaults to 0, which is the \code{y_var} value.}
 \item{text_color}{The color of the text on the bar chart. Default is 'black'.}
 
 \item{text_size}{The size of the text on the bar chart. Default is 4.11.}
+
+\item{...}{Parameters for \code{g2g_plt_theme_no_lines}.}
 }
 \description{
 Creates a vertical bar chart. This function can be used as-is, but is primarily used to build
