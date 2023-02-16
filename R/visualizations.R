@@ -74,13 +74,15 @@ g2g_plt_theme_no_lines <- function(...) {
 #'      above the bar. Defaults to 0, which is the `y_var` value.
 #' @param fill_color The color, as a string or hex number, of the bars for the bar chart.
 #' @param text_color The color of the text on the bar chart. Default is 'black'.
-#' @param text_size The size of the text on the bar chart. Default is 4.11.
+#' @param text_size The size of the text on the bar chart. Default is 4.21.
+#' @param font_face The font face of the text numbers that show up in the bars.
+#'          One of "plain", "bold", "italic", "bold.italic". Defaults to "plain"
 #' @param ... Parameters for `g2g_plt_theme_no_lines`.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fill_color = 'gray', text_color = 'black', text_size = 4.11, ...) {
+g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fill_color = 'gray', text_color = 'black', text_size = 4.21, font_face = "plain", ...) {
 
   # all x axis values should be unique
   if (!nrow(.data) == dplyr::n_distinct(.data[[x_var]])) {
@@ -91,7 +93,7 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fi
     ggplot2::geom_col(fill = fill_color) +
     ggplot2::geom_text(
       ggplot2::aes(label = .data[[text_var]], y = .data[[y_var]] + text_offset),
-      color = text_color, size = text_size
+      color = text_color, size = text_size, fontface = font_face
     )  +
     g2g_plt_theme_no_lines(horizontal_barchart = FALSE, ...)
 
@@ -110,20 +112,22 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fi
 #'      above the bar. Defaults to 0, which is the `y_var` value.
 #' @param fill_var The color, as a string or hex number, of the bars for the bar chart.
 #' @param text_color The color of the text on the bar chart. Default is 'black'.
-#' @param text_size The size of the text on the bar chart. Default is 4.11.
+#' @param text_size The size of the text on the bar chart. Default is 4.21.
+#' @param font_face The font face of the text numbers that show up in the bars.
+#'          One of "plain", "bold", "italic", "bold.italic". Defaults to "plain"
 #' @param add_vertical_lines Boolean, whether to add a vertical line between each fill group. Default is FALSE.
 #' @param ... Parameters for `g2g_plt_theme_no_lines`.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_offset = 0, text_color = 'black', text_size = 4.11, add_vertical_lines = FALSE, ...) {
+g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_offset = 0, text_color = 'black', text_size = 4.21, font_face = "plain", add_vertical_lines = FALSE, ...) {
 
   plt<- ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
     ggplot2::geom_col(width = .75, position = ggplot2::position_dodge2(width = .75, preserve = "single")) +
     ggplot2::geom_text(
       ggplot2::aes(label = .data[[text_var]], y = .data[[y_var]] + text_offset, group = .data[[fill_var]]),
-      color = text_color, size = text_size,
+      color = text_color, size = text_size, fontface = font_face,
       position = ggplot2::position_dodge(width=.75)
     ) +
     ggplot2::scale_x_discrete(drop=FALSE) +
@@ -259,13 +263,14 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns =
 #'      expectations scores, while 'both' returns a single plot containing two visualizations, one with
 #'      scores and one with percentages.
 #' @param space_between_plots The amount of space,in points ('pt') between plots. Defaults to 40.
+#' @param ... Parameters for `g2g_plt_theme_no_lines`.
 #'
 #' @returns A single plot containing two bar chart plots.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', space_between_plots = 50) {
+g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', space_between_plots = 50, ...) {
 
   # ensure the two cm columns are present
   col_names <- colnames(.data)
@@ -288,12 +293,12 @@ g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', s
   # expectations score
   plt_he_scores <- .data |>
     dplyr::mutate(cm_expectations_text = round(.data[['cm_expectations']], 1)) |>
-    g2g_viz_basic_bar(x_axis, 'cm_expectations', 'cm_expectations_text', - 1.35, fill_color = "#00A4C7") +
+    g2g_viz_basic_bar(x_axis, 'cm_expectations', 'cm_expectations_text', - 1.35, text_color = 'white', font_face = "bold", fill_color = "#00A4C7", ...) +
     ggplot2::ylim(c(0, 20))
 
   plt_he_perc <- .data |>
     dplyr::mutate(cm_binary_expectations_text = scales::percent(.data[['cm_binary_expectations']], accuracy = 1)) |>
-    g2g_viz_basic_bar(x_axis, 'cm_binary_expectations', 'cm_binary_expectations_text', - .075, fill_color = he_perc_fill_color) +
+    g2g_viz_basic_bar(x_axis, 'cm_binary_expectations', 'cm_binary_expectations_text', - .075, text_color = 'white', font_face = "bold", fill_color = he_perc_fill_color, ...) +
     ggplot2::scale_y_continuous(labels = scales::percent, limits = c(0, 1))
 
   if (plots_to_return == 'percentages') {
@@ -321,7 +326,7 @@ g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', s
         y = NULL
       ) +
       ggplot2::theme(
-        plot.title = ggplot2::element_text(hjust = 0.5, size = 13, face='bold'),
+        plot.title = ggplot2::element_text(hjust = 0.5),
         plot.margin = ggplot2::margin(t = 0, r = space_between_plots, b = 0, l = 0, unit = "pt")
       )
 
@@ -331,11 +336,11 @@ g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', s
         x = NULL,
         y = NULL
       ) +
-      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, size = 13, face='bold'))
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
     plts <- patchwork::wrap_plots(plt_he_scores, plt_he_perc) +
       patchwork::plot_annotation(
-        theme = ggplot2::theme(plot.caption = ggplot2::element_text(hjust = 0, size = 12))
+        theme = ggplot2::theme(plot.caption = ggplot2::element_text(hjust = 0))
       )
 
     return(plts)
@@ -349,7 +354,8 @@ g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', s
 #' Bar chart of instructional practice scores
 #'
 #' Creates a bar chart of instructional practice scores. The data used in the bar charts must
-#' come from \code{g2g_calc_inst_practices()}.
+#' come from \code{g2g_calc_inst_practices()}. These scores are not from the IPG. They are from
+#' the teacher survey and are the 'think about the last unity you taught' questions.
 #'
 #' @param .data Input data frame made with \code{g2g_calc_inst_practices()}.
 #' @param x_axis Column name, as a string vector, containing the categories you want to compare.

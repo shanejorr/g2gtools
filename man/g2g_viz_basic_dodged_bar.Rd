@@ -13,7 +13,8 @@ g2g_viz_basic_dodged_bar(
   color_pal,
   text_offset = 0,
   text_color = "black",
-  text_size = 4.11,
+  text_size = 4.21,
+  font_face = "plain",
   add_vertical_lines = FALSE,
   ...
 )
@@ -38,7 +39,10 @@ above the bar. Defaults to 0, which is the \code{y_var} value.}
 
 \item{text_color}{The color of the text on the bar chart. Default is 'black'.}
 
-\item{text_size}{The size of the text on the bar chart. Default is 4.11.}
+\item{text_size}{The size of the text on the bar chart. Default is 4.21.}
+
+\item{font_face}{The font face of the text numbers that show up in the bars.
+One of "plain", "bold", "italic", "bold.italic". Defaults to "plain"}
 
 \item{add_vertical_lines}{Boolean, whether to add a vertical line between each fill group. Default is FALSE.}
 

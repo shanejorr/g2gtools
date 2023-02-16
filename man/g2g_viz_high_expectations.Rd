@@ -8,7 +8,8 @@ g2g_viz_high_expectations(
   .data,
   x_axis,
   plots_to_return = "both",
-  space_between_plots = 50
+  space_between_plots = 50,
+  ...
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ expectations scores, while 'both' returns a single plot containing two visualiza
 scores and one with percentages.}
 
 \item{space_between_plots}{The amount of space,in points ('pt') between plots. Defaults to 40.}
+
+\item{...}{Parameters for \code{g2g_plt_theme_no_lines}.}
 }
 \value{
 A single plot containing two bar chart plots.
