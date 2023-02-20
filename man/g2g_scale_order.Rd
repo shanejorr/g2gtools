@@ -28,6 +28,8 @@ Return a vector of scales in the proper order with colors
 \item 'almost': Almost Always, Often,  Sometimes, Once in a While, Almost Never
 \item 'true': Very True, Mostly True, A Little True, Not True
 \item 'high': Extremely High, High, Slightly High, Somewhat High
+\item 'always_rarely': Always', Often', Sometimes, Rarely or Never
+\item 'all_few': All, Most, Some, Few or None
 }
 }
 

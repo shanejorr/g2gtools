@@ -51,6 +51,10 @@ g2g_classroom_obs_add_ca <- function(.data) {
       stringr::str_detect(.data$question_stem, "^Overall, did this lesson reflect the demands") ~ "Demands of the Standards",
       stringr::str_detect(.data$question_stem, "^Are all students engaged in the work of the lesson fr") ~ "Culture of Learning",
       stringr::str_detect(.data$question_stem, "systematically provide all students with the opportunity to master foundational skills") ~ "Reading Foundational Skills",
+      stringr::str_detect(.data$response_option, "[(]AC[0-9][)]$") ~ "Aligned Content",
+      stringr::str_detect(.data$response_option, "[(]SP[0-9][)]$") ~ "Student Practice",
+      stringr::str_detect(.data$response_option, "[(]TD[0-9][)]$") ~ "Teacher-Directed Instruction",
+      stringr::str_detect(.data$response_option, "[(]AD[0-9][)]$") ~ "Assessment & Differentiation",
       TRUE ~ NA_character_
     )) |>
     dplyr::mutate(core_action_minor = dplyr::case_when(
@@ -58,6 +62,8 @@ g2g_classroom_obs_add_ca <- function(.data) {
       stringr::str_detect(.data$core_action_main, "^[0-9]$") ~ "Overall",
       stringr::str_detect(.data$core_action_main, "^Demands of the|^Culture") ~ .data$core_action_main,
       stringr::str_detect(.data$core_action_main, "^Reading Foundational Skills$") ~ stringr::str_extract(.data$response_option, "[a-z][)]$") |>
+        stringr::str_remove_all("[(]|[)]"),
+      stringr::str_detect(.data$response_option, "[(]AC[0-9][)]$|[(]SP[0-9][)]$|[(]TD[0-9][)]$|[(]AD[0-9][)]$") ~ stringr::str_extract(.data$response_option, "[0-9][)]$") |>
         stringr::str_remove_all("[(]|[)]"),
       TRUE ~ NA_character_
     )) |>
@@ -274,6 +280,7 @@ g2g_obs_combine_ca <- function(.data) {
         stringr::str_detect(.data[['core_action_main']], "^Reading") ~ glue::glue("RFS {.data[['core_action_minor']]}"),
         stringr::str_detect(.data[['core_action_main']], "^Culture ") ~ 'Culture of Learning',
         stringr::str_detect(.data[['core_action_main']], "^Demands") ~ 'Demands of the Standards',
+        stringr::str_detect(.data[['response_option']], "[(]AC[0-9][)]$|[(]SP[0-9][)]$|[(]TD[0-9][)]$|[(]AD[0-9][)]$") ~ glue::glue("{.data[['core_action_main']]} {.data[['core_action_minor']]}"),
         TRUE ~ 'Fail to match'
       )
   )
