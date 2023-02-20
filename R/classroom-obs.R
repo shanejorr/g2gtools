@@ -280,7 +280,7 @@ g2g_obs_combine_ca <- function(.data) {
         stringr::str_detect(.data[['core_action_main']], "^Reading") ~ glue::glue("RFS {.data[['core_action_minor']]}"),
         stringr::str_detect(.data[['core_action_main']], "^Culture ") ~ 'Culture of Learning',
         stringr::str_detect(.data[['core_action_main']], "^Demands") ~ 'Demands of the Standards',
-        stringr::str_detect(.data[['response_option']], "[(]AC[0-9][)]$|[(]SP[0-9][)]$|[(]TD[0-9][)]$|[(]AD[0-9][)]$") ~ glue::glue("{.data[['core_action_main']]} {.data[['core_action_minor']]}"),
+        stringr::str_detect(.data[['response_option']], "[(]AC[0-9][)]$|[(]SP[0-9][)]$|[(]TD[0-9][)]$|[(]AD[0-9][)]$") ~ glue::glue("{stringr::str_sub(.data[['response_option']], -4,-3)} {.data[['core_action_minor']]}"),
         TRUE ~ 'Fail to match'
       )
   )
@@ -337,7 +337,8 @@ g2g_first_or_last <- function(.data, grouping_columns, date_column) {
 #' Find the scales for observations based on the Core Action
 #'
 #' @param core_action The core action whose scale is needed. String.
-#'      Options are '1', '2', '3', 'RFS', 'Demands of the Standards', 'Culture of Learning'.
+#'      Options are '1', '2', '3', 'RFS', 'Demands of the Standards', 'Culture of Learning',
+#'      'Aligned Content', 'Assessment & Differentiation', 'Student Practice', 'Teacher-Directed Instruction'.
 #'
 #' @returns A vector with the scales for the core action, in order
 #'
@@ -348,8 +349,13 @@ g2g_obs_map_scales <- function(core_action) {
 
   lower_case_ca <- stringr::str_to_lower(core_action)
 
-  useable_core_actions <- c('1', '2', '3', 'RFS', 'Reading Foundational Skills', 'Demands of the Standards', 'Culture of Learning', 'CoL')
-  useable_ca_lower <- stringr::str_to_lower(useable_core_actions)
+  useable_core_actions <- c(
+    '1', '2', '3', 'RFS', 'Reading Foundational Skills', 'Demands of the Standards', 'Culture of Learning', 'CoL',
+    'Aligned Content', 'Assessment & Differentiation', 'Student Practice', 'Teacher-Directed Instruction'
+  )
+
+  foundation_skills_re <- "^aligned|^assessment|^student.*pract|^teacher.*direct"
+
   lower_case_ca <- dplyr::case_when(
     stringr::str_detect(lower_case_ca, "^reading") ~ 'rfs',
     stringr::str_detect(lower_case_ca, "^culture") ~ 'col',
@@ -362,6 +368,8 @@ g2g_obs_map_scales <- function(core_action) {
     lower_case_ca == 'demands of the standards' ~ list(g2g_scale_order('yes_but')),
     lower_case_ca == '1' ~ list(g2g_scale_order('yes_notyet')),
     lower_case_ca %in% c('2', '3', 'col', 'rfs') ~ list(g2g_scale_order('yes_mostly_somewhat_notyet')),
+    stringr::str_detect(lower_case_ca, "^aligned|^assessment|^teacher.*direct") ~ list(g2g_scale_order('always_rarely')),
+    stringr::str_detect(lower_case_ca, "^student.*pract") ~ list(g2g_scale_order('all_few')),
     TRUE ~ list('Failed to match')
   ) |>
     unlist()

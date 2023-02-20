@@ -8,7 +8,8 @@ g2g_obs_map_scales(core_action)
 }
 \arguments{
 \item{core_action}{The core action whose scale is needed. String.
-Options are '1', '2', '3', 'RFS', 'Demands of the Standards', 'Culture of Learning'.}
+Options are '1', '2', '3', 'RFS', 'Demands of the Standards', 'Culture of Learning',
+'Aligned Content', 'Assessment & Differentiation', 'Student Practice', 'Teacher-Directed Instruction'.}
 }
 \value{
 A vector with the scales for the core action, in order
