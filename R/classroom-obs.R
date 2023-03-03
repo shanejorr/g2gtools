@@ -464,10 +464,14 @@ g2g_obs_get_ca_data <- function(.data, core_action, scale_order) {
 
   if (!all(perc_grouping_cols %in% col_names)) stop(stringr::str_c("`.data` must contain the following columns: ", paste0(perc_grouping_cols, collapse = ", ")))
 
+  # if there are 3 or fewer scale responses, only the first response is positive
+  # otherwise, the first two responses are positive
+  positive_responses <- if (length(scale_order) <= 3) c(1) else c(2,1)
+
   .data |>
     dplyr::filter(.data[['core_action_main']] == !!core_action) |>
     # aggregate positive responses for plotting
-    g2g_aggregate_positive_responses(scale_order[c(2,1)], perc_grouping_cols, only_keep_first_response = TRUE) |>
+    g2g_aggregate_positive_responses(scale_order[positive_responses], perc_grouping_cols, only_keep_first_response = TRUE) |>
     dplyr::mutate(
       response = factor(.data[['response']], levels = rev(scale_order)),
       core_action = forcats::fct_rev(.data[['core_action']]),
@@ -499,7 +503,6 @@ g2g_obs_create_viz <- function(.data, core_action) {
 
   # make sure all percentages are between 0 and 1
   if (!all(dplyr::between(.data$.percent, 0, 1))) stop("All expected percentages did nto fall between 0 and 1. Please re-check your input data (`.data`)", call. = FALSE)
-
 
   # find out whether we are working with a Core Action
   # title will depend on this
@@ -577,5 +580,75 @@ g2g_obs_add_viz_ppt <- function(doc, plt, ca_descriptions, core_action, plt_heig
   )
 
   return(doc)
+
+}
+
+#' Create single plot that contains all overall observation scores
+#'
+#' The input dataset `.data` must be transformed to where the values in the `core_action_main` column
+#' represent unique scales. For example, Core Action 1 has different scales than Core Actions 2 and 3.
+#' Core Actions 2 and 3 have the same scales. Therefore, `core_action_main` must be transformed to
+#' where Core Action 1 has a value (ex: '1') and Core Actions 2 and 3 have the same value (ex: '2').
+#' This value should represent the core action value needed for the scales. See `examples` for more information.
+#'
+#' @param .data Dataset containg aggregate overall Core Action values. Created by first calculating
+#'      aggregates with `g2g_obs_calc_perc()` and then filtering to only keep overall scores.
+#' @param height_relationships Relationship in proportions between plots with different scales, as a numeric vector.
+#'      Defaults to c(1, 3).
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # regular expression to identify the overall items in the core_action column
+#' overall_items <- c("Overall|Culture|Demands|RFS")
+#'
+#' overall_scores_ca <- obs_percent |>
+#'   # only keep the overall core action items
+#'   filter(str_detect(core_action, !!overall_items)) |>
+#'   # change `core_action_main` values so that core actions with the same scales have the same values,
+#'   # and these values mirror the scale
+#'   mutate(core_action_main = ifelse(core_action_main == "1", '1', "2"))
+#'
+#' # create plot
+#' g2g_obs_viz_overall(overall_scores_ca)
+#'
+#' }
+#'
+#' @returns a ggplot plot
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_obs_viz_overall <- function(.data, height_relationships = c(1, 3)) {
+
+  unique_core_actions <- unique(.data$core_action_main)
+
+  plt <- purrr::map(unique_core_actions, function(core_action) {
+
+    scale_order <- g2g_obs_map_scales(core_action)
+
+    plt <- .data |>
+      g2g_obs_get_ca_data(core_action, scale_order) |>
+      g2g_obs_create_viz(core_action) +
+      ggplot2::ggtitle(NULL)
+
+  })
+
+  plt[[1]] <- plt[[1]] +
+    ggplot2::labs(x = NULL)
+
+  plt[[2]] <- plt[[2]] +
+    ggplot2::theme(
+      strip.background = ggplot2::element_blank(),
+      strip.text.x = ggplot2::element_blank()
+    )
+
+  ca_plts <- patchwork::wrap_plots(plt[[1]], plt[[2]],ncol = 1, heights = height_relationships) +
+    patchwork::plot_annotation(
+      title = 'All Overall Observation Results',
+      theme = ggplot2::theme(plot.title = ggplot2::element_text(size = 13, face = "bold"))
+    )
+
+  return(ca_plts)
 
 }
