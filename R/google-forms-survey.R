@@ -343,9 +343,14 @@ g2g_forms_survey_calc_percentages <- function(.data, grouping_columns = NULL, ad
   # column names from g2g_tidy_forms_survey function that contain question stems, questions, and response
   questions_responses <- c('question_stem', 'response_option', 'response')
 
+  # make sure we have the required columns
+  required_columns <- c(questions_responses, grouping_columns)
+  col_names <- colnames(.data)
+  if (!all(required_columns %in% col_names)) stop(stringr::str_c("`.data` must contain the following columns: ", paste0(required_columns, collapse = ", ")), call. = FALSE)
+
   add_n_options <- c('none', 'response_option', '.percent_pretty')
 
-  if (!add_n %in% add_n_options) stop(paste0("`add_n` must be one of '", paste0(add_n_options, collapse= "', "), "'"))
+  if (!add_n %in% add_n_options) stop(paste0("`add_n` must be one of '", paste0(add_n_options, collapse= "', "), "'"), call. = FALSE)
 
   df <- .data |>
     tidyr::drop_na("response") |>
@@ -370,6 +375,9 @@ g2g_forms_survey_calc_percentages <- function(.data, grouping_columns = NULL, ad
   } else if (add_n == 'response_option') {
     df$response_option <- glue::glue("{df$response_option} (n={df$.n_question})")
   }
+
+  # make sure all percentages are between 0 and 1
+  if (!all(dplyr::between(df$.percent, 0, 1))) stop("All expected percentages did nto fall between 0 and 1. Please re-check your input data (`.data`)", call. = FALSE)
 
   return(df)
 

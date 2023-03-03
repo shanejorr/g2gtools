@@ -396,3 +396,74 @@ g2g_to_title <- function(x) {
   return(convert_to_title)
 
 }
+
+#' Create key-value pairs of site information
+#'
+#' Site information is injected into an analysis at multiple points. This function takes the site name,
+#' semester, year, and subject as parameters and returns a named list with standard site information
+#' that can be refered to in a common format.
+#'
+#' @param site_name The name of the site, as a string, and in a style that it would appear in a
+#'      presentation. For example, this means that the site name will likely be in title case.
+#' @param semester The semester, as a string, in title case.
+#' @param year The year as a integer.
+#' @param subject The subject in title case.
+#'
+#' @returns
+#' A named list that contains the following names: `site_name_title`, `site_name_lower`, `semester_title`,
+#' `semester_lower`, `year`, `subject_title`, `subject_lower`
+#' @examples
+#' g2g_site_information('Bethune', 'Spring', '2022', 'ELA')
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_site_information <- function(site_name, semester, year, subject) {
+
+  site_name_lower <- stringr::str_replace_all(site_name, " ", "_") |>
+    stringr::str_to_lower()
+
+  semester_lower <- stringr::str_replace_all(semester, " ", "_") |>
+    stringr::str_to_lower()
+
+  subject_lower <- stringr::str_replace_all(subject, " ", "_") |>
+    stringr::str_to_lower()
+
+  list(
+    site_name_title = site_name,
+    site_name_lower = site_name_lower,
+    semester_title = semester,
+    semester_lower = semester_lower,
+    year = year,
+    subject_title = subject,
+    subject_lower = subject_lower
+  )
+
+}
+
+#' Pull data from Google Sheets and add descriptive columns
+#'
+#' Pulls data from Google Forms and adds columns to the data signifying the site, semester, subject, and tool
+#'
+#' @param url The url to the Google sheet
+#' @param tool_name The name of the tool ('Observations', 'Post-Training')
+#' @param site_info A list created by `g2g_site_information()` containing site information.
+#'
+#' @returns
+#' A tibble with the data from the Google Sheet and additional columns called: `site_name`, `semester`,
+#' `subject`, and `tool`
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_pull_data <- function(url, tool_name, site_info) {
+
+  googlesheets4::read_sheet(url) |>
+    dplyr::mutate(
+      site_name = !!site_info[['site_name_title']],
+      semester = !!site_info[['semester_year']],
+      subject = !!site_info[['subject_title']],
+      tool = !!tool_name
+    )
+
+}

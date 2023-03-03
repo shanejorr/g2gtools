@@ -30,7 +30,8 @@ Imports:
     tntpmetrics,
     patchwork,
     ggh4x,
-    forcats
+    forcats,
+    googlesheets4
 Remotes: github::adamMaier/tntpmetrics
 URL: https://github.com/shanejorr/g2gtools
 BugReports: https://github.com/shanejorr/g2gtools/issues

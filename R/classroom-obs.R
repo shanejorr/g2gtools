@@ -379,3 +379,203 @@ g2g_obs_map_scales <- function(core_action) {
   return(scale_order)
 
 }
+
+#' Place observation data into long form and add columns identifying the core action
+#'
+#' @param .data The raw observation data, as pulled from Google Sheets
+#' @param ... for `g2g_tidy_forms_survey`. Should include the `question_columns` and
+#'      `grouping_columns` parameters
+#'
+#' @returns A tibble of the observation data in long form, where each row is a teacher / core action combination.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_obs_long_form <- function(.data, ...) {
+
+  .data |>
+    g2g_tidy_forms_survey(...) |>
+    dplyr::rename(term = .data[['when_did_the_observation_occur']]) |>
+    g2g_classroom_obs_add_ca() |>
+    dplyr::mutate(
+      response = g2g_to_title(.data[['response']]),
+      # relabel response for one scale
+      response = g2g_relabel_yesbut_notreally(.data[['response']])
+    ) |>
+    # make all names lower case for better matching
+    dplyr::mutate(dplyr::across(dplyr::ends_with('_name'), stringr::str_to_lower))
+
+}
+
+#' Calculate the response percentages of each core action by pre and post training
+#'
+#' @param .data Observation data that is already in long form, created by `g2g_obs_long_form()`.
+#'
+#' @returns
+#' A tibble with aggregated observation result percentages for each rating. Aggregated by core action and timing (pre or post)
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_obs_calc_perc <- function(.data) {
+
+  perc_grouping_cols <- c('.timing', 'core_action_main', 'core_action_minor')
+
+  col_names <- colnames(.data)
+
+  if (!all(perc_grouping_cols %in% col_names)) stop(stringr::str_c("`.data` must contain the following columns: ", paste0(perc_grouping_cols, collapse = ", ")))
+
+  .data |>
+    tidyr::drop_na(.data[['core_action_main']], .data[['response']]) |>
+    g2g_forms_survey_calc_percentages(grouping_columns = perc_grouping_cols, add_n = 'none') |>
+    # add a column combining major and minor core actions
+    g2g_obs_combine_ca() |>
+    dplyr::mutate(
+      response_option = stringr::str_wrap(.data[['response_option']], 40),
+      core_action = stringr::str_wrap(.data[['core_action']], 40)
+    )
+
+}
+
+#' Create a dataset containing aggregate responses for a single Core Action.
+#'
+#' Creates a dataset of aggregate responses for a single core action. Filters for the specific core action
+#' and adds a column with the percengate of positive responses. This dataset is used for plotting
+#'
+#' @param .data Observation data in long form, with the following columns:
+#'    '.timing', 'core_action_main', 'core_action_minor'. Data should already be aggregated and show
+#'    percentages for each core action/ response combination. Can create data with the `g2g_obs_calc_perc()` function.
+#' @param core_action The core action that we want to get data for. A string that mirrors the spelling in the
+#'      `core_action_main` column.
+#' @param scale_order The order of the response scale. Can find with the function `g2g_obs_map_scales()`
+#'
+#' @returns
+#' A tibble with aggregate data for a single core action. It contains an additional column with the
+#' aggregate of positive responses.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_obs_get_ca_data <- function(.data, core_action, scale_order) {
+
+  perc_grouping_cols <- c('.timing', 'core_action_main', 'core_action_minor')
+
+  col_names <- colnames(.data)
+
+  if (!all(perc_grouping_cols %in% col_names)) stop(stringr::str_c("`.data` must contain the following columns: ", paste0(perc_grouping_cols, collapse = ", ")))
+
+  .data |>
+    dplyr::filter(.data[['core_action_main']] == !!core_action) |>
+    # aggregate positive responses for plotting
+    g2g_aggregate_positive_responses(scale_order[c(2,1)], perc_grouping_cols, only_keep_first_response = TRUE) |>
+    dplyr::mutate(
+      response = factor(.data[['response']], levels = rev(scale_order)),
+      core_action = forcats::fct_rev(.data[['core_action']]),
+      .timing = forcats::fct_relevel(.data[['.timing']], 'First Observation')
+    )
+
+}
+
+#' Create visualization of observation data.
+#'
+#' Creates a horizontal bar plot for a single Core Action. Each sub-Core Action is on a seperate row
+#' (y-axis) of the bar chart.
+#'
+#' @param .data Data created with `g2g_obs_get_ca_data()`
+#' @param core_action The core action that we want to get data for. A string that mirrors the spelling in the
+#'      `core_action_main` column.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_obs_create_viz <- function(.data, core_action) {
+
+  # make sure we have the required columns
+  required_cols <- c('.percent', 'core_action', 'response', '.strong_response_percent', '.timing')
+
+  col_names <- colnames(.data)
+
+  if (!all(required_cols %in% col_names)) stop(stringr::str_c("`.data` must contain the following columns: ", paste0(required_cols, collapse = ", ")))
+
+  # make sure all percentages are between 0 and 1
+  if (!all(dplyr::between(.data$.percent, 0, 1))) stop("All expected percentages did nto fall between 0 and 1. Please re-check your input data (`.data`)", call. = FALSE)
+
+
+  # find out whether we are working with a Core Action
+  # title will depend on this
+  is_ca <- stringr::str_detect(core_action, "[0-9]")
+
+  if (is_ca) {
+    plt_title <- glue::glue("Core Action {core_action} Observation Results")
+  } else {
+    plt_title <- glue::glue("{core_action} Observation Results")
+  }
+
+  scale_order <- g2g_obs_map_scales(core_action)
+
+  pal <- names(scale_order) |> purrr::set_names(scale_order)
+
+  plt <- .data |>
+    # create plot
+    g2g_viz_stacked_bar_percent(
+      x_var = '.percent', y_var = 'core_action', fill_var = 'response',
+      text_var = '.strong_response_percent', color_pal = pal
+    ) +
+    ggplot2::labs(
+      x = 'Percentage of observations',
+      y = NULL,
+      fill = NULL,
+      title = plt_title
+    ) +
+    ggplot2::facet_wrap(ggplot2::vars(.data[['.timing']])) +
+    ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
+
+  return(plt)
+
+}
+
+#' Add an observation visualization to a PPT slide
+
+#' @param doc The PPT document object. Initially created with `g2g_create_deck_ppt()`.
+#' @param plt The plot to add to the PPT. Typically created with `g2g_obs_create_viz()`.
+#' @param ca_descriptions A description of all core actions. Can be created with `.data |> distinct(core_action_main, core_action_minor, core_action, response_option)`
+#' @param core_action The core action that we want to get data for. A string that mirrors the spelling in the
+#'      `core_action_main` column.
+#' @param plt_height The height of the plot in the PPT. Can be calculated with `g2g_ppt_calculate_plot_height()`.
+#'      Defaults to 6.
+#' @param plt_width The width of the plot. Defaults to 9.
+#'
+#' @returns A `doc` object that can be reused when adding additional slides to the PPT.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_obs_add_viz_ppt <- function(doc, plt, ca_descriptions, core_action, plt_height = 6, plt_width = 9) {
+
+  is_ca <- stringr::str_detect(core_action, "[0-9]")
+
+  if (is_ca) {
+    slide_title <- glue::glue('Teacher Observations\nCore Action {core_action}')
+  } else {
+    slide_title <- glue::glue("Teacher Observations\n{core_action}")
+  }
+
+  ca_notes <- ca_descriptions |>
+    dplyr::filter(.data[['core_action_main']] == !!core_action) |>
+    dplyr::mutate(ca_description = glue::glue("- {.data[['core_action']]}: {.data[['response_option']]}")) |>
+    dplyr::pull(.data[['ca_description']]) |>
+    stringr::str_wrap(400, exdent = 5) |>
+    stringr::str_c(collapse = "\n")
+
+  ca_notes <- if (is_ca) stringr::str_c("Core Action Definitions:\n", ca_notes) else stringr::str_c(core_action, " Definitions:\n", ca_notes)
+
+  doc <- g2g_add_viz_ppt(
+    doc, plt,
+    slide_title, plt_width = plt_width,
+    plt_height = plt_height,
+    notes_text = ca_notes
+  )
+
+  return(doc)
+
+}
