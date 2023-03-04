@@ -245,7 +245,7 @@ g2g_id_pre_post <- function(.data, participants, pre_post_col) {
 
   .data |>
     g2g_compare_names(participants, pre_post_col) |>
-    dplyr::filter(.data[['.n']] != 1) |>
+    dplyr::filter(.data[['.n_obs_total']] != 1) |>
     dplyr::pull(.data[[participants]]) |>
     unique()
 
@@ -277,12 +277,12 @@ g2g_compare_names <- function(.data, participants, pre_post_col) {
     dplyr::distinct(.data[[participants]], .data[[pre_post_col]]) |>
     dplyr::group_by(.data[[participants]]) |>
     dplyr::mutate(
-      .n = dplyr::n(),
-      .id = dplyr::row_number(),
+      .n_obs_total = dplyr::n(),
+      .obs_num = dplyr::row_number(),
       .group_id = dplyr::cur_group_id()
     ) |>
     dplyr::ungroup() |>
-    dplyr::arrange(.data[[participants]], .data[['.id']], .data[[pre_post_col]], )
+    dplyr::arrange(.data[[participants]], .data[['.obs_num']], .data[[pre_post_col]], )
 
 }
 
@@ -410,8 +410,9 @@ g2g_to_title <- function(x) {
 #' @param subject The subject in title case.
 #'
 #' @returns
-#' A named list that contains the following names: `site_name_title`, `site_name_lower`, `semester_title`,
-#' `semester_lower`, `year`, `subject_title`, `subject_lower`
+#' A named list that contains containing items such as site names and file paths, to be used throughout a single Good to Great.
+#' Use `names(object_name)` to see list of items.
+#'
 #' @examples
 #' g2g_site_information('Bethune', 'Spring', '2022', 'ELA')
 #'
@@ -429,15 +430,32 @@ g2g_site_information <- function(site_name, semester, year, subject) {
   subject_lower <- stringr::str_replace_all(subject, " ", "_") |>
     stringr::str_to_lower()
 
-  list(
+  site_info <- list(
     site_name_title = site_name,
     site_name_lower = site_name_lower,
     semester_title = semester,
     semester_lower = semester_lower,
     year = year,
     subject_title = subject,
-    subject_lower = subject_lower
+    subject_lower = subject_lower,
+    ppt_title = glue::glue("{site_name} {semester} {year} {subject} G2G")
   )
+
+  site_path <- here::here(glue::glue("{site_info$semester_lower}-{site_info$year}"), site_info$site_name_lower)
+  ppt_obs_filename <- glue::glue("Observations - {site_info$ppt_title}.pptx")
+  ppt_teacher_filename <- glue::glue("Teacher Suvey - {site_info$ppt_title}.pptx")
+  data_path <- here::here(site_path, 'data')
+
+  site_info$file_paths <- list(
+    site_path = site_path,
+    obs_data_filename = here::here(data_path, glue::glue('{site_info$site_name_lower}-{site_info$semester_lower}_{site_info$year}-obs.csv')),
+    pre_teacher_filename = here::here(data_path, glue::glue('{site_info$site_name_lower}-{site_info$semester_lower}_{site_info$year}-teacher-pre.csv')),
+    post_teacher_filename = here::here(data_path, glue::glue('{site_info$site_name_lower}-{site_info$semester_lower}_{site_info$year}-teacher-post.csv')),
+    ppt_obs_filename = here::here(site_path, 'ppt', ppt_obs_filename),
+    ppt_teacher_filename = here::here(site_path, 'ppt', ppt_teacher_filename)
+  )
+
+  return(site_info)
 
 }
 

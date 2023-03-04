@@ -652,3 +652,61 @@ g2g_obs_viz_overall <- function(.data, height_relationships = c(1, 3)) {
   return(ca_plts)
 
 }
+
+#' Test to ensure the aggregated data matches the  raw data
+#'
+#' @param raw_data The raw data, as imported from Google Sheets
+#' @param long_form_data The long form data of each individual response, created with `g2g_obs_long_form()`
+#' @param aggregated_data Aggregated data showing the percentage of respondents for each question / Core Action,
+#'      created with `g2g_obs_calc_perc()`.
+#' @param core_action_to_test The Core Action to test. Will be the string in the `core_action` column of
+#'      the long form data. But, leave off "CA ".
+#'
+#' @returns
+#' Returns NULL if test is passed. otherwise, returns `testthat` output.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_obs_test_results <- function(raw_data, long_form_data, aggregated_data, core_action_to_test) {
+
+  # identify the exact row numbers that are used in the cleaned data and whether the row number
+  # is the first or last observation
+  # needed so we can pull out the final data from the raw data
+  distinct_obs <- long_form_data |>
+    dplyr::distinct(.data[['.id']], .data[['.timing']])
+
+  # extract the needed rows from the raw data and label whether they are the first or last observation
+  obs_check <- raw_data |>
+    dplyr::mutate(.id = dplyr::row_number()) |>
+    dplyr::left_join(distinct_obs, by = '.id') |>
+    tidyr::drop_na(.data[['.timing']]) |>
+    dplyr::select(dplyr::all_of(c('.id', '.timing')), dplyr::contains(core_action_to_test))
+
+  colnames(obs_check) <- c('.id', '.timing', 'response')
+
+  # calculated the percentages from the raw data
+  expected_result <- obs_check |>
+    dplyr::group_by_at(c('.timing', 'response')) |>
+    dplyr::summarize(.n_response = dplyr::n()) |>
+    dplyr::mutate(
+      .n_question = sum(.data[['.n_response']]),
+      .percent = .data[['.n_response']] / .data[['.n_question']],
+      response = stringr::str_to_lower(.data[['response']])
+    ) |>
+    dplyr::ungroup() |>
+    dplyr::arrange(.data[['.timing']], .data[['response']])
+
+  # place the actual percentage data into a format that matches the calculated percentages from the raw data
+  actual_result <- aggregated_data |>
+    dplyr::filter(stringr::str_detect(.data[['core_action']], core_action_to_test)) |>
+    dplyr::mutate(response = stringr::str_to_lower(.data[['response']])) |>
+    dplyr::select(dplyr::all_of(c('.timing', 'response', '.n_response', '.n_question', '.percent'))) |>
+    dplyr::arrange(.data[['.timing']], .data[['response']])
+
+  # test result
+  testthat::expect_equal(actual_result, expected_result)
+
+  return('TEST PASSED!!')
+
+}

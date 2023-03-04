@@ -17,8 +17,8 @@ presentation. For example, this means that the site name will likely be in title
 \item{subject}{The subject in title case.}
 }
 \value{
-A named list that contains the following names: \code{site_name_title}, \code{site_name_lower}, \code{semester_title},
-\code{semester_lower}, \code{year}, \code{subject_title}, \code{subject_lower}
+A named list that contains containing items such as site names and file paths, to be used throughout a single Good to Great.
+Use \code{names(object_name)} to see list of items.
 }
 \description{
 Site information is injected into an analysis at multiple points. This function takes the site name,
