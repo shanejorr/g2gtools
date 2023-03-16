@@ -57,7 +57,7 @@ g2g_teacher_combine_pre_post <- function(pre_training_survey, post_training_surv
 g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap) {
 
   # make sure we have the required column names
-  required_columns <- c('response', 'in_survey', 'response_option', '.percent', 'question_stem')
+  required_columns <- c('response', 'response_option', '.percent', 'question_stem')
 
   g2g_check_required_columns(.data, required_columns)
 
@@ -65,8 +65,6 @@ g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap) {
 
   hex_colors <- names(scales_to_use) |>
     purrr::set_names(scales_to_use)
-
-  plt_height <- g2g_ppt_calculate_plot_height(.data$response_option)
 
   plt_title <- stringr::str_wrap(unique(.data[['question_stem']]), title_wrap)
 
@@ -82,6 +80,59 @@ g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap) {
       x_var = '.percent', y_var = 'response_option',
       text_var = '.strong_response_percent', fill_var = 'response', color_pal = hex_colors
     ) +
+    ggplot2::labs(
+      x = 'Percentage of respondents',
+      y = NULL,
+      fill = NULL,
+      title = plt_title
+    )
+
+  return(plt)
+
+}
+
+#' Plot pre and post-training comparisons of survey items
+#'
+#' The data plotted should have pre and post-training comparisons with a column called `term`
+#' identifying pre and post-training.
+#'
+#' @param .data A data set that contains a single question stem from either the pre or post-training teacher survey.
+#' @param response_wrap An integer representing the length (number of characters) in each line of the y axis labels.
+#'      These will be the questions.
+#' @param title_wrap An integer representing the length (number of characters) of the title. This is the question stem.
+#'
+#' @returns A ggplot object.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_teacher_viz_pre_post <- function(.data, response_wrap, title_wrap) {
+
+  # make sure we have the required column names
+  required_columns <- c('response', 'response_option', '.percent', 'question_stem', 'term')
+
+  g2g_check_required_columns(.data, required_columns)
+
+  scales_to_use <- g2g_find_scale(.data$response)
+
+  hex_colors <- names(scales_to_use) |>
+    purrr::set_names(scales_to_use)
+
+  plt_title <- stringr::str_wrap(unique(.data[['question_stem']]), title_wrap)
+
+  plt <- .data |>
+    # aggregate positive responses for plotting
+    g2g_aggregate_positive_responses(scales_to_use[c(2,1)], 'term', only_keep_first_response = TRUE) |>
+    dplyr::mutate(
+      response_option = stringr::str_wrap(.data[['response_option']], response_wrap),
+      response_option = tidyr::replace_na(.data[['response_option']], ' '),
+      response = factor(.data[['response']], levels = rev(scales_to_use))
+    ) |>
+    g2g_viz_stacked_bar_percent(
+      x_var = '.percent', y_var = 'response_option',
+      text_var = '.strong_response_percent', fill_var = 'response', color_pal = hex_colors
+    ) +
+    ggplot2::facet_wrap(ggplot2::vars(.data[['term']]), ncol = 2) +
     ggplot2::labs(
       x = 'Percentage of respondents',
       y = NULL,
