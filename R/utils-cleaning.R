@@ -485,3 +485,27 @@ g2g_pull_data <- function(url, tool_name, site_info) {
     )
 
 }
+
+#' Check for required columns
+#'
+#' @param .data The data set that we want to check for the required columns
+#' @param required_columns A vector of strings representing required columns names
+#'
+#' @returns
+#' Returns NULL if all columns are present. Otherwise, produces an error.
+g2g_check_required_columns <- function(.data, required_columns) {
+
+  # create a logical vector the same length as required_columns showing whether the column is present
+  cols_present <- rlang::has_name(.data, required_columns)
+
+  if (!all(cols_present)) {
+
+    missing_columns <- required_columns[!cols_present]
+    error_message <- stringr::str_c("Your data is missing the following required columns: '", stringr::str_c(missing_columns, collapse = "','"), "'")
+    stop(error_message, call. = TRUE)
+
+  }
+
+  return(NULL)
+
+}
