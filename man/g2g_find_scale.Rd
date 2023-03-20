@@ -4,11 +4,13 @@
 \alias{g2g_find_scale}
 \title{Convert scale to a factor with levels in the proper order for plotting}
 \usage{
-g2g_find_scale(scale_column)
+g2g_find_scale(scale_column, reverse_coded = FALSE)
 }
 \arguments{
 \item{scale_column}{A vector with the responses in your data containing scales that you want to
 convert to a factor.}
+
+\item{reverse_coded}{Logical, whether you want the revere coded version of the scale.}
 }
 \value{
 A vector with the same values as the input vector, \code{scale_column}, but converted to a

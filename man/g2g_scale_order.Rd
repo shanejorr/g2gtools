@@ -4,10 +4,12 @@
 \alias{g2g_scale_order}
 \title{Return a vector of scales in the proper order with colors}
 \usage{
-g2g_scale_order(scale_name)
+g2g_scale_order(scale_name, reverse_coded = FALSE)
 }
 \arguments{
 \item{scale_name}{The name of the scale, as a string.}
+
+\item{reverse_coded}{Logical, whether you want the revere coded version of the scale.}
 }
 \value{
 A a named vector where the values are the scales in the proper order and the names are the

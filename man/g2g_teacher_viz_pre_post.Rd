@@ -4,7 +4,12 @@
 \alias{g2g_teacher_viz_pre_post}
 \title{Plot pre and post-training comparisons of survey items}
 \usage{
-g2g_teacher_viz_pre_post(.data, response_wrap, title_wrap)
+g2g_teacher_viz_pre_post(
+  .data,
+  response_wrap,
+  title_wrap,
+  reverse_coded = FALSE
+)
 }
 \arguments{
 \item{.data}{A data set that contains a single question stem from either the pre or post-training teacher survey.}
@@ -13,11 +18,14 @@ g2g_teacher_viz_pre_post(.data, response_wrap, title_wrap)
 These will be the questions.}
 
 \item{title_wrap}{An integer representing the length (number of characters) of the title. This is the question stem.}
+
+\item{reverse_coded}{Logical, indicating whether question stem contains reverse coded questions. Defaults to TRUE.}
 }
 \value{
 A ggplot object.
 }
 \description{
 The data plotted should have pre and post-training comparisons with a column called \code{term}
-identifying pre and post-training.
+identifying pre and post-training.Reverse coded questions should contain different question stems
+than non-reverse coded questions.
 }

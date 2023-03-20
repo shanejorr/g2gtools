@@ -140,4 +140,28 @@ test_that("Properly create data set for g2g_viz_likert_centered", {
 
 })
 
+test_that("Properly identify scales and add hex colors", {
+
+  scales <- sample(c("Strongly Disagree", "Somewhat Disagree", "Agree"), 20, replace = TRUE)
+
+  pos_scales <- g2g_find_scale(scales, reverse_coded = FALSE)
+  neg_scales <- g2g_find_scale(scales, reverse_coded = TRUE)
+
+  neg_scales
+
+  expected_results_pos <- c(
+    "#00A4C7" = "Strongly Agree", "#81D2EB" = "Agree", "#eeeeee" = "Somewhat Agree",
+    "#cccccc" = "Somewhat Disagree", "#aaaaaa" = "Disagree", "#888888" = "Strongly Disagree"
+  )
+
+  expected_results_neg <- c(
+    "#FFC723" = "Strongly Disagree", "#EA8835" = "Disagree", "#888888" = "Somewhat Disagree",
+    "#aaaaaa" = "Somewhat Agree", "#cccccc" = "Agree", "#eeeeee" = "Strongly Agree"
+  )
+
+  expect_equal(pos_scales, expected_results_pos)
+  expect_equal(neg_scales, expected_results_neg)
+
+})
+
 

@@ -92,6 +92,7 @@ g2g_list_of_scales <- function() {
 #' Return a vector of scales in the proper order with colors
 #'
 #' @param scale_name The name of the scale, as a string.
+#' @param reverse_coded Logical, whether you want the revere coded version of the scale.
 #'
 #' @section Scale options:
 #'
@@ -117,9 +118,7 @@ g2g_list_of_scales <- function() {
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_scale_order <- function(scale_name) {
-
-  # note: need test
+g2g_scale_order <- function(scale_name, reverse_coded = FALSE) {
 
   # can only enter one scale name
   scale_length <- length(scale_name)
@@ -145,17 +144,29 @@ g2g_scale_order <- function(scale_name) {
   # for all palettes, the two highest values will be blue, the others will be gray
   gray_colors <- c("#eeeeee", "#cccccc", "#aaaaaa", "#888888")
   blue_colors <- c("#00A4C7", "#81D2EB")
+  orange_colors <- c("#EA8835", "#FFC723")
 
   gray_length <- length(gray_colors)
 
-  num_blues <- if (scale_length == 2) 1 else 2
+  num_pos <- if (scale_length == 2) 1 else 2
 
-  num_grays <- scale_length - num_blues
+  num_grays <- scale_length - num_pos
 
-  pal <- c(blue_colors[1:num_blues], gray_colors[(gray_length-(num_grays-1)):gray_length])
+  if (!reverse_coded) {
+    pal <- c(blue_colors[1:num_pos], gray_colors[(gray_length-(num_grays-1)):gray_length])
 
-  single_scale |>
-    purrr::set_names(pal)
+    final_scale  <- single_scale |>
+      purrr::set_names(pal)
+
+  } else if (reverse_coded) {
+    pal <- c(gray_colors[(gray_length-(num_grays-1)):gray_length], orange_colors[1:num_pos])
+
+    final_scale <- single_scale |>
+      purrr::set_names(pal) |>
+      rev()
+  }
+
+  return(final_scale)
 
 }
 
@@ -167,6 +178,7 @@ g2g_scale_order <- function(scale_name) {
 #'
 #' @param scale_column A vector with the responses in your data containing scales that you want to
 #'      convert to a factor.
+#' @param reverse_coded Logical, whether you want the revere coded version of the scale.
 #'
 #' @return A vector with the same values as the input vector, \code{scale_column}, but converted to a
 #' factor with the levels in the proper order
@@ -174,7 +186,7 @@ g2g_scale_order <- function(scale_name) {
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_find_scale <- function(scale_column) {
+g2g_find_scale <- function(scale_column, reverse_coded = FALSE) {
 
   # set iterator because if we either have no matches (i == 0) or
   # multiple matches (i > 1) there is a problem
@@ -182,7 +194,7 @@ g2g_find_scale <- function(scale_column) {
 
   scale_names <- names(g2g_list_of_scales())
 
-  scales <- purrr::map(scale_names, g2g_scale_order) |>
+  scales <- purrr::map(scale_names, g2g_scale_order, reverse_coded = reverse_coded) |>
     purrr::set_names(scale_names)
 
   for (i in seq.int(scales)) {
