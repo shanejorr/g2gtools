@@ -136,7 +136,11 @@ g2g_ppt_calculate_plot_height <- function(column_with_rows) {
   # find number of questions to determine plot height
   n_questions <- length(unique(column_with_rows))
 
-  plt_height_multiplier*n_questions+2
+  plt_height <- plt_height_multiplier*n_questions+2
+
+  plt_height <- if (n_questions == 2) plt_height * 1.1 else plt_height
+
+  return(plt_height)
 
 }
 

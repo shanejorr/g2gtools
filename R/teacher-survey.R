@@ -19,7 +19,7 @@
 g2g_teacher_combine_pre_post <- function(pre_training_survey, post_training_survey) {
 
   # make sure we have the required column names
-  required_columns <- c('email', 'response_option')
+  required_columns <- c('email', 'response_option', 'response', 'term')
 
   g2g_check_required_columns(pre_training_survey, required_columns)
   g2g_check_required_columns(post_training_survey, required_columns)
@@ -179,14 +179,60 @@ g2g_teacher_reverse_coded <- function(.data) {
 
     # To what extent do you agree with the following statements about students as readers
     "^Most students will learn to read on their own if given",
-    "^Skilled readers rely on context clues and visual cues such as pictures"
+    "^Skilled readers rely on context clues and visual cues such as pictures",
+
+    # Consider what you believe about how students improve as writers and rate your agreement with the following statements.
+    "^The purpose of giving students a writing prompt is for",
+    "^Grammar and syntax skills are best taught in isolation"
   ) |>
     stringr::str_c(collapse = "|")
 
-  .data |>
+  df <- .data |>
     dplyr::mutate(
       reverse_coded = ifelse(stringr::str_detect(.data[['response_option']], reverse_coded_re), TRUE, FALSE),
       question_stem = ifelse(stringr::str_detect(.data[['response_option']], reverse_coded_re), glue::glue("{.data[['question_stem']]}*"), .data[['question_stem']])
     )
+
+  # output message showing reverse coded items
+  reverse_code_message <- "The following questions were reverse coded:\n   "
+
+  reverse_code_questions <- df |>
+    dplyr::filter(stringr::str_detect(.data[['response_option']], reverse_coded_re)) |>
+    dplyr::pull(.data[["response_option"]]) |>
+    unique() |>
+    stringr::str_c(collapse = "\n    ")
+
+  message(stringr::str_c(reverse_code_message, reverse_code_questions))
+
+  return(df)
+
+}
+
+#' Shorten survey questions
+#'
+#' Shorten survey question so that they plot easier. Do this by removing text within parenthesis
+#' and shortening long questions.
+#'
+#' @param .data Teacher survey data set
+#'
+#' @returns
+#' A vector with the questions shortened.
+#'
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_teacher_shorten_questions <- function(.data) {
+
+  .data |>
+    dplyr::mutate(
+      # remove sections of questions wrapped in parenthesis "(" or ")" to shorten questions for plotting
+      response_option = stringr::str_remove(.data[["response_option"]], " [(].*[)]"),
+      # shorten long questions
+      response_option = dplyr::case_when(
+        stringr::str_detect(.data[["response_option"]], "^When planning writing instruction") ~ stringr::str_remove(.data[["response_option"]], " for my grade level"),
+        .default = .data[["response_option"]]
+        )
+      )
 
 }
