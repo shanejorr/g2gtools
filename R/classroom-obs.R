@@ -312,7 +312,7 @@ g2g_first_or_last <- function(.data, grouping_columns, date_column) {
   }
 
   # test #
-  # check toensure column are in data set
+  # check to ensure column are in data set
   df <- .data |>
     dplyr::group_by_at(grouping_columns) |>
     dplyr::mutate(.timing = dplyr::case_when(
@@ -687,6 +687,7 @@ g2g_obs_test_results <- function(raw_data, long_form_data, aggregated_data, core
 
   # calculated the percentages from the raw data
   expected_result <- obs_check |>
+    tidyr::drop_na('response') |>
     dplyr::group_by_at(c('.timing', 'response')) |>
     dplyr::summarize(.n_response = dplyr::n()) |>
     dplyr::mutate(
