@@ -4,7 +4,12 @@
 \alias{g2g_obs_get_ca_data}
 \title{Create a dataset containing aggregate responses for a single Core Action.}
 \usage{
-g2g_obs_get_ca_data(.data, core_action, scale_order)
+g2g_obs_get_ca_data(
+  .data,
+  core_action,
+  scale_order,
+  firt_obs_factor = "First Observation"
+)
 }
 \arguments{
 \item{.data}{Observation data in long form, with the following columns:
@@ -15,6 +20,9 @@ percentages for each core action/ response combination. Can create data with the
 \code{core_action_main} column.}
 
 \item{scale_order}{The order of the response scale. Can find with the function \code{g2g_obs_map_scales()}}
+
+\item{firt_obs_factor}{String representing the first observation category in \code{.timing}, as a string.
+\code{.timing} will be changed to a factor with this string being the first level. Useful for ordering plots.}
 }
 \value{
 A tibble with aggregate data for a single core action. It contains an additional column with the

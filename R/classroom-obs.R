@@ -246,10 +246,16 @@ g2g_calc_avg_ipg <- function(.data, grade_column, subject_name, grouping_terms =
 
   id_cols <- c(".id", grouping_terms)
 
-  .data |>
+  df <- .data |>
     g2g_classroom_obs_add_tntpmetrics(
       grade_column = grade_column, subject_name = subject_name, id_cols = id_cols
     ) |>
+    # drop if not all values have numbers
+    tidyr::drop_na()
+
+  message(glue::glue("{nrow(df)} observations were used in calculating th IPG score."))
+
+  df |>
     tntpmetrics::make_metric('ipg') |>
     dplyr::group_by_at(grouping_terms) |>
     dplyr::summarize(dplyr::across(dplyr::starts_with('cm_'), ~mean(.x, na.rm = TRUE)))
@@ -331,6 +337,34 @@ g2g_first_or_last <- function(.data, grouping_columns, date_column) {
   df |>
     dplyr::left_join(distinct_counts, by = grouping_columns)|>
     dplyr::ungroup()
+
+  # change to #
+
+  # names_add <- c('person 1', 'person 2')
+  # dates_add <- lubridate::ymd(c(
+  #   '2020-01-03', '2020-01-01', '2020-01-01', '2020-01-02', '2020-01-03', # first person
+  #   '2020-01-03', '2020-01-03', '2020-01-01', '2020-01-02', '2020-01-02' # second person
+  # ))
+  #
+  # raw_data <- tibble(
+  #   .id = 1:10,
+  #   teacher_names = rep(names_add, each = 5),
+  #   date_obs = dates_add
+  # )
+  #
+  # raw_data <- raw_data |>
+  #   dplyr::bind_rows(raw_data)
+  #
+  # actual_data <- raw_data |>
+  #   dplyr::distinct(.id, teacher_names, date_obs) |>
+  #   dplyr::group_by(teacher_names) |>
+  #   dplyr::mutate(date_rank = dplyr::row_number(date_obs)) |>
+  #   dplyr::mutate(.timing = dplyr::case_when(
+  #     date_rank == max(date_rank) ~ 'Last Observation',
+  #     date_rank == min(date_rank) ~ 'First Observation',
+  #     TRUE ~ 'During Program'
+  #   )) |>
+  #   arrange(teacher_names, date_obs, date_rank)
 
 }
 
@@ -448,6 +482,8 @@ g2g_obs_calc_perc <- function(.data) {
 #' @param core_action The core action that we want to get data for. A string that mirrors the spelling in the
 #'      `core_action_main` column.
 #' @param scale_order The order of the response scale. Can find with the function `g2g_obs_map_scales()`
+#' @param firt_obs_factor String representing the first observation category in `.timing`, as a string.
+#'      `.timing` will be changed to a factor with this string being the first level. Useful for ordering plots.
 #'
 #' @returns
 #' A tibble with aggregate data for a single core action. It contains an additional column with the
@@ -456,7 +492,7 @@ g2g_obs_calc_perc <- function(.data) {
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_obs_get_ca_data <- function(.data, core_action, scale_order) {
+g2g_obs_get_ca_data <- function(.data, core_action, scale_order, firt_obs_factor = 'First Observation') {
 
   perc_grouping_cols <- c('.timing', 'core_action_main', 'core_action_minor')
 
@@ -475,7 +511,7 @@ g2g_obs_get_ca_data <- function(.data, core_action, scale_order) {
     dplyr::mutate(
       response = factor(.data[['response']], levels = rev(scale_order)),
       core_action = forcats::fct_rev(.data[['core_action']]),
-      .timing = forcats::fct_relevel(.data[['.timing']], 'First Observation')
+      .timing = forcats::fct_relevel(.data[['.timing']], firt_obs_factor)
     )
 
 }
@@ -711,3 +747,24 @@ g2g_obs_test_results <- function(raw_data, long_form_data, aggregated_data, core
   return('TEST PASSED!!')
 
 }
+
+# TODO
+# identify whether teacher has pre and post for a given item
+# compare_cols <- c('teachers_last_name', 'core_action_main', 'core_action_minor')
+#
+# pre_post_compare <- obs_long |>
+#   group_by_at(compare_cols) |>
+#   tally(name = '.n_pre_post') |>
+#   ungroup()
+#
+# # add this information to the long-form data set so that we know what to remove
+# obs_long <- obs_long |>
+#   left_join(pre_post_compare, by = compare_cols)
+#
+# # all values should either be 1 or 2, check
+# if (!all(obs_long$.n_pre_post %in% c(1, 2))) stop("There was an error in checking whether each teacher has pre and post scores for an item. Check data.", call. = FALSE)
+#
+# # remove items where there is only one response
+# obs_long <- obs_long |>
+#   filter(!.n_pre_post == 1) |>
+#   select(-.n_pre_post)
