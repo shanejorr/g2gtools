@@ -253,7 +253,7 @@ g2g_calc_avg_ipg <- function(.data, grade_column, subject_name, grouping_terms =
     # drop if not all values have numbers
     tidyr::drop_na()
 
-  message(glue::glue("{nrow(df)} observations were used in calculating th IPG score."))
+  message(glue::glue("{nrow(df)} observations were used in calculating the IPG score."))
 
   df |>
     tntpmetrics::make_metric('ipg') |>
