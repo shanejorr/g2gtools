@@ -272,7 +272,7 @@ g2g_id_pre_post <- function(.data, participants, pre_post_col) {
 #'
 #' @param .data A single data set containing pre and post data, in long form where pre and post are
 #'      in different rows.
-#' @param participants The column name, as a string, that identifies unique participants. This could
+#' @param participants The column name or names, as a string or vector of strings, that identify unique participants. This could
 #'      be names, emails or other identifiers.
 #' @param pre_post_col The column name, as a string, that identifies whether a row is a pre or post
 #'      training observations.
@@ -286,15 +286,15 @@ g2g_id_pre_post <- function(.data, participants, pre_post_col) {
 g2g_compare_names <- function(.data, participants, pre_post_col) {
 
   .data |>
-    dplyr::distinct(.data[[participants]], .data[[pre_post_col]]) |>
-    dplyr::group_by(.data[[participants]]) |>
+    dplyr::distinct(dplyr::across(dplyr::all_of(participants)), .data[[pre_post_col]]) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(participants))) |>
     dplyr::mutate(
       .n_obs_total = dplyr::n(),
       .obs_num = dplyr::row_number(),
       .group_id = dplyr::cur_group_id()
     ) |>
     dplyr::ungroup() |>
-    dplyr::arrange(.data[[participants]], .data[['.obs_num']], .data[[pre_post_col]], )
+    dplyr::arrange(dplyr::across(dplyr::all_of(participants)), .data[['.obs_num']], .data[[pre_post_col]])
 
 }
 
@@ -456,6 +456,7 @@ g2g_site_information <- function(site_name, semester, year, subject) {
   site_path <- here::here(glue::glue("{site_info$semester_lower}-{site_info$year}"), site_info$site_name_lower)
   ppt_obs_filename <- glue::glue("Observations - {site_info$ppt_title}.pptx")
   ppt_teacher_filename <- glue::glue("Teacher Suvey - {site_info$ppt_title}.pptx")
+  ppt_student_survey_filename <- glue::glue("Student Suvrey - {site_info$ppt_title}.pptx")
   data_path <- here::here(site_path, 'data')
 
   site_info$file_paths <- list(
@@ -463,8 +464,10 @@ g2g_site_information <- function(site_name, semester, year, subject) {
     obs_data_filename = here::here(data_path, glue::glue('{site_info$site_name_lower}-{site_info$semester_lower}_{site_info$year}-obs.csv')),
     pre_teacher_filename = here::here(data_path, glue::glue('{site_info$site_name_lower}-{site_info$semester_lower}_{site_info$year}-teacher-pre.csv')),
     post_teacher_filename = here::here(data_path, glue::glue('{site_info$site_name_lower}-{site_info$semester_lower}_{site_info$year}-teacher-post.csv')),
+    student_survey_filename = here::here(data_path, glue::glue('{site_info$site_name_lower}-{site_info$semester_lower}_{site_info$year}-student_survey.csv')),
     ppt_obs_filename = here::here(site_path, 'ppt', ppt_obs_filename),
-    ppt_teacher_filename = here::here(site_path, 'ppt', ppt_teacher_filename)
+    ppt_teacher_filename = here::here(site_path, 'ppt', ppt_teacher_filename),
+    ppt_student_survey_filename = here::here(site_path, 'ppt', ppt_student_survey_filename)
   )
 
   return(site_info)

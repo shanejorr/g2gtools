@@ -10,7 +10,7 @@ g2g_compare_names(.data, participants, pre_post_col)
 \item{.data}{A single data set containing pre and post data, in long form where pre and post are
 in different rows.}
 
-\item{participants}{The column name, as a string, that identifies unique participants. This could
+\item{participants}{The column name or names, as a string or vector of strings, that identify unique participants. This could
 be names, emails or other identifiers.}
 
 \item{pre_post_col}{The column name, as a string, that identifies whether a row is a pre or post
