@@ -81,7 +81,7 @@ g2g_list_of_scales <- function() {
     yes_but = c('Yes', 'Yes, But Only in Some Areas', 'Not Really', 'No'),
     almost = c('Almost Always', 'Often',  'Sometimes', 'Once in a While', 'Almost Never'),
     true = c('Very True', 'Mostly True', 'A Little True', 'Not True'),
-    high = c('Extremely High', 'High', 'Slightly High', 'Somewhat High'),
+    high = c('Extremely High', 'High', 'Somewhat High', 'Slightly High', 'Not High at All'),
     always_rarely = c('Always', 'Often', 'Sometimes', 'Rarely or Never'),
     all_few = c('All', 'Most', 'Some', 'Few or None')
 
@@ -104,7 +104,7 @@ g2g_list_of_scales <- function() {
 #' -  'yes_but': Yes, 'Yes, But Only in Some Areas', Not Really, No
 #' -  'almost': Almost Always, Often,  Sometimes, Once in a While, Almost Never
 #' -  'true': Very True, Mostly True, A Little True, Not True
-#' -  'high': Extremely High, High, Slightly High, Somewhat High
+#' -  'high': Extremely High, High, Somewhat High, Slightly High, Not High at All
 #' -  'always_rarely': Always', Often', Sometimes, Rarely or Never
 #' -  'all_few': All, Most, Some, Few or None
 #'
@@ -454,9 +454,9 @@ g2g_site_information <- function(site_name, semester, year, subject) {
   )
 
   site_path <- here::here(glue::glue("{site_info$semester_lower}-{site_info$year}"), site_info$site_name_lower)
-  ppt_obs_filename <- glue::glue("Observations - {site_info$ppt_title}.pptx")
-  ppt_teacher_filename <- glue::glue("Teacher Suvey - {site_info$ppt_title}.pptx")
-  ppt_student_survey_filename <- glue::glue("Student Suvrey - {site_info$ppt_title}.pptx")
+  ppt_obs_filename <- glue::glue("Observations - {site_info$ppt_title} - {lubridate::today()}.pptx")
+  ppt_teacher_filename <- glue::glue("Teacher Suvey - {site_info$ppt_title} - {lubridate::today()}.pptx")
+  ppt_student_survey_filename <- glue::glue("Student Suvrey - {site_info$ppt_title} - {lubridate::today()}.pptx")
   data_path <- here::here(site_path, 'data')
 
   site_info$file_paths <- list(
