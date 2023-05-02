@@ -456,7 +456,7 @@ g2g_site_information <- function(site_name, semester, year, subject) {
   site_path <- here::here(glue::glue("{site_info$semester_lower}-{site_info$year}"), site_info$site_name_lower)
   ppt_obs_filename <- glue::glue("Observations - {site_info$ppt_title} - {lubridate::today()}.pptx")
   ppt_teacher_filename <- glue::glue("Teacher Suvey - {site_info$ppt_title} - {lubridate::today()}.pptx")
-  ppt_student_survey_filename <- glue::glue("Student Suvrey - {site_info$ppt_title} - {lubridate::today()}.pptx")
+  ppt_student_survey_filename <- glue::glue("Student Survey - {site_info$ppt_title} - {lubridate::today()}.pptx")
   data_path <- here::here(site_path, 'data')
 
   site_info$file_paths <- list(

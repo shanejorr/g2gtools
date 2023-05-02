@@ -198,11 +198,6 @@ g2g_calc_high_expectations <- function(.data) {
 
 }
 
-
-# teacher_pre_survey |>
-#   g2g_tidy_forms_survey(8:30, 3) |>
-#   g2g_calc_high_expectations()
-
 #' Calculate average HE scores and percentage of teacher with HE for given group
 #'
 #' The \code{tntpmetrics} package can be used to calculate high expectations metrics based on the common measures and
