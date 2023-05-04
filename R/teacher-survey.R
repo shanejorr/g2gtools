@@ -32,7 +32,7 @@ g2g_teacher_combine_pre_post <- function(pre_training_survey, post_training_surv
       # shorten text so that it plots better
       response_option = stringr::str_remove(.data[['response_option']], ", such as deep.*cycle"),
       in_survey = ifelse(.data[['question_stem']] %in% !!common_stems, "Pre and Post Survey", .data[['term']]),
-      email = stringr::str_to_lower(.data[['email']]) |> stringr::str_extract("[a-z]*(?=[@]?)"),
+      email = stringr::str_to_lower(.data[['email']]) |> stringr::str_extract("^[^@]+"),
       response_option = stringr::str_replace(.data[['response_option']], "[.][.]", "."),
       response_option = stringr::str_replace(.data[['response_option']], " [.]", "."),
       response = g2g_to_title(.data[['response']])
@@ -172,10 +172,10 @@ g2g_teacher_reverse_coded <- function(.data) {
   reverse_coded_re <- c(
     # Please consider what you believe to be true about how students learn how to read,
     # and rate your agreement with the following statements
-    "^Having knowledge about a topic significantly improves a reader",
     "^Having repeated practice with reading strategies significantly improves",
     "^Students should primarily engage with texts only on their individual",
     "^Text complexity is solely determined by a quantitative measure",
+    "^Each reading comprehension lesson should primarily",
 
     # To what extent do you agree with the following statements about students as readers
     "^Most students will learn to read on their own if given",
@@ -183,7 +183,8 @@ g2g_teacher_reverse_coded <- function(.data) {
 
     # Consider what you believe about how students improve as writers and rate your agreement with the following statements.
     "^The purpose of giving students a writing prompt is for",
-    "^Grammar and syntax skills are best taught in isolation"
+    "^Grammar and syntax skills are best taught in isolation",
+    "^The best approach to writing instruction is to"
   ) |>
     stringr::str_c(collapse = "|")
 
