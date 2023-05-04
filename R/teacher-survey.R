@@ -209,7 +209,7 @@ g2g_teacher_reverse_coded <- function(.data) {
 
 }
 
-#' Shorten survey questions
+#' Shorten survey questions by removing parenthesis
 #'
 #' Shorten survey question so that they plot easier. Do this by removing text within parenthesis
 #' and shortening long questions.
@@ -235,5 +235,57 @@ g2g_teacher_shorten_questions <- function(.data) {
         .default = .data[["response_option"]]
         )
       )
+
+}
+
+#' Shorten full questions for x-axis.
+#'
+#' Summarize survey questions into a couple words so that they can be used for the x-axis on plots.
+#'
+#' @param question_col The column name, as a string, of the column containing the full questions.
+#'
+#' @returns
+#' A vector with the shortened questions.
+#'
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_teacher_shorten_questions <- function(.data) {
+
+  dplyr::case_when(
+
+    # high expectations
+    stringr::str_detect(question_col, "fair to expect students in this class to master") ~ "Can master the standards by end of year",
+    stringr::str_detect(question_col, "One year is enough time") ~ "One year is enough time to master",
+    stringr::str_detect(question_col, "All students in my class can master the") ~ "All students can master the standards",
+    stringr::str_detect(question_col, "The standards are appropriate for the students") ~ "The standards are appropriate",
+
+    # math last unit taught
+    # Think about the last unit you taught. How often did you do the following?
+    stringr::str_detect(question_col, "Build on prior skills and knowledge") ~ "Build on prior skills and knowledge",
+    stringr::str_detect(question_col, "Ground procedures and formulas in conceptual") ~ "Ground procedures and formulas in conceptual understanding",
+    stringr::str_detect(question_col, "Use repeated practice to improve") ~ "Use repeated practice",
+    stringr::str_detect(question_col, "Use questions and problems that are from") ~ "Use items from the textbook/curriculum",
+    stringr::str_detect(question_col, "Use materials that I have found or created") ~ "Use found or created materials",
+    stringr::str_detect(question_col, "Provide feedback to help students revise") ~ "Provide feedback to help students revise work",
+    stringr::str_detect(question_col, "Emphasize one solution method") ~ "Emphasize one solution method",
+    stringr::str_detect(question_col, "Check for understanding throughout the lesson") ~ "Check for understanding",
+    stringr::str_detect(question_col, "Summarize the lesson with references") ~ "Summarize the lesson",
+    stringr::str_detect(question_col, "mathematical language by modeling proper use of relevant forms") ~ "Develop students’ mathematical language",
+
+    # ELA beliefs
+    # Please consider what you believe to be true about how students learn how to read, and rate
+    # your agreement with the following statements.
+    stringr::str_detect(question_col, "In ELA classes, a core responsibility of mine") ~ "A responsibility of mine is to build knowledge",
+    stringr::str_detect(question_col, "Having knowledge about a topic significantly improves a reader's comprehension ") ~ "Having kowledge about a topic",
+    stringr::str_detect(question_col, "Having repeated practice with reading strategies significantly") ~ "Having repeated practice with reading strategies",
+    stringr::str_detect(question_col, "Each reading comprehension lesson should") ~ "Focus on a single standard",
+    stringr::str_detect(question_col, "All students, regardless of level, should engage with the same anchor text") ~ "Engage with the same anchor text",
+    stringr::str_detect(question_col, "Questions about texts should focus on") ~ "Text-specific questions",
+    stringr::str_detect(question_col, "Students should primarily engage with texts only") ~ "Only engage in texts at reading level",
+    stringr::str_detect(question_col, "Text complexity is solely determined by") ~ "Text complexity is quantitatively determeined"
+
+  )
 
 }
