@@ -238,41 +238,40 @@ g2g_teacher_shorten_questions <- function(.data) {
 
 }
 
-#' Shorten full questions for x-axis.
-#'
-#' Summarize survey questions into a couple words so that they can be used for the x-axis on plots.
-#'
-#' @param question_col The column name, as a string, of the column containing the full questions.
-#'
-#' @returns
-#' A vector with the shortened questions.
-#'
-#'
-#' @importFrom rlang .data
-#'
-#' @export
-g2g_teacher_shorten_questions <- function(.data) {
-
-  dplyr::case_when(
-
-    # high expectations
-    stringr::str_detect(question_col, "fair to expect students in this class to master") ~ "Can master the standards by end of year",
-    stringr::str_detect(question_col, "One year is enough time") ~ "One year is enough time to master",
-    stringr::str_detect(question_col, "All students in my class can master the") ~ "All students can master the standards",
-    stringr::str_detect(question_col, "The standards are appropriate for the students") ~ "The standards are appropriate",
-
-    # ELA beliefs
-    # Please consider what you believe to be true about how students learn how to read, and rate
-    # your agreement with the following statements.
-    stringr::str_detect(question_col, "In ELA classes, a core responsibility of mine") ~ "A responsibility of mine is to build knowledge",
-    stringr::str_detect(question_col, "Having knowledge about a topic significantly improves a reader's comprehension ") ~ "Having kowledge about a topic",
-    stringr::str_detect(question_col, "Having repeated practice with reading strategies significantly") ~ "Having repeated practice with reading strategies",
-    stringr::str_detect(question_col, "Each reading comprehension lesson should") ~ "Focus on a single standard",
-    stringr::str_detect(question_col, "All students, regardless of level, should engage with the same anchor text") ~ "Engage with the same anchor text",
-    stringr::str_detect(question_col, "Questions about texts should focus on") ~ "Text-specific questions",
-    stringr::str_detect(question_col, "Students should primarily engage with texts only") ~ "Only engage in texts at reading level",
-    stringr::str_detect(question_col, "Text complexity is solely determined by") ~ "Text complexity is quantitatively determeined"
-
-  )
-
-}
+# Shorten full questions for x-axis.
+#
+# Summarize survey questions into a couple words so that they can be used for the x-axis on plots.
+#
+# @param question_col The column name, as a string, of the column containing the full questions.
+#
+# @returns
+# A vector with the shortened questions.
+#
+# @importFrom rlang .data
+#
+# @export
+# g2g_teacher_shorten_questions <- function(.data) {
+#
+#   dplyr::case_when(
+#
+#     # high expectations
+#     stringr::str_detect(question_col, "fair to expect students in this class to master") ~ "Can master the standards by end of year",
+#     stringr::str_detect(question_col, "One year is enough time") ~ "One year is enough time to master",
+#     stringr::str_detect(question_col, "All students in my class can master the") ~ "All students can master the standards",
+#     stringr::str_detect(question_col, "The standards are appropriate for the students") ~ "The standards are appropriate",
+#
+#     # ELA beliefs
+#     # Please consider what you believe to be true about how students learn how to read, and rate
+#     # your agreement with the following statements.
+#     stringr::str_detect(question_col, "In ELA classes, a core responsibility of mine") ~ "A responsibility of mine is to build knowledge",
+#     stringr::str_detect(question_col, "Having knowledge about a topic significantly improves a reader's comprehension ") ~ "Having kowledge about a topic",
+#     stringr::str_detect(question_col, "Having repeated practice with reading strategies significantly") ~ "Having repeated practice with reading strategies",
+#     stringr::str_detect(question_col, "Each reading comprehension lesson should") ~ "Focus on a single standard",
+#     stringr::str_detect(question_col, "All students, regardless of level, should engage with the same anchor text") ~ "Engage with the same anchor text",
+#     stringr::str_detect(question_col, "Questions about texts should focus on") ~ "Text-specific questions",
+#     stringr::str_detect(question_col, "Students should primarily engage with texts only") ~ "Only engage in texts at reading level",
+#     stringr::str_detect(question_col, "Text complexity is solely determined by") ~ "Text complexity is quantitatively determeined"
+#
+#   )
+#
+# }

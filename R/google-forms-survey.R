@@ -240,7 +240,7 @@ g2g_calc_high_expectations_averages <- function(.data, grouping_term = NULL) {
     g2g_calc_high_expectations() |>
     tntpmetrics::make_metric('expectations') |>
     dplyr::group_by_at(grouping_term) |>
-    dplyr::summarize(dplyr::across(dplyr::starts_with('cm_'), ~mean(.x, na.rm = TRUE)))
+    dplyr::summarize(dplyr::across(dplyr::starts_with('cm_'), ~mean(.x, na.rm = TRUE)), .groups = 'drop')
 
   if (!all(dplyr::between(he_scores$cm_expectations, 0, 20))) {
     stop(custom_stop_message('cm_expectations'), call. = FALSE)
