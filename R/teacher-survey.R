@@ -261,19 +261,6 @@ g2g_teacher_shorten_questions <- function(.data) {
     stringr::str_detect(question_col, "All students in my class can master the") ~ "All students can master the standards",
     stringr::str_detect(question_col, "The standards are appropriate for the students") ~ "The standards are appropriate",
 
-    # math last unit taught
-    # Think about the last unit you taught. How often did you do the following?
-    stringr::str_detect(question_col, "Build on prior skills and knowledge") ~ "Build on prior skills and knowledge",
-    stringr::str_detect(question_col, "Ground procedures and formulas in conceptual") ~ "Ground procedures and formulas in conceptual understanding",
-    stringr::str_detect(question_col, "Use repeated practice to improve") ~ "Use repeated practice",
-    stringr::str_detect(question_col, "Use questions and problems that are from") ~ "Use items from the textbook/curriculum",
-    stringr::str_detect(question_col, "Use materials that I have found or created") ~ "Use found or created materials",
-    stringr::str_detect(question_col, "Provide feedback to help students revise") ~ "Provide feedback to help students revise work",
-    stringr::str_detect(question_col, "Emphasize one solution method") ~ "Emphasize one solution method",
-    stringr::str_detect(question_col, "Check for understanding throughout the lesson") ~ "Check for understanding",
-    stringr::str_detect(question_col, "Summarize the lesson with references") ~ "Summarize the lesson",
-    stringr::str_detect(question_col, "mathematical language by modeling proper use of relevant forms") ~ "Develop students’ mathematical language",
-
     # ELA beliefs
     # Please consider what you believe to be true about how students learn how to read, and rate
     # your agreement with the following statements.
