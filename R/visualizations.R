@@ -299,7 +299,7 @@ g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', s
 
   plt_he_perc <- .data |>
     dplyr::mutate(cm_binary_expectations_text = scales::percent(.data[['cm_binary_expectations']], accuracy = 1)) |>
-    g2g_viz_basic_bar(x_axis, 'cm_binary_expectations', 'cm_binary_expectations_text', - .075, text_color = 'white', font_face = "bold", fill_color = he_perc_fill_color, ...) +
+    g2g_viz_basic_bar(x_axis, 'cm_binary_expectations', 'cm_binary_expectations_text', - .075, text_color = 'white', font_face = "bold", fill_color = he_perc_fill_color, text_size = text_size, ...) +
     ggplot2::scale_y_continuous(labels = scales::percent, limits = c(0, 1))
 
   if (plots_to_return == 'percentages') {
