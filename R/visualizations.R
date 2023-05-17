@@ -263,6 +263,7 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns =
 #'      expectations scores, while 'both' returns a single plot containing two visualizations, one with
 #'      scores and one with percentages.
 #' @param space_between_plots The amount of space,in points ('pt') between plots. Defaults to 40.
+#' @param text_size The size of the text on the bar chart. Default is 4.21.
 #' @param ... Parameters for `g2g_plt_theme_no_lines`.
 #'
 #' @returns A single plot containing two bar chart plots.
@@ -270,7 +271,7 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns =
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', space_between_plots = 50, ...) {
+g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', space_between_plots = 50, text_size = 4.21, ...) {
 
   # ensure the two cm columns are present
   col_names <- colnames(.data)
@@ -293,7 +294,7 @@ g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', s
   # expectations score
   plt_he_scores <- .data |>
     dplyr::mutate(cm_expectations_text = round(.data[['cm_expectations']], 1)) |>
-    g2g_viz_basic_bar(x_axis, 'cm_expectations', 'cm_expectations_text', - 1.35, text_color = 'white', font_face = "bold", fill_color = "#00A4C7", ...) +
+    g2g_viz_basic_bar(x_axis, 'cm_expectations', 'cm_expectations_text', - 1.35, text_color = 'white', font_face = "bold", fill_color = "#00A4C7", text_size = text_size, ...) +
     ggplot2::ylim(c(0, 20))
 
   plt_he_perc <- .data |>

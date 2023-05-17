@@ -1,6 +1,6 @@
 test_that("Reverse code question responses.", {
 
-  reverse_code_question <- "Having knowledge about a topic significantly improves a reader"
+  reverse_code_question <- "Having repeated practice with reading strategies significantly improves things for the reader"
 
   df <- data.frame(
     question_stem = c("reverse coded", "not reverse coded"),

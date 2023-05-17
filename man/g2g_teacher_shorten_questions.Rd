@@ -2,7 +2,7 @@
 % Please edit documentation in R/teacher-survey.R
 \name{g2g_teacher_shorten_questions}
 \alias{g2g_teacher_shorten_questions}
-\title{Shorten survey questions}
+\title{Shorten survey questions by removing parenthesis}
 \usage{
 g2g_teacher_shorten_questions(.data)
 }
