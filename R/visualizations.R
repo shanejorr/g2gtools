@@ -84,11 +84,6 @@ g2g_plt_theme_no_lines <- function(...) {
 #' @export
 g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fill_color = 'gray', text_color = 'black', text_size = 4.21, font_face = "plain", ...) {
 
-  # all x axis values should be unique
-  if (!nrow(.data) == dplyr::n_distinct(.data[[x_var]])) {
-    stop("All values in the column `x_var` must be unique", call. = FALSE)
-  }
-
   ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]])) +
     ggplot2::geom_col(fill = fill_color) +
     ggplot2::geom_text(
