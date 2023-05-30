@@ -338,34 +338,6 @@ g2g_first_or_last <- function(.data, grouping_columns, date_column) {
     dplyr::left_join(distinct_counts, by = grouping_columns)|>
     dplyr::ungroup()
 
-  # change to #
-
-  # names_add <- c('person 1', 'person 2')
-  # dates_add <- lubridate::ymd(c(
-  #   '2020-01-03', '2020-01-01', '2020-01-01', '2020-01-02', '2020-01-03', # first person
-  #   '2020-01-03', '2020-01-03', '2020-01-01', '2020-01-02', '2020-01-02' # second person
-  # ))
-  #
-  # raw_data <- tibble(
-  #   .id = 1:10,
-  #   teacher_names = rep(names_add, each = 5),
-  #   date_obs = dates_add
-  # )
-  #
-  # raw_data <- raw_data |>
-  #   dplyr::bind_rows(raw_data)
-  #
-  # actual_data <- raw_data |>
-  #   dplyr::distinct(.id, teacher_names, date_obs) |>
-  #   dplyr::group_by(teacher_names) |>
-  #   dplyr::mutate(date_rank = dplyr::row_number(date_obs)) |>
-  #   dplyr::mutate(.timing = dplyr::case_when(
-  #     date_rank == max(date_rank) ~ 'Last Observation',
-  #     date_rank == min(date_rank) ~ 'First Observation',
-  #     TRUE ~ 'During Program'
-  #   )) |>
-  #   arrange(teacher_names, date_obs, date_rank)
-
 }
 
 #' Find the scales for observations based on the Core Action
@@ -482,8 +454,9 @@ g2g_obs_calc_perc <- function(.data) {
 #' @param core_action The core action that we want to get data for. A string that mirrors the spelling in the
 #'      `core_action_main` column.
 #' @param scale_order The order of the response scale. Can find with the function `g2g_obs_map_scales()`
-#' @param firt_obs_factor String representing the first observation category in `.timing`, as a string.
+#' @param first_obs_factor String representing the first observation category in `.timing`, as a string.
 #'      `.timing` will be changed to a factor with this string being the first level. Useful for ordering plots.
+#'      'Defaults to 'First Observation'
 #'
 #' @returns
 #' A tibble with aggregate data for a single core action. It contains an additional column with the
@@ -492,7 +465,7 @@ g2g_obs_calc_perc <- function(.data) {
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_obs_get_ca_data <- function(.data, core_action, scale_order, firt_obs_factor = 'First Observation') {
+g2g_obs_get_ca_data <- function(.data, core_action, scale_order, first_obs_factor = 'First Observation') {
 
   perc_grouping_cols <- c('.timing', 'core_action_main', 'core_action_minor')
 
@@ -511,7 +484,7 @@ g2g_obs_get_ca_data <- function(.data, core_action, scale_order, firt_obs_factor
     dplyr::mutate(
       response = factor(.data[['response']], levels = rev(scale_order)),
       core_action = forcats::fct_rev(.data[['core_action']]),
-      .timing = forcats::fct_relevel(.data[['.timing']], firt_obs_factor)
+      .timing = forcats::fct_relevel(.data[['.timing']], first_obs_factor)
     )
 
 }
@@ -631,6 +604,9 @@ g2g_obs_add_viz_ppt <- function(doc, plt, ca_descriptions, core_action, plt_heig
 #'      aggregates with `g2g_obs_calc_perc()` and then filtering to only keep overall scores.
 #' @param height_relationships Relationship in proportions between plots with different scales, as a numeric vector.
 #'      Defaults to c(1, 3).
+#' @param first_obs_factor String representing the first observation category in `.timing`, as a string.
+#'      `.timing` will be changed to a factor with this string being the first level. Useful for ordering plots.
+#'      Defaults to 'First Observation'.
 #'
 #' @examples
 #' \dontrun{
@@ -655,7 +631,7 @@ g2g_obs_add_viz_ppt <- function(doc, plt, ca_descriptions, core_action, plt_heig
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_obs_viz_overall <- function(.data, height_relationships = c(1, 3)) {
+g2g_obs_viz_overall <- function(.data, height_relationships = c(1, 3), first_obs_factor = 'First Observation') {
 
   unique_core_actions <- unique(.data$core_action_main)
 
@@ -664,7 +640,7 @@ g2g_obs_viz_overall <- function(.data, height_relationships = c(1, 3)) {
     scale_order <- g2g_obs_map_scales(core_action)
 
     plt <- .data |>
-      g2g_obs_get_ca_data(core_action, scale_order) |>
+      g2g_obs_get_ca_data(core_action, scale_order, first_obs_factor) |>
       g2g_obs_create_viz(core_action) +
       ggplot2::ggtitle(NULL)
 

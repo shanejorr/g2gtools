@@ -24,19 +24,24 @@ g2g_teacher_combine_pre_post <- function(pre_training_survey, post_training_surv
   g2g_check_required_columns(pre_training_survey, required_columns)
   g2g_check_required_columns(post_training_survey, required_columns)
 
-  # identify question stems in the pre and post-training data
-  common_stems <- intersect(unique(pre_training_survey$question_stem), unique(post_training_survey$question_stem))
-
-  dplyr::bind_rows(pre_training_survey, post_training_survey) |>
+  all_results <- dplyr::bind_rows(pre_training_survey, post_training_survey) |>
     dplyr::mutate(
       # shorten text so that it plots better
       response_option = stringr::str_remove(.data[['response_option']], ", such as deep.*cycle"),
-      in_survey = ifelse(.data[['question_stem']] %in% !!common_stems, "Pre and Post Survey", .data[['term']]),
       email = stringr::str_to_lower(.data[['email']]) |> stringr::str_extract("^[^@]+"),
       response_option = stringr::str_replace(.data[['response_option']], "[.][.]", "."),
       response_option = stringr::str_replace(.data[['response_option']], " [.]", "."),
       response = g2g_to_title(.data[['response']])
     )
+
+  # find questions common to each survey and label
+  distinct_questions <- all_results |>
+    dplyr::distinct(.data[['term']], .data[['question_stem']], .data[['response_option']]) |>
+    dplyr::group_by_at(c('question_stem', 'response_option')) |>
+    dplyr::summarise(in_survey = paste(unique(.data[['term']]), collapse = " and "), .groups = 'drop')
+
+  all_results |>
+    dplyr::left_join(distinct_questions, by = c('question_stem', 'response_option'))
 
 }
 

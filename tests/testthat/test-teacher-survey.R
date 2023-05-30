@@ -18,24 +18,29 @@ test_that("Reverse code question responses.", {
 test_that("Combine pre and post-training data sets.", {
 
   pre_training <- data.frame(
-    email = c("pre_only@a.com", "pre_post@b.com"),
-    question_stem = c("Pre stem", "Pre post stem"),
-    response_option = c("Pre response option", "Pre post response_option"),
+    email = c("pre_only@a.com", "pre_post@b.com", "pre_post_long@c.com"),
+    question_stem = c("Pre stem", "Pre post stem", "Pre post long stem"),
+    response_option = c("Pre response option", "Pre post response option", 'pre post long response option'),
     response = "Great",
     term = "Pre training"
   )
 
   post_training <- data.frame(
-    email = c("post_only@a.com", "pre_post@b.com"),
-    question_stem = c("Post stem", "Pre post stem"),
-    response_option = c("Post response option", "Pre post response_option"),
+    email = c("post_only@a.com", "pre_post@b.com", "pre_post_long@c.com", "pre_post_long@c.com", "post_long@c.com", "post_long@c.com", 'long@a.com'),
+    question_stem = c("Post stem", "Pre post stem", "Pre post long stem", "Pre post long stem", "Post long stem", "Post long stem", "Long stem"),
+    response_option = c("Post response option", "Pre post response option", 'pre post long response option', 'pre post long response option', 'Post long response option', 'Post long response option', 'Long response option'),
     response = "Good",
-    term = "Post training"
+    term = c("Post training", "Post training", 'Post training', 'Long term', 'Post training', 'Long term', 'Long term')
   )
 
   df_actual <- g2g_teacher_combine_pre_post(pre_training, post_training)
 
-  expected_in_survey <- c("Pre training", "Pre and Post Survey", "Post training", "Pre and Post Survey")
+  expected_in_survey <- c(
+    "Pre training","Pre training and Post training","Pre training and Post training and Long term",
+    "Post training","Pre training and Post training","Pre training and Post training and Long term",
+    "Pre training and Post training and Long term","Post training and Long term",
+    "Post training and Long term","Long term"
+  )
 
   expect_equal(df_actual$in_survey, expected_in_survey)
 

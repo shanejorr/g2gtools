@@ -4,7 +4,11 @@
 \alias{g2g_obs_viz_overall}
 \title{Create single plot that contains all overall observation scores}
 \usage{
-g2g_obs_viz_overall(.data, height_relationships = c(1, 3))
+g2g_obs_viz_overall(
+  .data,
+  height_relationships = c(1, 3),
+  first_obs_factor = "First Observation"
+)
 }
 \arguments{
 \item{.data}{Dataset containg aggregate overall Core Action values. Created by first calculating
@@ -12,6 +16,10 @@ aggregates with \code{g2g_obs_calc_perc()} and then filtering to only keep overa
 
 \item{height_relationships}{Relationship in proportions between plots with different scales, as a numeric vector.
 Defaults to c(1, 3).}
+
+\item{first_obs_factor}{String representing the first observation category in \code{.timing}, as a string.
+\code{.timing} will be changed to a factor with this string being the first level. Useful for ordering plots.
+Defaults to 'First Observation'.}
 }
 \value{
 a ggplot plot
