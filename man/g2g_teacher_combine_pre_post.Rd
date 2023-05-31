@@ -14,7 +14,9 @@ g2g_teacher_combine_pre_post(pre_training_survey, post_training_survey)
 \value{
 A single data frame with the pre and post-training surveys combined. An additional column is added to
 the data called \code{in_survey}. The column will contain "Pre and Post Survey" if the question is in the
-pre and post surveys.
+pre and post surveys. An additional column called \code{n_times_administered} is also added. This column
+is an integer showing how many different surveys a question was administered in. For example, a
+question will have a 2 if it was administered in the pre and post-training surveys.
 }
 \description{
 Combine the pre and post-training surveys. Then identify question stems in the pre and post training surveys,

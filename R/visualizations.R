@@ -162,13 +162,13 @@ g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, co
 #' @param text_size Size of the text that represents the numbers within the bar chart. Defaults to 4.586111, which is 13 point font size.
 #'       Font size can be converted to `text_size` with this formula: `font size / (14/5)`.
 #' @param text_location The variable name, as a string, of the location of the text on the x axis, between 0 and 1. If `NULL`, the default,
-#'       the location will be the same as `text_var`.
+#'       the location will be the same as `text_var`, but right under the bar.
 #' @param ... Parameters for `g2g_plt_base_theme()`
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_size = 4.586111, text_location = NULL, ...) {
+g2g_viz_stacked_bar_percent_horizontal <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_size = 4.586111, text_location = NULL, ...) {
 
   # ensure entered parameters are correct
   g2g_viz_checks(.data, x_var, y_var, fill_var, text_var)
@@ -196,6 +196,52 @@ g2g_viz_stacked_bar_percent <- function(.data, x_var, y_var, fill_var, text_var,
     ) +
     ggplot2::scale_fill_manual(values = color_pal, drop = FALSE) +
     ggplot2::scale_x_continuous(labels = scales::percent) +
+    g2g_plt_base_theme(...) +
+    ggplot2::guides(fill=ggplot2::guide_legend(nrow=num_legend_rows, byrow=TRUE, reverse = TRUE))
+
+}
+
+#' Stacked vertical bar chart showing Likert item responses
+#'
+#' Creates a stacked vertical bar chart showing Likert items and responses. Data must be percentages.
+#'
+#' @param .data The data set to visualize. It must be aggregated results in tidy format. Each row is a
+#'     single question and response option ('Agree'), and the aggregate percentage of respondents
+#'     - as a decimal (.75) - answering with the given response option.
+#' @param x_var The x variable name, as a string. This should be numeric and as a decimal between 0 and 1.
+#'       It represents the percentage of respondents for the given question and response option.
+#' @param y_var The x variable name, as a string. This could be questions or a column signifying
+#'       pre or post training, with a facet added after this function signifying questions.
+#' @param fill_var The variable name, as a string, representing the response scales ('Agree').
+#' @param text_var The variable name, as a string, representing the text to plot over the chart.
+#'       This should be numeric and as a decimal between 0 and 1.
+#' @param color_pal Custom color palette to use. This should be a vector with the values being
+#'       the hex codes for the colors and the names being the unique scales from \code{fill_var}
+#' @param text_size Size of the text that represents the numbers within the bar chart. Defaults to 4.586111, which is 13 point font size.
+#'       Font size can be converted to `text_size` with this formula: `font size / (14/5)`.
+#' @param text_offset An integer specifying how much the text labels shoudl be offset from the y-axis.
+#' @param ... Parameters for `g2g_plt_base_theme()`
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_viz_stacked_bar_percent_vertical <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_size = 4.586111, text_offset = -0.05, ...) {
+
+  # ensure entered parameters are correct
+  g2g_viz_checks(.data, y_var, x_var, fill_var, text_var)
+
+  # the legend should have two rows if there are more than four options and one row otherwise
+  num_legend_items <- length(levels(.data[[fill_var]]))
+  num_legend_rows <- if (num_legend_items > 4) 2 else 1
+
+  ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
+    ggplot2::geom_col() +
+    ggplot2::geom_text(
+      ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), y = .data[[text_var]] + text_offset),
+      color = 'white', fontface='bold', size = text_size
+    ) +
+    ggplot2::scale_fill_manual(values = color_pal, drop = FALSE) +
+    ggplot2::scale_y_continuous(labels = scales::percent) +
     g2g_plt_base_theme(...) +
     ggplot2::guides(fill=ggplot2::guide_legend(nrow=num_legend_rows, byrow=TRUE, reverse = TRUE))
 
@@ -466,11 +512,11 @@ g2g_viz_ipg <- function(.data, x_axis, space_between_plots = 50.) {
 #' @importFrom rlang .data
 #'
 #' @keywords internal
-g2g_viz_checks <- function(.data, x_var, y_var, fill_var, text_var) {
+g2g_viz_checks <- function(.data, numeric_var, qual_var, fill_var, text_var) {
 
   # make sure all numbers are between 0 and 1
-  if (!all(dplyr::between(.data[[x_var]][!is.na(.data[[x_var]])], 0, 1))) {
-    stop("All 'x_var' values must be decimals between 0 and 1.", call. = FALSE)
+  if (!all(dplyr::between(.data[[numeric_var]][!is.na(.data[[numeric_var]])], 0, 1))) {
+    stop("All 'numeric_var' values must be decimals between 0 and 1.", call. = FALSE)
   }
 
   # the fill column must be a factor
@@ -479,7 +525,7 @@ g2g_viz_checks <- function(.data, x_var, y_var, fill_var, text_var) {
   # make sure all column are present
   col_names <- colnames(.data)
 
-  viz_cols <- c(x_var, y_var, fill_var, text_var)
+  viz_cols <- c(numeric_var, qual_var, fill_var, text_var)
 
   viz_in_colnames <- viz_cols %in% col_names
 

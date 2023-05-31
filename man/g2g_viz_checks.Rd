@@ -4,7 +4,7 @@
 \alias{g2g_viz_checks}
 \title{Perform checks for visualizations to ensure entered parameters are correct}
 \usage{
-g2g_viz_checks(.data, x_var, y_var, fill_var, text_var)
+g2g_viz_checks(.data, numeric_var, qual_var, fill_var, text_var)
 }
 \description{
 Perform checks for visualizations to ensure entered parameters are correct

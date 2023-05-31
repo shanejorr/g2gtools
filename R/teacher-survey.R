@@ -11,7 +11,9 @@
 #' @returns
 #' A single data frame with the pre and post-training surveys combined. An additional column is added to
 #' the data called `in_survey`. The column will contain "Pre and Post Survey" if the question is in the
-#' pre and post surveys.
+#' pre and post surveys. An additional column called `n_times_administered` is also added. This column
+#' is an integer showing how many different surveys a question was administered in. For example, a
+#' question will have a 2 if it was administered in the pre and post-training surveys.
 #'
 #' @importFrom rlang .data
 #'
@@ -19,7 +21,7 @@
 g2g_teacher_combine_pre_post <- function(pre_training_survey, post_training_survey) {
 
   # make sure we have the required column names
-  required_columns <- c('email', 'response_option', 'response', 'term')
+  required_columns <- c('email', 'question_stem', 'response_option', 'response', 'term')
 
   g2g_check_required_columns(pre_training_survey, required_columns)
   g2g_check_required_columns(post_training_survey, required_columns)
@@ -38,10 +40,43 @@ g2g_teacher_combine_pre_post <- function(pre_training_survey, post_training_surv
   distinct_questions <- all_results |>
     dplyr::distinct(.data[['term']], .data[['question_stem']], .data[['response_option']]) |>
     dplyr::group_by_at(c('question_stem', 'response_option')) |>
-    dplyr::summarise(in_survey = paste(unique(.data[['term']]), collapse = " and "), .groups = 'drop')
+    dplyr::summarise(
+      in_survey = paste(unique(.data[['term']]), collapse = " | "),
+      n_times_administered = dplyr::n_distinct(.data[['term']]),
+      .groups = 'drop'
+    )
 
   all_results |>
-    dplyr::left_join(distinct_questions, by = c('question_stem', 'response_option'))
+    dplyr::left_join(distinct_questions, by = c('question_stem', 'response_option')) |>
+    dplyr::ungroup()
+
+}
+
+#' Identify how many times a teacher answered a question
+#'
+#' Helps identify how many times the teacher answered a question, which aids in identifying teachers
+#' who did not answer a pre and post-training question on both the pre and post-training surveys.
+#' Teachers are identfied by their email address in the `email` column.
+#'
+#' @param .data Data frame with pre and post-training data. created from `g2g_teacher_combine_pre_post()`
+#'
+#' @returns
+#' the same data frame, with an additional column called `n_question_answers` that is an integer telling
+#' how many times a teacher answered a question in total.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+g2g_number_times_teacher_answered <- function(.data) {
+
+  # make sure we have the required column names
+  required_columns <- c('email', 'question_stem', 'response_option')
+
+  g2g_check_required_columns(.data, required_columns)
+
+  .data |>
+    dplyr::group_by_at(c('email', 'question_stem', 'response_option')) |>
+    dplyr::mutate(n_question_answers = dplyr::n())
 
 }
 
@@ -62,7 +97,7 @@ g2g_teacher_combine_pre_post <- function(pre_training_survey, post_training_surv
 g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap) {
 
   # make sure we have the required column names
-  required_columns <- c('response', 'response_option', '.percent', 'question_stem')
+  required_columns <- c('response', 'response_option', '.percent', 'question_stem', 'term')
 
   g2g_check_required_columns(.data, required_columns)
 
@@ -81,8 +116,8 @@ g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap) {
       response_option = tidyr::replace_na(.data[['response_option']], ' '),
       response = factor(.data[['response']], levels = rev(scales_to_use))
     ) |>
-    g2g_viz_stacked_bar_percent(
-      x_var = '.percent', y_var = 'response_option',
+    g2g_viz_stacked_bar_percent_vertical(
+      x_var = 'term', y_var = '.percent',
       text_var = '.strong_response_percent', fill_var = 'response', color_pal = hex_colors
     ) +
     ggplot2::labs(
@@ -90,7 +125,8 @@ g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap) {
       y = NULL,
       fill = NULL,
       title = plt_title
-    )
+    ) +
+    ggplot2::facet_wrap(ggplot2::vars(.data[['response_option']]), ncol = 2)
 
   return(plt)
 
@@ -135,11 +171,11 @@ g2g_teacher_viz_pre_post <- function(.data, response_wrap, title_wrap, reverse_c
       response_option = tidyr::replace_na(.data[['response_option']], ' '),
       response = factor(.data[['response']], levels = rev(scales_to_use))
     ) |>
-    g2g_viz_stacked_bar_percent(
-      x_var = '.percent', y_var = 'response_option',
+    g2g_viz_stacked_bar_percent_vertical(
+      x_var = 'term', y_var = '.percent',
       text_var = '.strong_response_percent', fill_var = 'response', color_pal = hex_colors
     ) +
-    ggplot2::facet_wrap(ggplot2::vars(.data[['term']]), ncol = 2) +
+    ggplot2::facet_wrap(ggplot2::vars(.data[['response_option']]), ncol = 2) +
     ggplot2::labs(
       x = 'Percentage of respondents',
       y = NULL,

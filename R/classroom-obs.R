@@ -529,8 +529,8 @@ g2g_obs_create_viz <- function(.data, core_action) {
 
   plt <- .data |>
     # create plot
-    g2g_viz_stacked_bar_percent(
-      x_var = '.percent', y_var = 'core_action', fill_var = 'response',
+    g2g_viz_stacked_bar_percent_vertical(
+      x_var = '.timing', y_var = '.percent', fill_var = 'response',
       text_var = '.strong_response_percent', color_pal = pal
     ) +
     ggplot2::labs(
@@ -539,7 +539,7 @@ g2g_obs_create_viz <- function(.data, core_action) {
       fill = NULL,
       title = plt_title
     ) +
-    ggplot2::facet_wrap(ggplot2::vars(.data[['.timing']])) +
+    ggplot2::facet_wrap(ggplot2::vars(.data[['core_action']])) +
     ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
 
   return(plt)
