@@ -18,5 +18,5 @@ A single plot containing instructional practice scores.
 \description{
 Creates a bar chart of instructional practice scores. The data used in the bar charts must
 come from \code{g2g_calc_inst_practices()}. These scores are not from the IPG. They are from
-the teacher survey and are the 'think about the last unity you taught' questions.
+the teacher survey and are the 'think about the last unit you taught' questions.
 }

@@ -489,10 +489,9 @@ g2g_obs_get_ca_data <- function(.data, core_action, scale_order, first_obs_facto
 
 }
 
-#' Create visualization of observation data.
+#' Create visualization of observation data for a single Core Action.
 #'
-#' Creates a horizontal bar plot for a single Core Action. Each sub-Core Action is on a seperate row
-#' (y-axis) of the bar chart.
+#' Creates a vertical bar plot for a single Core Action. Chart is faceted by .timing
 #'
 #' @param .data Data created with `g2g_obs_get_ca_data()`
 #' @param core_action The core action that we want to get data for. A string that mirrors the spelling in the
@@ -501,7 +500,7 @@ g2g_obs_get_ca_data <- function(.data, core_action, scale_order, first_obs_facto
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_obs_create_viz <- function(.data, core_action) {
+g2g_obs_create_viz_ca <- function(.data, core_action) {
 
   # make sure we have the required columns
   required_cols <- c('.percent', 'core_action', 'response', '.strong_response_percent', '.timing')
@@ -530,16 +529,16 @@ g2g_obs_create_viz <- function(.data, core_action) {
   plt <- .data |>
     # create plot
     g2g_viz_stacked_bar_percent_vertical(
-      x_var = '.timing', y_var = '.percent', fill_var = 'response',
-      text_var = '.strong_response_percent', color_pal = pal
+      x_var = 'core_action_minor', y_var = '.percent', fill_var = 'response',
+      text_var = '.strong_response_percent', color_pal = pal, text_offset = -0.1
     ) +
     ggplot2::labs(
-      x = 'Percentage of observations',
-      y = NULL,
+      x = NULL,
+      y = 'Percentage of observations',
       fill = NULL,
       title = plt_title
     ) +
-    ggplot2::facet_wrap(ggplot2::vars(.data[['core_action']])) +
+    ggplot2::facet_wrap(ggplot2::vars(.data[['.timing']]), ncol = if (is_ca) 2 else 4) +
     ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
 
   return(plt)
@@ -592,78 +591,6 @@ g2g_obs_add_viz_ppt <- function(doc, plt, ca_descriptions, core_action, plt_heig
 
 }
 
-#' Create single plot that contains all overall observation scores
-#'
-#' The input dataset `.data` must be transformed to where the values in the `core_action_main` column
-#' represent unique scales. For example, Core Action 1 has different scales than Core Actions 2 and 3.
-#' Core Actions 2 and 3 have the same scales. Therefore, `core_action_main` must be transformed to
-#' where Core Action 1 has a value (ex: '1') and Core Actions 2 and 3 have the same value (ex: '2').
-#' This value should represent the core action value needed for the scales. See `examples` for more information.
-#'
-#' @param .data Dataset containg aggregate overall Core Action values. Created by first calculating
-#'      aggregates with `g2g_obs_calc_perc()` and then filtering to only keep overall scores.
-#' @param height_relationships Relationship in proportions between plots with different scales, as a numeric vector.
-#'      Defaults to c(1, 3).
-#' @param first_obs_factor String representing the first observation category in `.timing`, as a string.
-#'      `.timing` will be changed to a factor with this string being the first level. Useful for ordering plots.
-#'      Defaults to 'First Observation'.
-#'
-#' @examples
-#' \dontrun{
-#'
-#' # regular expression to identify the overall items in the core_action column
-#' overall_items <- c("Overall|Culture|Demands|RFS")
-#'
-#' overall_scores_ca <- obs_percent |>
-#'   # only keep the overall core action items
-#'   filter(str_detect(core_action, !!overall_items)) |>
-#'   # change `core_action_main` values so that core actions with the same scales have the same values,
-#'   # and these values mirror the scale
-#'   mutate(core_action_main = ifelse(core_action_main == "1", '1', "2"))
-#'
-#' # create plot
-#' g2g_obs_viz_overall(overall_scores_ca)
-#'
-#' }
-#'
-#' @returns a ggplot plot
-#'
-#' @importFrom rlang .data
-#'
-#' @export
-g2g_obs_viz_overall <- function(.data, height_relationships = c(1, 3), first_obs_factor = 'First Observation') {
-
-  unique_core_actions <- unique(.data$core_action_main)
-
-  plt <- purrr::map(unique_core_actions, function(core_action) {
-
-    scale_order <- g2g_obs_map_scales(core_action)
-
-    plt <- .data |>
-      g2g_obs_get_ca_data(core_action, scale_order, first_obs_factor) |>
-      g2g_obs_create_viz(core_action) +
-      ggplot2::ggtitle(NULL)
-
-  })
-
-  plt[[1]] <- plt[[1]] +
-    ggplot2::labs(x = NULL)
-
-  plt[[2]] <- plt[[2]] +
-    ggplot2::theme(
-      strip.background = ggplot2::element_blank(),
-      strip.text.x = ggplot2::element_blank()
-    )
-
-  ca_plts <- patchwork::wrap_plots(plt[[1]], plt[[2]],ncol = 1, heights = height_relationships) +
-    patchwork::plot_annotation(
-      title = 'All Overall Observation Results',
-      theme = ggplot2::theme(plot.title = ggplot2::element_text(size = 13, face = "bold"))
-    )
-
-  return(ca_plts)
-
-}
 
 #' Test to ensure the aggregated data matches the  raw data
 #'

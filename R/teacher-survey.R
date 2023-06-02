@@ -173,12 +173,12 @@ g2g_teacher_viz_pre_post <- function(.data, response_wrap, title_wrap, reverse_c
     ) |>
     g2g_viz_stacked_bar_percent_vertical(
       x_var = 'term', y_var = '.percent',
-      text_var = '.strong_response_percent', fill_var = 'response', color_pal = hex_colors
+      text_var = '.strong_response_percent', fill_var = 'response', color_pal = hex_colors, text_offset = -0.1
     ) +
     ggplot2::facet_wrap(ggplot2::vars(.data[['response_option']]), ncol = 2) +
     ggplot2::labs(
-      x = 'Percentage of respondents',
-      y = NULL,
+      x = NULL,
+      y = 'Percentage of respondents',
       fill = NULL,
       title = plt_title
     )

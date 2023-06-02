@@ -279,14 +279,18 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns =
     dplyr::select(dplyr::all_of(grouping_columns), "question_stem", "response_option") |>
     dplyr::distinct() |>
     dplyr::group_by_at(c(grouping_columns, 'question_stem')) |>
-    dplyr::mutate(n = dplyr::row_number()) |>
-    dplyr::mutate(cont = ifelse(.data$n > !!number_questions, TRUE, FALSE)) |>
-    dplyr::select(-"n")
+    dplyr::mutate(n = dplyr::row_number())
 
   .data |>
     dplyr::left_join(unique_questions, by = c(grouping_columns, 'question_stem', 'response_option')) |>
-    dplyr::mutate(question_stem = ifelse(.data$cont, glue::glue("(continued) {.data$question_stem}"), .data$question_stem)) |>
-    dplyr::select(-"cont")
+    dplyr::mutate(question_stem = dplyr::case_when(
+      .data$n <= !!number_questions ~ .data$question_stem,
+      dplyr::between(.data[['n']], !!number_questions + 1, !!number_questions * 2) ~ glue::glue("(continued) {.data$question_stem}"),
+      .data$n > !!number_questions *2 ~ glue::glue("(continued)  {.data$question_stem}"),
+      .default = glue::glue("Failed to count number of questions in question stem for the following stem: {.data$question_stem}")
+    )
+    ) |>
+    dplyr::select(-"n")
 
 }
 
@@ -397,7 +401,7 @@ g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', s
 #'
 #' Creates a bar chart of instructional practice scores. The data used in the bar charts must
 #' come from \code{g2g_calc_inst_practices()}. These scores are not from the IPG. They are from
-#' the teacher survey and are the 'think about the last unity you taught' questions.
+#' the teacher survey and are the 'think about the last unit you taught' questions.
 #'
 #' @param .data Input data frame made with \code{g2g_calc_inst_practices()}.
 #' @param x_axis Column name, as a string vector, containing the categories you want to compare.
