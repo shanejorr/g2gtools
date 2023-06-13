@@ -1,8 +1,6 @@
 #' Basic theme settings
 #'
 #' @param text_font Font for texts. Defaults to 'Segoe UI'.
-#' @param horizontal_barchart Is the plot a horizontal bar chart? TRUE if yes, FALSE if no.
-#'      If the plot is a horizontal bar chart, the x axis text is smaller than the y axis text.
 #' @param center_title Should the plot title be centered on the plot? TRUE for yes, FALSE for no.
 #' @param font_size Font size to use for text. Title and axis titles will be one point above this font size.
 #'       Defaults to 12. 9 is recommended for document, as this is the TNTP font size
@@ -10,7 +8,7 @@
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_plt_base_theme <- function(text_font = "Segoe UI", horizontal_barchart = FALSE, center_title = FALSE, font_size = 12) {
+g2g_plt_base_theme <- function(text_font = "Segoe UI", center_title = FALSE, font_size = 12) {
 
   if (!horizontal_barchart %in% c(TRUE, FALSE)) stop("`horizontal_barchart` must be either TRUE or FALSE", call. = FALSE)
   if (!center_title %in% c(TRUE, FALSE)) stop("`center_title` must be either TRUE or FALSE", call. = FALSE)
