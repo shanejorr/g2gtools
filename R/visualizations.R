@@ -2,21 +2,22 @@
 #'
 #' @param text_font Font for texts. Defaults to 'Segoe UI'.
 #' @param center_title Should the plot title be centered on the plot? TRUE for yes, FALSE for no.
+#' @param plot_title_position Takes same values as `plot.title.position` in a theme.
 #' @param font_size Font size to use for text. Title and axis titles will be one point above this font size.
 #'       Defaults to 12. 9 is recommended for document, as this is the TNTP font size
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_plt_base_theme <- function(text_font = "Segoe UI", center_title = FALSE, font_size = 12) {
+g2g_plt_base_theme <- function(text_font = "Segoe UI", center_title = FALSE, plot_title_position = 'panel', font_size = 12) {
 
-  if (!horizontal_barchart %in% c(TRUE, FALSE)) stop("`horizontal_barchart` must be either TRUE or FALSE", call. = FALSE)
   if (!center_title %in% c(TRUE, FALSE)) stop("`center_title` must be either TRUE or FALSE", call. = FALSE)
 
   thm <- ggplot2::theme_minimal(base_family = text_font) +
     ggplot2::theme(
       plot.title = ggplot2::element_text(size = font_size + 1, face='bold'),
       plot.subtitle = ggplot2::element_text(size = font_size),
+      plot.title.position = plot_title_position,
       legend.text = ggplot2::element_text(size = font_size),
       axis.text = ggplot2::element_text(size = font_size),
       axis.title = ggplot2::element_text(size=font_size + 1),
@@ -148,15 +149,17 @@ g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, co
 #' @param .data The data set to visualize. It must be aggregated results in tidy format. Each row is a
 #'     single question and response option ('Agree'), and the aggregate percentage of respondents
 #'     - as a decimal (.75) - answering with the given response option.
-#' @param x_var The x variable name, as a string. This should be numeric and as a decimal between 0 and 1.
-#'       It represents the percentage of respondents for the given question and response option.
-#' @param y_var The x variable name, as a string. This could be questions or a column signifying
-#'       pre or post training, with a facet added after this function signifying questions.
-#' @param fill_var The variable name, as a string, representing the response scales ('Agree').
-#' @param text_var The variable name, as a string, representing the text to plot over the chart.
+#' @param perc_value_var The column name, as string, of the column containing the percentage values.
+#'       It represents the percentage of respondents for the given question and response option. This will be the x-axis and
+#'       should be numeric and as a decimal between 0 and 1.
+#' @param question_var The column name, as string, of the column containing the survey questions. This will be the y-value labels.
+#' @param fill_var The column name,, as a string, representing the response scales ('Agree').
+#' @param text_var The column name,, as a string, representing the text to plot over the chart.
 #'       This should be numeric and as a decimal between 0 and 1.
 #' @param color_pal Custom color palette to use. This should be a vector with the values being
 #'       the hex codes for the colors and the names being the unique scales from \code{fill_var}
+#' @param comparison_var Optional and defaults to NULL. The  column name, as a string, of the column containing
+#'       time periods, to be used for comparison. Example: 'Pre-training' and 'Post-training'.
 #' @param text_size Size of the text that represents the numbers within the bar chart. Defaults to 4.586111, which is 13 point font size.
 #'       Font size can be converted to `text_size` with this formula: `font size / (14/5)`.
 #' @param text_location The variable name, as a string, of the location of the text on the x axis, between 0 and 1. If `NULL`, the default,
@@ -166,10 +169,22 @@ g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, co
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_stacked_bar_percent_horizontal <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_size = 4.586111, text_location = NULL, ...) {
+g2g_viz_stacked_bar_percent_horizontal <- function(.data, perc_value_var, question_var, fill_var, text_var, color_pal, comparison_var = NULL, text_size = 4.586111, text_location = NULL, ...) {
+
+  if (!is.null(comparison_var)) {
+    # plot values for plots that are comparing multiple terms
+    y_var <- comparison_var
+    wrap_var <- question_var
+
+    if (!comparison_var %in% names(.data)) stop("'comparison_var' is not in the data.", call. = FALSE)
+
+  } else {
+    # plot for values where there are no comparisons of terms
+    y_var <- question_var
+  }
 
   # ensure entered parameters are correct
-  g2g_viz_checks(.data, x_var, y_var, fill_var, text_var)
+  g2g_viz_checks(.data, perc_value_var, y_var, fill_var, text_var)
 
   # the legend should have two rows if there are more than four options and one row otherwise
   num_legend_items <- length(levels(.data[[fill_var]]))
@@ -183,10 +198,10 @@ g2g_viz_stacked_bar_percent_horizontal <- function(.data, x_var, y_var, fill_var
       TRUE ~ .06
     )
   } else {
-    text_offset <- .data[[text_location]]
+    text_offset <- .data[[text_var]]
   }
 
-  ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
+  plt <- ggplot2::ggplot(.data, ggplot2::aes(.data[[perc_value_var]], .data[[y_var]], fill = .data[[fill_var]])) +
     ggplot2::geom_col() +
     ggplot2::geom_text(
       ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), x = text_offset),
@@ -196,6 +211,18 @@ g2g_viz_stacked_bar_percent_horizontal <- function(.data, x_var, y_var, fill_var
     ggplot2::scale_x_continuous(labels = scales::percent) +
     g2g_plt_base_theme(...) +
     ggplot2::guides(fill=ggplot2::guide_legend(nrow=num_legend_rows, byrow=TRUE, reverse = TRUE))
+
+  if (!is.null(comparison_var)) {
+    plt <- plt +
+      ggplot2::facet_wrap(ggplot2::vars(.data[[question_var]]),  strip.position = "left", ncol = 1) +
+      ggplot2::scale_y_discrete(position = "right", guide = ggplot2::guide_axis(angle=-90)) +
+      ggplot2::theme(
+          strip.text.y.left = ggplot2::element_text(angle=0, hjust = 1, colour = "#444444"),
+          axis.title.y = ggplot2::element_blank()
+        )
+  }
+
+  return(plt)
 
 }
 
@@ -632,7 +659,7 @@ g2g_viz_likert_centered <- function(.data, x_var, y_var, fill_var, color_pal) {
         label = scales::percent(abs(.data[['category_cumulative']]), accuracy = 1)
       ), size = 4.586111
     ) +
-    g2g_plt_base_theme(horizontal_barchart = TRUE)
+    g2g_plt_base_theme()
 
 
   if (has_neutral) {

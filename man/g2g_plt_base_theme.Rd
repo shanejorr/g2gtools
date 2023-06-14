@@ -6,18 +6,17 @@
 \usage{
 g2g_plt_base_theme(
   text_font = "Segoe UI",
-  horizontal_barchart = FALSE,
   center_title = FALSE,
+  plot_title_position = "panel",
   font_size = 12
 )
 }
 \arguments{
 \item{text_font}{Font for texts. Defaults to 'Segoe UI'.}
 
-\item{horizontal_barchart}{Is the plot a horizontal bar chart? TRUE if yes, FALSE if no.
-If the plot is a horizontal bar chart, the x axis text is smaller than the y axis text.}
-
 \item{center_title}{Should the plot title be centered on the plot? TRUE for yes, FALSE for no.}
+
+\item{plot_title_position}{Takes same values as \code{plot.title.position} in a theme.}
 
 \item{font_size}{Font size to use for text. Title and axis titles will be one point above this font size.
 Defaults to 12. 9 is recommended for document, as this is the TNTP font size}

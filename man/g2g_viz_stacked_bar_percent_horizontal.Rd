@@ -6,11 +6,12 @@
 \usage{
 g2g_viz_stacked_bar_percent_horizontal(
   .data,
-  x_var,
-  y_var,
+  perc_value_var,
+  question_var,
   fill_var,
   text_var,
   color_pal,
+  comparison_var = NULL,
   text_size = 4.586111,
   text_location = NULL,
   ...
@@ -21,19 +22,22 @@ g2g_viz_stacked_bar_percent_horizontal(
 single question and response option ('Agree'), and the aggregate percentage of respondents
 - as a decimal (.75) - answering with the given response option.}
 
-\item{x_var}{The x variable name, as a string. This should be numeric and as a decimal between 0 and 1.
-It represents the percentage of respondents for the given question and response option.}
+\item{perc_value_var}{The column name, as string, of the column containing the percentage values.
+It represents the percentage of respondents for the given question and response option. This will be the x-axis and
+should be numeric and as a decimal between 0 and 1.}
 
-\item{y_var}{The x variable name, as a string. This could be questions or a column signifying
-pre or post training, with a facet added after this function signifying questions.}
+\item{question_var}{The column name, as string, of the column containing the survey questions. This will be the y-value labels.}
 
-\item{fill_var}{The variable name, as a string, representing the response scales ('Agree').}
+\item{fill_var}{The column name,, as a string, representing the response scales ('Agree').}
 
-\item{text_var}{The variable name, as a string, representing the text to plot over the chart.
+\item{text_var}{The column name,, as a string, representing the text to plot over the chart.
 This should be numeric and as a decimal between 0 and 1.}
 
 \item{color_pal}{Custom color palette to use. This should be a vector with the values being
 the hex codes for the colors and the names being the unique scales from \code{fill_var}}
+
+\item{comparison_var}{Optional and defaults to NULL. The  column name, as a string, of the column containing
+time periods, to be used for comparison. Example: 'Pre-training' and 'Post-training'.}
 
 \item{text_size}{Size of the text that represents the numbers within the bar chart. Defaults to 4.586111, which is 13 point font size.
 Font size can be converted to \code{text_size} with this formula: \verb{font size / (14/5)}.}
