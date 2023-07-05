@@ -89,7 +89,7 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fi
       ggplot2::aes(label = .data[[text_var]], y = .data[[y_var]] + text_offset),
       color = text_color, size = text_size, fontface = font_face
     )  +
-    g2g_plt_theme_no_lines(horizontal_barchart = FALSE, ...)
+    g2g_plt_theme_no_lines(...)
 
 }
 
