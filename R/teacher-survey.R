@@ -225,7 +225,11 @@ g2g_teacher_reverse_coded <- function(.data) {
     # Consider what you believe about how students improve as writers and rate your agreement with the following statements.
     "^The purpose of giving students a writing prompt is for",
     "^Grammar and syntax skills are best taught in isolation",
-    "^The best approach to writing instruction is to"
+    "^The best approach to writing instruction is to",
+
+    # Please consider what you believe to be true about how students learn STEM subjects, and rate your agreement with the following statements.
+    "^Students should build fluency before building conceptual understanding",
+    "^Student discourse should be focused on the how to get the right answer"
   ) |>
     stringr::str_c(collapse = "|")
 
