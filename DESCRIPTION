@@ -9,7 +9,7 @@ Description: Each Good to Great site uses common data tools to collect site data
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.3
 Suggests: 
     tibble
 Config/testthat/edition: 3

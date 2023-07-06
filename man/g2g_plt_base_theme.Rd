@@ -5,7 +5,7 @@
 \title{Basic theme settings}
 \usage{
 g2g_plt_base_theme(
-  text_font = "Segoe UI",
+  text_font = "Arial",
   center_title = FALSE,
   plot_title_position = "panel",
   font_size = 12

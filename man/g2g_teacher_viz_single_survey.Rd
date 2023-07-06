@@ -4,7 +4,13 @@
 \alias{g2g_teacher_viz_single_survey}
 \title{Plot the results of survey items that are only on one survey}
 \usage{
-g2g_teacher_viz_single_survey(.data, response_wrap, title_wrap)
+g2g_teacher_viz_single_survey(
+  .data,
+  response_wrap,
+  title_wrap,
+  pre_post_comparison = NULL,
+  reverse_coded = FALSE
+)
 }
 \arguments{
 \item{.data}{A data set that contains a single question stem from either the pre or post-training teacher survey.}
@@ -13,6 +19,10 @@ g2g_teacher_viz_single_survey(.data, response_wrap, title_wrap)
 These will be the questions.}
 
 \item{title_wrap}{An integer representing the length (number of characters) of the title. This is the question stem.}
+
+\item{pre_post_comparison}{The column name to use for pre and post comparisons. Use NULL if there is no pre or post comparison.}
+
+\item{reverse_coded}{Boolean whether scales are reverse coded. Defaults to FALSE.}
 }
 \value{
 A ggplot object.

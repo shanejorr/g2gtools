@@ -9,7 +9,7 @@
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_plt_base_theme <- function(text_font = "Segoe UI", center_title = FALSE, plot_title_position = 'panel', font_size = 12) {
+g2g_plt_base_theme <- function(text_font = "Arial", center_title = FALSE, plot_title_position = 'panel', font_size = 12) {
 
   if (!center_title %in% c(TRUE, FALSE)) stop("`center_title` must be either TRUE or FALSE", call. = FALSE)
 

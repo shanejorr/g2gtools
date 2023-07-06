@@ -88,20 +88,22 @@ g2g_number_times_teacher_answered <- function(.data) {
 #' @param response_wrap An integer representing the length (number of characters) in each line of the y axis labels.
 #'      These will be the questions.
 #' @param title_wrap An integer representing the length (number of characters) of the title. This is the question stem.
+#' @param pre_post_comparison The column name to use for pre and post comparisons. Use NULL if there is no pre or post comparison.
+#' @param reverse_coded Boolean whether scales are reverse coded. Defaults to FALSE.
 #'
 #' @returns A ggplot object.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap) {
+g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap, pre_post_comparison = NULL, reverse_coded = FALSE) {
 
   # make sure we have the required column names
   required_columns <- c('response', 'response_option', '.percent', 'question_stem', 'term')
 
   g2g_check_required_columns(.data, required_columns)
 
-  scales_to_use <- g2g_find_scale(.data$response)
+  scales_to_use <- g2g_find_scale(.data$response, reverse_coded = reverse_coded)
 
   hex_colors <- names(scales_to_use) |>
     purrr::set_names(scales_to_use)
@@ -110,23 +112,27 @@ g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap) {
 
   plt <- .data |>
     # aggregate positive responses for plotting
-    g2g_aggregate_positive_responses(scales_to_use[c(2,1)], NULL, only_keep_first_response = TRUE) |>
+    g2g_aggregate_positive_responses(scales_to_use[c(2,1)], pre_post_comparison, only_keep_first_response = TRUE) |>
     dplyr::mutate(
       response_option = stringr::str_wrap(.data[['response_option']], response_wrap),
       response_option = tidyr::replace_na(.data[['response_option']], ' '),
       response = factor(.data[['response']], levels = rev(scales_to_use))
     ) |>
-    g2g_viz_stacked_bar_percent_vertical(
-      x_var = 'term', y_var = '.percent',
-      text_var = '.strong_response_percent', fill_var = 'response', color_pal = hex_colors
+    g2g_viz_stacked_bar_percent_horizontal(
+      perc_value_var = '.percent',
+      question_var= 'response_option',
+      fill_var= 'response',
+      text_var= '.strong_response_percent',
+      color_pal = hex_colors,
+      comparison_var = pre_post_comparison# ,
+      # plot_title_position = 'plot'
     ) +
     ggplot2::labs(
       x = 'Percentage of respondents',
       y = NULL,
       fill = NULL,
       title = plt_title
-    ) +
-    ggplot2::facet_wrap(ggplot2::vars(.data[['response_option']]), ncol = 2)
+    )
 
   return(plt)
 
