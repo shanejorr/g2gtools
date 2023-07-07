@@ -55,6 +55,7 @@ g2g_classroom_obs_add_ca <- function(.data) {
       stringr::str_detect(.data$response_option, "[(]SP[0-9][)]$") ~ "Student Practice",
       stringr::str_detect(.data$response_option, "[(]TD[0-9][)]$") ~ "Teacher-Directed Instruction",
       stringr::str_detect(.data$response_option, "[(]AD[0-9][)]$") ~ "Assessment & Differentiation",
+      stringr::str_detect(.data$response_option, "[(]HQIM..[)]$") ~ "HQIM",
       TRUE ~ NA_character_
     )) |>
     dplyr::mutate(core_action_minor = dplyr::case_when(
@@ -65,6 +66,8 @@ g2g_classroom_obs_add_ca <- function(.data) {
         stringr::str_remove_all("[(]|[)]"),
       stringr::str_detect(.data$response_option, "[(]AC[0-9][)]$|[(]SP[0-9][)]$|[(]TD[0-9][)]$|[(]AD[0-9][)]$") ~ stringr::str_extract(.data$response_option, "[0-9][)]$") |>
         stringr::str_remove_all("[(]|[)]"),
+      .data$core_action_main == 'HQIM' & stringr::str_detect(.data$response_option, "teacher is utilizing the materials") ~ "Teacher utilizes materials",
+      .data$core_action_main == 'HQIM' & stringr::str_detect(.data$response_option, "teacher utilizes the embedded instructional moves") ~ "Teacher utilizes the embedded instructional moves",
       TRUE ~ NA_character_
     )) |>
     dplyr::mutate(
@@ -286,6 +289,7 @@ g2g_obs_combine_ca <- function(.data) {
         stringr::str_detect(.data[['core_action_main']], "^Reading") ~ glue::glue("RFS {.data[['core_action_minor']]}"),
         stringr::str_detect(.data[['core_action_main']], "^Culture ") ~ 'Culture of Learning',
         stringr::str_detect(.data[['core_action_main']], "^Demands") ~ 'Demands of the Standards',
+        stringr::str_detect(.data[['core_action_main']], "HQIM") ~ .data$core_action_minor,
         stringr::str_detect(.data[['response_option']], "[(]AC[0-9][)]$|[(]SP[0-9][)]$|[(]TD[0-9][)]$|[(]AD[0-9][)]$") ~ glue::glue("{stringr::str_sub(.data[['response_option']], -4,-3)} {.data[['core_action_minor']]}"),
         TRUE ~ 'Fail to match'
       )
@@ -357,7 +361,7 @@ g2g_obs_map_scales <- function(core_action) {
 
   useable_core_actions <- c(
     '1', '2', '3', 'RFS', 'Reading Foundational Skills', 'Demands of the Standards', 'Culture of Learning', 'CoL',
-    'Aligned Content', 'Assessment & Differentiation', 'Student Practice', 'Teacher-Directed Instruction'
+    'Aligned Content', 'Assessment & Differentiation', 'Student Practice', 'Teacher-Directed Instruction','HQIM'
   )
 
   foundation_skills_re <- "^aligned|^assessment|^student.*pract|^teacher.*direct"
@@ -373,7 +377,7 @@ g2g_obs_map_scales <- function(core_action) {
   scale_order <- dplyr::case_when(
     lower_case_ca == 'demands of the standards' ~ list(g2g_scale_order('yes_but')),
     lower_case_ca == '1' ~ list(g2g_scale_order('yes_notyet')),
-    lower_case_ca %in% c('2', '3', 'col', 'rfs') ~ list(g2g_scale_order('yes_mostly_somewhat_notyet')),
+    lower_case_ca %in% c('2', '3', 'col', 'rfs', 'hqim') ~ list(g2g_scale_order('yes_mostly_somewhat_notyet')),
     stringr::str_detect(lower_case_ca, "^aligned|^assessment|^teacher.*direct") ~ list(g2g_scale_order('always_rarely')),
     stringr::str_detect(lower_case_ca, "^student.*pract") ~ list(g2g_scale_order('all_few')),
     TRUE ~ list('Failed to match')
@@ -438,7 +442,7 @@ g2g_obs_calc_perc <- function(.data) {
     g2g_obs_combine_ca() |>
     dplyr::mutate(
       response_option = stringr::str_wrap(.data[['response_option']], 40),
-      core_action = stringr::str_wrap(.data[['core_action']], 40)
+      core_action = stringr::str_wrap(.data[['core_action']], 25)
     )
 
 }
@@ -526,11 +530,19 @@ g2g_obs_create_viz_ca <- function(.data, core_action) {
 
   pal <- names(scale_order) |> purrr::set_names(scale_order)
 
+  # number of rows and columns of facet depends on number of facet panels
+  n_facet_panels <- dplyr::n_distinct(.data[['core_action']])
+
+  n_facet_rows <- if (n_facet_panels <= 4) 1 else 2
+
   plt <- .data |>
-    # create plot
+    # dplyr::mutate(core_action = stringr::str_wrap(.data[['core_action']], 30)) |>
     g2g_viz_stacked_bar_percent_vertical(
-      x_var = 'core_action_minor', y_var = '.percent', fill_var = 'response',
-      text_var = '.strong_response_percent', color_pal = pal, text_offset = -0.1
+      x_var = '.timing',
+      y_var = '.percent',
+      fill_var = 'response',
+      text_var = '.strong_response_percent',
+      color_pal = pal
     ) +
     ggplot2::labs(
       x = NULL,
@@ -538,8 +550,7 @@ g2g_obs_create_viz_ca <- function(.data, core_action) {
       fill = NULL,
       title = plt_title
     ) +
-    ggplot2::facet_wrap(ggplot2::vars(.data[['.timing']]), ncol = if (is_ca) 2 else 4) +
-    ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
+    ggplot2::facet_wrap(ggplot2::vars(forcats::fct_rev(core_action)), nrow = n_facet_rows)
 
   return(plt)
 

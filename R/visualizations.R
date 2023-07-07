@@ -244,13 +244,12 @@ g2g_viz_stacked_bar_percent_horizontal <- function(.data, perc_value_var, questi
 #'       the hex codes for the colors and the names being the unique scales from \code{fill_var}
 #' @param text_size Size of the text that represents the numbers within the bar chart. Defaults to 4.586111, which is 13 point font size.
 #'       Font size can be converted to `text_size` with this formula: `font size / (14/5)`.
-#' @param text_offset An integer specifying how much the text labels shoudl be offset from the y-axis.
 #' @param ... Parameters for `g2g_plt_base_theme()`
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_stacked_bar_percent_vertical <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_size = 4.586111, text_offset = -0.05, ...) {
+g2g_viz_stacked_bar_percent_vertical <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_size = 4.586111, ...) {
 
   # ensure entered parameters are correct
   g2g_viz_checks(.data, y_var, x_var, fill_var, text_var)
@@ -259,10 +258,22 @@ g2g_viz_stacked_bar_percent_vertical <- function(.data, x_var, y_var, fill_var, 
   num_legend_items <- length(levels(.data[[fill_var]]))
   num_legend_rows <- if (num_legend_items > 4) 2 else 1
 
+  text_values <- .data[[text_var]]
+
+  # location of the numeric texts over or under the bars
+  # put text over the bars for low numbers and under the bars for anything over 0.03
+  text_location <- dplyr::case_when(
+    is.na(text_values) ~ NA,
+    text_values < 0.05 ~ text_values + 0.05,
+    dplyr::between(text_values, .05, .1) ~ text_values - 0.03,
+    text_values > .1 ~ text_values - 0.05,
+    .default = text_values
+  )
+
   ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
     ggplot2::geom_col() +
     ggplot2::geom_text(
-      ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), y = .data[[text_var]] + text_offset),
+      ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), y = text_location),
       color = 'white', fontface='bold', size = text_size
     ) +
     ggplot2::scale_fill_manual(values = color_pal, drop = FALSE) +

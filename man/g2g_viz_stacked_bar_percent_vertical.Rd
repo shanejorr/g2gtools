@@ -12,7 +12,6 @@ g2g_viz_stacked_bar_percent_vertical(
   text_var,
   color_pal,
   text_size = 4.586111,
-  text_offset = -0.05,
   ...
 )
 }
@@ -37,8 +36,6 @@ the hex codes for the colors and the names being the unique scales from \code{fi
 
 \item{text_size}{Size of the text that represents the numbers within the bar chart. Defaults to 4.586111, which is 13 point font size.
 Font size can be converted to \code{text_size} with this formula: \verb{font size / (14/5)}.}
-
-\item{text_offset}{An integer specifying how much the text labels shoudl be offset from the y-axis.}
 
 \item{...}{Parameters for \code{g2g_plt_base_theme()}}
 }
