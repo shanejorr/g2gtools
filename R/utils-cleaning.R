@@ -74,6 +74,7 @@ g2g_list_of_scales <- function() {
 
   list(
     agree_disagree = c('Strongly Agree', 'Agree', 'Somewhat Agree', 'Somewhat Disagree', 'Disagree', 'Strongly Disagree'),
+    acuerdo_desacuerdo = c('Muy de Acuerdo', 'de Acuerdo', 'Algo de Acuerdo', 'Algo en Desacuerdo', 'en Desacuerdo', 'Muy en Desacuerdo'),
     knowledge = c('Excellent Knowledge', 'Good Knowledge', 'Some Knowledge', 'A Little Knowledge', 'No Knowledge'),
     how_often = c('In All or Most Lessons', 'Often', 'Sometimes', 'Rarely', 'Never'),
     yes_notyet = c('Yes', 'Not Yet'),
@@ -97,6 +98,7 @@ g2g_list_of_scales <- function() {
 #' @section Scale options:
 #'
 #' -  'agree_disagree': Strongly Agree, Agree, Somewhat Agree, Somewhat Disagree, Disagree, Strongly Disagree
+#' -  'acuerdo_desacuerdo': Muy de Acuerdo, de Acuerdo, Algo de Acuerdo, Algo en Desacuerdo, en Desacuerd', Muy en Desacuerdo
 #' -  'knowledge': Excellent Knowledge, Good Knowledge, Some Knowledge, A Little Knowledge, No Knowledge
 #' -  'how_often': In All or Most Lessons', Often, Sometimes, Rarely, Never
 #' -  'yes_notyet': Yes, Not Yet
@@ -385,7 +387,7 @@ g2g_aggregate_positive_responses <- function(.data, positive_responses, grouping
 g2g_to_title <- function(x) {
 
   words_not_to_convert <- c(
-    'and', 'a', 'the', 'as', 'for', 'if', 'nor', 'or', 'so',
+    'and', 'a', 'the', 'as', 'for', 'if', 'nor', 'or', 'so', 'de', 'en',
     'as', 'at', 'by', 'for', 'in', 'of', 'off', 'on', 'per', 'to', 'up', 'via'
   )
 

@@ -22,6 +22,7 @@ Return a vector of scales in the proper order with colors
 
 \itemize{
 \item 'agree_disagree': Strongly Agree, Agree, Somewhat Agree, Somewhat Disagree, Disagree, Strongly Disagree
+\item 'acuerdo_desacuerdo': Muy de Acuerdo, de Acuerdo, Algo de Acuerdo, Algo en Desacuerdo, en Desacuerd', Muy en Desacuerdo
 \item 'knowledge': Excellent Knowledge, Good Knowledge, Some Knowledge, A Little Knowledge, No Knowledge
 \item 'how_often': In All or Most Lessons', Often, Sometimes, Rarely, Never
 \item 'yes_notyet': Yes, Not Yet
