@@ -265,8 +265,8 @@ g2g_viz_stacked_bar_percent_vertical <- function(.data, x_var, y_var, fill_var, 
   text_location <- dplyr::case_when(
     is.na(text_values) ~ NA,
     text_values < 0.05 ~ text_values + 0.05,
-    dplyr::between(text_values, .05, .1) ~ text_values - 0.03,
-    text_values > .1 ~ text_values - 0.05,
+    dplyr::between(text_values, .05, .1) ~ text_values - 0.05,
+    text_values > .1 ~ text_values - 0.075,
     .default = text_values
   )
 
