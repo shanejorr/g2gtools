@@ -1,6 +1,6 @@
 Package: g2gtools
 Title: Analyze and plot data from the Good to Great common data tools
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: 
     person("Shane", "Orr", , "shane.orr@tntp.org", role = c("aut", "cre"))
 Description: Each Good to Great site uses common data tools to collect site data. These tools include 
