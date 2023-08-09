@@ -460,6 +460,7 @@ g2g_site_information <- function(site_name, semester, year, subject) {
   ppt_teacher_filename <- glue::glue("Teacher Suvey - {site_info$ppt_title} - {lubridate::today()}.pptx")
   ppt_student_survey_filename <- glue::glue("Student Survey - {site_info$ppt_title} - {lubridate::today()}.pptx")
   ppt_all_filename <- glue::glue("{site_info$ppt_title} - Analysis - {lubridate::today()}.pptx")
+  landscape_filename <- glue::glue("landscape-{site_name_lower}-{site_info$semester_lower}-{site_info$year}.html")
   data_path <- here::here(site_path, 'data')
 
   site_info$file_paths <- list(
@@ -471,7 +472,9 @@ g2g_site_information <- function(site_name, semester, year, subject) {
     ppt_obs_filename = here::here(site_path, 'ppt', ppt_obs_filename),
     ppt_teacher_filename = here::here(site_path, 'ppt', ppt_teacher_filename),
     ppt_student_survey_filename = here::here(site_path, 'ppt', ppt_student_survey_filename),
-    ppt_all_filename = here::here(site_path, 'ppt', ppt_all_filename)
+    ppt_all_filename = here::here(site_path, 'ppt', ppt_all_filename),
+    landscape_filepath = here::here(site_path, 'landscape', landscape_filename)
+
   )
 
   return(site_info)
