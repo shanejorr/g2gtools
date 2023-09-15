@@ -9,7 +9,8 @@ g2g_teacher_viz_single_survey(
   response_wrap,
   title_wrap,
   pre_post_comparison = NULL,
-  reverse_coded = FALSE
+  reverse_coded = FALSE,
+  ...
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ These will be the questions.}
 \item{pre_post_comparison}{The column name to use for pre and post comparisons. Use NULL if there is no pre or post comparison.}
 
 \item{reverse_coded}{Boolean whether scales are reverse coded. Defaults to FALSE.}
+
+\item{...}{Parameters for \code{g2g_plt_base_theme()}}
 }
 \value{
 A ggplot object.

@@ -90,13 +90,14 @@ g2g_number_times_teacher_answered <- function(.data) {
 #' @param title_wrap An integer representing the length (number of characters) of the title. This is the question stem.
 #' @param pre_post_comparison The column name to use for pre and post comparisons. Use NULL if there is no pre or post comparison.
 #' @param reverse_coded Boolean whether scales are reverse coded. Defaults to FALSE.
+#' @param ... Parameters for `g2g_plt_base_theme()`
 #'
 #' @returns A ggplot object.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap, pre_post_comparison = NULL, reverse_coded = FALSE) {
+g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap, pre_post_comparison = NULL, reverse_coded = FALSE, ...) {
 
   # make sure we have the required column names
   required_columns <- c('response', 'response_option', '.percent', 'question_stem', 'term')
@@ -124,8 +125,8 @@ g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap, pre_
       fill_var= 'response',
       text_var= '.strong_response_percent',
       color_pal = hex_colors,
-      comparison_var = pre_post_comparison# ,
-      # plot_title_position = 'plot'
+      comparison_var = pre_post_comparison,
+      ...
     ) +
     ggplot2::labs(
       x = 'Percentage of respondents',
