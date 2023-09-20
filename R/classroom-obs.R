@@ -420,6 +420,8 @@ g2g_obs_long_form <- function(.data, ...) {
 #' Calculate the response percentages of each core action by pre and post training
 #'
 #' @param .data Observation data that is already in long form, created by `g2g_obs_long_form()`.
+#' @param grouping_columns Columns to group by when calculating percentages. The following
+#'       columns are automatically added for grouping: '.timing', 'core_action_main', 'core_action_minor'.
 #'
 #' @returns
 #' A tibble with aggregated observation result percentages for each rating. Aggregated by core action and timing (pre or post)
@@ -427,9 +429,9 @@ g2g_obs_long_form <- function(.data, ...) {
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_obs_calc_perc <- function(.data) {
+g2g_obs_calc_perc <- function(.data, grouping_columns = NULL) {
 
-  perc_grouping_cols <- c('.timing', 'core_action_main', 'core_action_minor')
+  perc_grouping_cols <- c(c('.timing', 'core_action_main', 'core_action_minor'), grouping_columns)
 
   col_names <- colnames(.data)
 
