@@ -14,7 +14,7 @@ g2g_pull_data(url, tool_name, site_info)
 \item{site_info}{A list created by \code{g2g_site_information()} containing site information.}
 }
 \value{
-A tibble with the data from the Google Sheet and additional columns called: \code{site_name}, \code{semester},
+A tibble with the data from the Google Sheet and additional columns called: \code{year}, \code{site_name}, \code{semester},
 \code{subject}, and \code{tool}
 }
 \description{

@@ -239,7 +239,7 @@ g2g_calc_high_expectations_averages <- function(.data, grouping_term = NULL) {
   he_scores <- .data |>
     g2g_calc_high_expectations() |>
     tntpmetrics::make_metric('expectations') |>
-    drop_na(cm_expectations) |>
+    tidyr::drop_na(.data$cm_expectations) |>
     dplyr::group_by_at(grouping_term) |>
     dplyr::summarize(dplyr::across(dplyr::starts_with('cm_'), ~mean(.x, na.rm = TRUE)), .groups = 'drop')
 

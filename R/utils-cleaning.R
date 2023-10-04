@@ -490,7 +490,7 @@ g2g_site_information <- function(site_name, semester, year, subject) {
 #' @param site_info A list created by `g2g_site_information()` containing site information.
 #'
 #' @returns
-#' A tibble with the data from the Google Sheet and additional columns called: `site_name`, `semester`,
+#' A tibble with the data from the Google Sheet and additional columns called: `year`, `site_name`, `semester`,
 #' `subject`, and `tool`
 #'
 #' @importFrom rlang .data
@@ -500,6 +500,7 @@ g2g_pull_data <- function(url, tool_name, site_info) {
 
   googlesheets4::read_sheet(url) |>
     dplyr::mutate(
+      year = !!site_info[['year']],
       site_name = !!site_info[['site_name_title']],
       semester = !!site_info[['semester_year']],
       subject = !!site_info[['subject_title']],
