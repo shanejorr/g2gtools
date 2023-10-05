@@ -18,7 +18,7 @@ test_that("Reverse code question responses.", {
 test_that("Combine pre and post-training data sets.", {
 
   pre_training <- data.frame(
-    email = c("pre_only@a.com", "pre_post@b.com", "pre_post_long@c.com", 'pre_only_email@a.com'),
+    teacher_survey_email = c("pre_only@a.com", "pre_post@b.com", "pre_post_long@c.com", 'pre_only_email@a.com'),
     question_stem = c("Pre stem", "Pre post stem", "Pre post long stem", "Pre post long stem"),
     response_option = c("Pre response option", "Pre post response option", 'pre post long response option', 'pre post long response option'),
     response = "Great",
@@ -26,7 +26,7 @@ test_that("Combine pre and post-training data sets.", {
   )
 
   post_training <- data.frame(
-    email = c("post_only@a.com", "pre_post@b.com", "pre_post_long@c.com", "pre_post_long@c.com", "post_long@c.com", "post_long@c.com", 'long@a.com', 'long_only_email@q.com'),
+    teacher_survey_email = c("post_only@a.com", "pre_post@b.com", "pre_post_long@c.com", "pre_post_long@c.com", "post_long@c.com", "post_long@c.com", 'long@a.com', 'long_only_email@q.com'),
     question_stem = c("Post stem", "Pre post stem", "Pre post long stem", "Pre post long stem", "Post long stem", "Post long stem", "Long stem", "Pre post long stem"),
     response_option = c(
       "Post response option", "Pre post response option", 'pre post long response option', 'pre post long response option',

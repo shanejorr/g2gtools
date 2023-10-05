@@ -21,7 +21,7 @@
 g2g_teacher_combine_pre_post <- function(pre_training_survey, post_training_survey) {
 
   # make sure we have the required column names
-  required_columns <- c('email', 'question_stem', 'response_option', 'response', 'term')
+  required_columns <- c('teacher_survey_email', 'question_stem', 'response_option', 'response', 'term')
 
   g2g_check_required_columns(pre_training_survey, required_columns)
   g2g_check_required_columns(post_training_survey, required_columns)
@@ -30,7 +30,6 @@ g2g_teacher_combine_pre_post <- function(pre_training_survey, post_training_surv
     dplyr::mutate(
       # shorten text so that it plots better
       response_option = stringr::str_remove(.data[['response_option']], ", such as deep.*cycle"),
-      email = stringr::str_to_lower(.data[['email']]) |> stringr::str_extract("^[^@]+"),
       response_option = stringr::str_replace(.data[['response_option']], "[.][.]", "."),
       response_option = stringr::str_replace(.data[['response_option']], " [.]", "."),
       response = g2g_to_title(.data[['response']])
@@ -70,12 +69,12 @@ g2g_teacher_combine_pre_post <- function(pre_training_survey, post_training_surv
 g2g_number_times_teacher_answered <- function(.data) {
 
   # make sure we have the required column names
-  required_columns <- c('email', 'question_stem', 'response_option')
+  required_columns <- c('teacher_survey_email', 'question_stem', 'response_option')
 
   g2g_check_required_columns(.data, required_columns)
 
   .data |>
-    dplyr::group_by_at(c('email', 'question_stem', 'response_option')) |>
+    dplyr::group_by_at(required_columns) |>
     dplyr::mutate(n_question_answers = dplyr::n())
 
 }
