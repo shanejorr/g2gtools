@@ -16,7 +16,7 @@ g2g_add_viz_ppt(
 )
 }
 \arguments{
-\item{doc}{Document object. Created with \code{officer::read_pptx()}.}
+\item{doc}{Document object. Created with \code{officer::read_pptx()} or \code{\link[=g2g_create_deck_ppt]{g2g_create_deck_ppt()}}.}
 
 \item{slide_plot}{A ggplot object containing the plot we want in the PPT slide.}
 

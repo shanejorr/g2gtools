@@ -74,15 +74,17 @@ g2g_list_of_scales <- function() {
 
   list(
     agree_disagree = c('Strongly Agree', 'Agree', 'Somewhat Agree', 'Somewhat Disagree', 'Disagree', 'Strongly Disagree'),
-    acuerdo_desacuerdo = c('Muy de Acuerdo', 'De Acuerdo', 'Algo de Acuerdo', 'Algo en Desacuerdo', 'En Desacuerdo', 'Muy en Desacuerdo'),
+    es_agree_disagree = c('Muy de Acuerdo', 'De Acuerdo', 'Algo de Acuerdo', 'Algo en Desacuerdo', 'En Desacuerdo', 'Muy en Desacuerdo'),
     knowledge = c('Excellent Knowledge', 'Good Knowledge', 'Some Knowledge', 'A Little Knowledge', 'No Knowledge'),
     how_often = c('In All or Most Lessons', 'Often', 'Sometimes', 'Rarely', 'Never'),
     yes_notyet = c('Yes', 'Not Yet'),
     yes_mostly_somewhat_notyet = c('Yes', 'Mostly', 'Somewhat', 'Not Yet'),
     yes_but = c('Yes', 'Yes, But Only in Some Areas', 'Not Really', 'No'),
     almost = c('Almost Always', 'Often',  'Sometimes', 'Once in a While', 'Almost Never'),
+    es_almost = c("Casi Siempre", "A Menudo", "A Veces", "De Vez en Cuando", "Casi Nunca"),
     true = c('Very True', 'Mostly True', 'A Little True', 'Not True'),
     high = c('Extremely High', 'High', 'Somewhat High', 'Slightly High', 'Not High at All'),
+    es_high = c("Extremadamente Altas", "Altas", "Algo Altas", "Un Poco Altas", "Nada Altas"),
     always_rarely = c('Always', 'Often', 'Sometimes', 'Rarely or Never'),
     all_few = c('All', 'Most', 'Some', 'Few or None')
 
@@ -98,15 +100,17 @@ g2g_list_of_scales <- function() {
 #' @section Scale options:
 #'
 #' -  'agree_disagree': Strongly Agree, Agree, Somewhat Agree, Somewhat Disagree, Disagree, Strongly Disagree
-#' -  'acuerdo_desacuerdo': Muy de Acuerdo, de Acuerdo, Algo de Acuerdo, Algo en Desacuerdo, en Desacuerd', Muy en Desacuerdo
+#' -  'es_agree_disagree': Muy de Acuerdo, de Acuerdo, Algo de Acuerdo, Algo en Desacuerdo, en Desacuerd', Muy en Desacuerdo
 #' -  'knowledge': Excellent Knowledge, Good Knowledge, Some Knowledge, A Little Knowledge, No Knowledge
 #' -  'how_often': In All or Most Lessons', Often, Sometimes, Rarely, Never
 #' -  'yes_notyet': Yes, Not Yet
 #' -  'yes_mostly_somewhat_notyet': Yes, Mostly, Somewhat, Not Yet
 #' -  'yes_but': Yes, 'Yes, But Only in Some Areas', Not Really, No
 #' -  'almost': Almost Always, Often,  Sometimes, Once in a While, Almost Never
+#' -  'es_almost': Casi Siempre, A Menudo, A Veces, De Vez en Cuando, Casi Nunca
 #' -  'true': Very True, Mostly True, A Little True, Not True
 #' -  'high': Extremely High, High, Somewhat High, Slightly High, Not High at All
+#' -  'es_high': Extremadamente Altas, Altas, Algo Altas, Un Poco Altas, Nada Altas
 #' -  'always_rarely': Always', Often', Sometimes, Rarely or Never
 #' -  'all_few': All, Most, Some, Few or None
 #'

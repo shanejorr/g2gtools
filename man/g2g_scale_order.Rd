@@ -22,15 +22,17 @@ Return a vector of scales in the proper order with colors
 
 \itemize{
 \item 'agree_disagree': Strongly Agree, Agree, Somewhat Agree, Somewhat Disagree, Disagree, Strongly Disagree
-\item 'acuerdo_desacuerdo': Muy de Acuerdo, de Acuerdo, Algo de Acuerdo, Algo en Desacuerdo, en Desacuerd', Muy en Desacuerdo
+\item 'es_agree_disagree': Muy de Acuerdo, de Acuerdo, Algo de Acuerdo, Algo en Desacuerdo, en Desacuerd', Muy en Desacuerdo
 \item 'knowledge': Excellent Knowledge, Good Knowledge, Some Knowledge, A Little Knowledge, No Knowledge
 \item 'how_often': In All or Most Lessons', Often, Sometimes, Rarely, Never
 \item 'yes_notyet': Yes, Not Yet
 \item 'yes_mostly_somewhat_notyet': Yes, Mostly, Somewhat, Not Yet
 \item 'yes_but': Yes, 'Yes, But Only in Some Areas', Not Really, No
 \item 'almost': Almost Always, Often,  Sometimes, Once in a While, Almost Never
+\item 'es_almost': Casi Siempre, A Menudo, A Veces, De Vez en Cuando, Casi Nunca
 \item 'true': Very True, Mostly True, A Little True, Not True
 \item 'high': Extremely High, High, Somewhat High, Slightly High, Not High at All
+\item 'es_high': Extremadamente Altas, Altas, Algo Altas, Un Poco Altas, Nada Altas
 \item 'always_rarely': Always', Often', Sometimes, Rarely or Never
 \item 'all_few': All, Most, Some, Few or None
 }

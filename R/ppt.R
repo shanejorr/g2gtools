@@ -31,13 +31,35 @@ g2g_create_deck_ppt <- function(title, subtitle) {
 
 }
 
+#' Create a text slide
+#'
+#' Create a white PPT slide that is just a slide title and text within a text box.
+#' Can be used to explain tools.
+#'
+#' @param doc Document object. Created with \code{officer::read_pptx()} or [g2g_create_deck_ppt()].
+#' @param title The slide title.
+#' @param text_body The text that goes in the text box
+#'
+#' @export
+g2g_add_text_slide <- function(doc, title, text_body) {
+
+  text <- officer::fpar(officer::ftext(text_body, officer::fp_text(font.family = "Segoe UI", color = "Black", font.size = 16)))
+
+  doc <- officer::add_slide(doc, "Large Object", 'TNTP Template 2013')
+  doc <- officer::ph_with(doc, value = title, location = officer::ph_location_type(type = "title"))
+  doc <- officer::ph_with(doc, value = text, location = officer::ph_location_type(type = "body"))
+
+  return(doc)
+
+}
+
 #' Add visualizations to Power Point slides
 #'
 #' Add ggplot plots to PPT slides as vector graphics. You must initialize the PPT deck with
 #' \code{doc <- officer::read_pptx()}. After adding plots to the deck with this function, you can
 #' write out the deck with \code{print(doc, target = 'file_name_of_deck.pptx')}
 #'
-#' @param doc Document object. Created with \code{officer::read_pptx()}.
+#' @param doc Document object. Created with \code{officer::read_pptx()} or [g2g_create_deck_ppt()].
 #' @param slide_plot A ggplot object containing the plot we want in the PPT slide.
 #' @param slide_header The slide header, as a string.
 #' @param plt_width The width of the plot, in inches, when it is in the PPT presentation.
