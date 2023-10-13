@@ -4,12 +4,10 @@
 \alias{g2g_calc_high_expectations}
 \title{Create a data set that can be used by TNTP metrics to calculate high expectations.}
 \usage{
-g2g_calc_high_expectations(.data, id_cols)
+g2g_calc_high_expectations(.data)
 }
 \arguments{
 \item{.data}{A data frame containing the survey responses, created with \code{g2g_tidy_forms_survey}.}
-
-\item{id_cols}{id columns when using \code{pivot_wider}}
 }
 \value{
 A data frame that is in the correct format to be used by \code{tntpmetrics}.
