@@ -723,7 +723,7 @@ g2g_obs_viz_overall <- function(.data, height_relationships = c(1, 3), first_obs
 
   plt[[2]] <- plt[[2]] +
     ggplot2::theme(
-      strip.background = ggplot2::element_blank(),
+      # strip.background = ggplot2::element_blank(),
       strip.text.x = ggplot2::element_blank()
     )
 

@@ -31,9 +31,9 @@ g2g_teacher_combine_pre_post <- function(pre_training_survey, post_training_surv
       # shorten text so that it plots better
       response_option = stringr::str_remove(.data[['response_option']], ", such as deep.*cycle"),
       response_option = stringr::str_replace(.data[['response_option']], "[.][.]", "."),
-      response_option = stringr::str_replace(.data[['response_option']], " [.]", "."),
-      response = g2g_to_title(.data[['response']])
-    )
+      response_option = stringr::str_replace(.data[['response_option']], " [.]", ".")
+    ) |>
+    tidyr::drop_na(response)
 
   # find questions common to each survey and label
   distinct_questions <- all_results |>
@@ -41,13 +41,20 @@ g2g_teacher_combine_pre_post <- function(pre_training_survey, post_training_surv
     dplyr::group_by_at(c('question_stem', 'response_option')) |>
     dplyr::summarise(
       in_survey = paste(unique(.data[['term']]), collapse = " | "),
-      n_times_administered = dplyr::n_distinct(.data[['term']]),
       .groups = 'drop'
     )
 
-  all_results |>
+  all_results <- all_results |>
     dplyr::left_join(distinct_questions, by = c('question_stem', 'response_option')) |>
     dplyr::ungroup()
+
+  # calculate how many times each teacher took a given questions
+  all_results <- all_results |>
+    dplyr::group_by_at(c('teacher_survey_email', 'question_stem', 'response_option')) |>
+    dplyr::mutate(n_times_administered = dplyr::n()) |>
+    dplyr::ungroup()
+
+  return(all_results)
 
 }
 
@@ -186,8 +193,8 @@ g2g_teacher_reverse_coded <- function(.data) {
 
   df <- .data |>
     dplyr::mutate(
-      reverse_coded = ifelse(stringr::str_detect(.data[['response_option']], reverse_coded_re), TRUE, FALSE),
-      question_stem = ifelse(stringr::str_detect(.data[['response_option']], reverse_coded_re), glue::glue("{.data[['question_stem']]}*"), .data[['question_stem']])
+      reverse_coded = dplyr::if_else(stringr::str_detect(.data[['response_option']], reverse_coded_re), TRUE, FALSE, missing = FALSE),
+      question_stem = dplyr::if_else(reverse_coded, glue::glue("{.data[['question_stem']]}*"), .data[['question_stem']])
     )
 
   # output message showing reverse coded items
