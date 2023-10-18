@@ -2,7 +2,7 @@
 % Please edit documentation in R/classroom-obs.R
 \name{g2g_obs_create_viz_ca}
 \alias{g2g_obs_create_viz_ca}
-\title{Create visualization of observation data for a single Core Action.}
+\title{Create a vertical visualization of observation data for a single Core Action.}
 \usage{
 g2g_obs_create_viz_ca(.data, core_action)
 }
@@ -13,5 +13,6 @@ g2g_obs_create_viz_ca(.data, core_action)
 \code{core_action_main} column.}
 }
 \description{
-Creates a vertical bar plot for a single Core Action. Chart is faceted by .timing
+Creates a vertical bar plot for a single Core Action. Chart is faceted by .timing.
+X axis labels are the core action abbreviations (example: CA 1 Overall)
 }

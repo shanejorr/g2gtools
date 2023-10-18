@@ -495,9 +495,10 @@ g2g_obs_get_ca_data <- function(.data, core_action, scale_order, first_obs_facto
 
 }
 
-#' Create visualization of observation data for a single Core Action.
+#' Create a vertical visualization of observation data for a single Core Action.
 #'
-#' Creates a vertical bar plot for a single Core Action. Chart is faceted by .timing
+#' Creates a vertical bar plot for a single Core Action. Chart is faceted by .timing.
+#' X axis labels are the core action abbreviations (example: CA 1 Overall)
 #'
 #' @param .data Data created with `g2g_obs_get_ca_data()`
 #' @param core_action The core action that we want to get data for. A string that mirrors the spelling in the

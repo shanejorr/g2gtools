@@ -25,7 +25,9 @@ g2g_db_add_site_info <- function(con, site_info) {
 
   DBI::dbWriteTable(con, site_tbl_name, site_table, append = TRUE, row.names = FALSE)
 
-  return(cli::cli_alert_success("Added row with site information to table {.emph {site_tbl_name}}."))
+  cli::cli_alert_success("Added row with site information to table {.emph {site_tbl_name}}.")
+
+  invisible(NULL)
 
 }
 
@@ -71,7 +73,9 @@ g2g_db_add_obs <- function(con, .data) {
 
   n_obs <- dplyr::n_distinct(.data$obs_number)
 
-  return(cli::cli_alert_success("Added {n_rows} rows of observation data from {n_obs} observations to {.emph {tbl_name}}."))
+  cli::cli_alert_success("Added {n_rows} rows of observation data from {n_obs} observations to {.emph {tbl_name}}.")
+
+  return(NULL)
 
 }
 
@@ -116,7 +120,9 @@ g2g_db_add_teacher_survey <- function(con, .data) {
 
   n_teachers <- dplyr::n_distinct(.data$teacher_id)
 
-  return(cli::cli_alert_success("Added {n_rows} rows of survey responses from {n_teachers} teachers to {.emph {tbl_name}}."))
+  cli::cli_alert_success("Added {n_rows} rows of survey responses from {n_teachers} teachers to {.emph {tbl_name}}.")
+
+  return(NULL)
 
 }
 
@@ -161,7 +167,9 @@ g2g_db_add_student_survey <- function(con, .data) {
 
   n_responses <- dplyr::n_distinct(.data$student_id)
 
-  return(cli::cli_alert_success("Added {n_rows} rows of survey response data from {n_responses} student responses to {.emph {tbl_name}}."))
+  cli::cli_alert_success("Added {n_rows} rows of survey response data from {n_responses} student responses to {.emph {tbl_name}}.")
+
+  return(NULL)
 
 }
 
@@ -195,7 +203,9 @@ g2g_db_add_teacher <- function(con, .data) {
 
   n_rows <- nrow(.data)
 
-  return(cli::cli_alert_success("Added {n_rows} rows of observations to {.emph {tbl_name}}."))
+  cli::cli_alert_success("Added {n_rows} rows of observations to {.emph {tbl_name}}.")
+
+  return(NULL)
 
 }
 
@@ -238,5 +248,78 @@ g2g_db_get_site_info_key <- function(con, site_info) {
   }
 
   return(site_id)
+
+}
+
+#' Drop all site data from a single table
+#'
+#' Drops all data from a single site within a single table. Operation is irreversible
+#' and it is recommended that you make a copy of your data base prior to dropping site data.
+#'
+#' To drop data from the `teacher_information` table you must first drop the data from
+#' the `observations`, `teacher_survey`, and `student_survey` tables. This is because
+#' these tables contain foreign keys that rely on the `teacher_information` table.
+#'
+#' @param con Database connection to Good to Great database. Should be created with
+#'      `DBI::dbConnect(RSQLite::SQLite(), dbname = "good_to_great.db")`.
+#' @param site_id An integer. The value in the `site_id` column from the `sites` table.
+#'      Can be found with `g2g_site_information()`.
+#' @param db_table String identifying which table we want to delete data from.
+#'      One of 'teacher_information', 'observations', 'teacher_survey', or 'student_survey'.
+#'
+#' @export
+g2g_drop_site_data_from_table <- function(con, site_id, db_table) {
+
+  db_tables_to_use <- c('teacher_information', 'observations', 'teacher_survey', 'student_survey')
+
+  if (!db_table %in% db_tables_to_use) stop(cli::cli_abort("`db_table` must be one of: {db_tables_to_use}"), call. = FALSE)
+
+  # ensure the site_id exists in the data base
+  check_id_query <- glue::glue_sql(
+    "SELECT
+      CASE
+          WHEN EXISTS (SELECT 1 FROM sites WHERE site_id = {site_id}) THEN 'T'
+          ELSE 'F'
+      END AS does_exist;",
+    .con = con
+  )
+
+  site_id_exists <- DBI::dbGetQuery(con, check_id_query)
+
+  if (site_id_exists == 'F') stop('The `site_id` that you entered does not exist in the `sites` table. Use `g2g_db_get_site_info_key()` to get the `site_id`.', call. = FALSE)
+
+  # ensure person really wants to delete data by asking prompts in the command line
+  while (TRUE) {
+    answer <- readline(glue::glue("This operation will permenantly delete data from the {db_table} table.\nYou should back up your database prior to deleting data.\n- Are you sure you want to delete your data? (yes/no): "))
+
+    # Convert the answer to lowercase
+    answer <- tolower(answer)
+
+    if (answer == "yes") {
+      # Proceed with the operation
+      cat("Deleting data.\n")
+      break
+    } else if (answer == "no") {
+      # Abort or give a message
+      cat("Operation aborted.\n")
+      invisible(NULL)
+      break
+    } else {
+      cat("\nInvalid response. Please answer 'yes' or 'no'.\n")
+    }
+  }
+
+  delete_data_query <- glue::glue_sql(
+    "DELETE FROM {db_table}
+     WHERE site_id = {site_id};",
+    .con = con
+  )
+
+  # deletes rows and returns an integer showing the number of rows deleted
+  n_rows_deleted <- DBI::dbExecute(con, delete_data_query)
+
+  cli::cli_alert_success("Deleted {.emph {n_rows_deleted}} rows from {.emph {db_table}}.")
+
+  invisible(NULL)
 
 }

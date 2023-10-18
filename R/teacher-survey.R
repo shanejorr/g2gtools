@@ -33,7 +33,7 @@ g2g_teacher_combine_pre_post <- function(pre_training_survey, post_training_surv
       response_option = stringr::str_replace(.data[['response_option']], "[.][.]", "."),
       response_option = stringr::str_replace(.data[['response_option']], " [.]", ".")
     ) |>
-    tidyr::drop_na(response)
+    tidyr::drop_na(.data$response)
 
   # find questions common to each survey and label
   distinct_questions <- all_results |>
@@ -95,6 +95,8 @@ g2g_number_times_teacher_answered <- function(.data) {
 #'      These will be the questions.
 #' @param title_wrap An integer representing the length (number of characters) of the title. This is the question stem.
 #' @param pre_post_comparison The column name to use for pre and post comparisons. Use NULL if there is no pre or post comparison.
+#' @param scales_to_use The scales to use for plotting, in order. If `NULL`, the default, scales will automatically be discovered.
+#'        Should be a named vector with the values being the name and the names being hex numbers for colors.
 #' @param reverse_coded Boolean whether scales are reverse coded. Defaults to FALSE.
 #' @param ... Parameters for `g2g_plt_base_theme()`
 #'
@@ -103,14 +105,21 @@ g2g_number_times_teacher_answered <- function(.data) {
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap, pre_post_comparison = NULL, reverse_coded = FALSE, ...) {
+g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap, pre_post_comparison = NULL, scales_to_use = NULL, reverse_coded = FALSE, ...) {
 
   # make sure we have the required column names
   required_columns <- c('response', 'response_option', '.percent', 'question_stem', 'term')
 
   g2g_check_required_columns(.data, required_columns)
 
-  scales_to_use <- g2g_find_scale(.data$response, reverse_coded = reverse_coded)
+  if (is.null(scales_to_use)) {
+    scales_to_use <- g2g_find_scale(.data$response, reverse_coded = reverse_coded)
+  }
+
+  scale_colors <- names(scales_to_use)
+
+  # ensure vector of scales have hex colors for names
+  if (!all(stringr::str_detect(scale_colors, "^#"))) stop("The `scales_to_use` parameter should have hex color codes as the names of the vector of scales. These start with '#'.", call. = FALSE)
 
   hex_colors <- names(scales_to_use) |>
     purrr::set_names(scales_to_use)
@@ -194,7 +203,7 @@ g2g_teacher_reverse_coded <- function(.data) {
   df <- .data |>
     dplyr::mutate(
       reverse_coded = dplyr::if_else(stringr::str_detect(.data[['response_option']], reverse_coded_re), TRUE, FALSE, missing = FALSE),
-      question_stem = dplyr::if_else(reverse_coded, glue::glue("{.data[['question_stem']]}*"), .data[['question_stem']])
+      question_stem = dplyr::if_else(.data$reverse_coded, glue::glue("{.data[['question_stem']]}*"), .data[['question_stem']])
     )
 
   # output message showing reverse coded items

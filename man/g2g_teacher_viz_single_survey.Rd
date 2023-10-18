@@ -9,6 +9,7 @@ g2g_teacher_viz_single_survey(
   response_wrap,
   title_wrap,
   pre_post_comparison = NULL,
+  scales_to_use = NULL,
   reverse_coded = FALSE,
   ...
 )
@@ -22,6 +23,9 @@ These will be the questions.}
 \item{title_wrap}{An integer representing the length (number of characters) of the title. This is the question stem.}
 
 \item{pre_post_comparison}{The column name to use for pre and post comparisons. Use NULL if there is no pre or post comparison.}
+
+\item{scales_to_use}{The scales to use for plotting, in order. If \code{NULL}, the default, scales will automatically be discovered.
+Should be a named vector with the values being the name and the names being hex numbers for colors.}
 
 \item{reverse_coded}{Boolean whether scales are reverse coded. Defaults to FALSE.}
 
