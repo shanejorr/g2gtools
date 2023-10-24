@@ -75,7 +75,7 @@ g2g_db_add_obs <- function(con, .data) {
 
   cli::cli_alert_success("Added {n_rows} rows of observation data from {n_obs} observations to {.emph {tbl_name}}.")
 
-  return(NULL)
+  invisible(NULL)
 
 }
 
@@ -122,7 +122,7 @@ g2g_db_add_teacher_survey <- function(con, .data) {
 
   cli::cli_alert_success("Added {n_rows} rows of survey responses from {n_teachers} teachers to {.emph {tbl_name}}.")
 
-  return(NULL)
+  invisible(NULL)
 
 }
 
@@ -169,7 +169,7 @@ g2g_db_add_student_survey <- function(con, .data) {
 
   cli::cli_alert_success("Added {n_rows} rows of survey response data from {n_responses} student responses to {.emph {tbl_name}}.")
 
-  return(NULL)
+  invisible(NULL)
 
 }
 
@@ -205,7 +205,7 @@ g2g_db_add_teacher <- function(con, .data) {
 
   cli::cli_alert_success("Added {n_rows} rows of observations to {.emph {tbl_name}}.")
 
-  return(NULL)
+  invisible(NULL)
 
 }
 

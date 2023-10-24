@@ -10,7 +10,8 @@ g2g_obs_add_viz_ppt(
   ca_descriptions,
   core_action,
   plt_height = 6,
-  plt_width = 9
+  plt_width = 9,
+  vector_plt = TRUE
 )
 }
 \arguments{
@@ -27,6 +28,9 @@ g2g_obs_add_viz_ppt(
 Defaults to 6.}
 
 \item{plt_width}{The width of the plot. Defaults to 9.}
+
+\item{vector_plt}{Should the visualization render as a vector graphic in power point. TRUE for yes,
+FALSE for no. Defaults to TRUE.}
 }
 \value{
 A \code{doc} object that can be reused when adding additional slides to the PPT.

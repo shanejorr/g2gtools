@@ -569,13 +569,15 @@ g2g_obs_create_viz_ca <- function(.data, core_action) {
 #' @param plt_height The height of the plot in the PPT. Can be calculated with `g2g_ppt_calculate_plot_height()`.
 #'      Defaults to 6.
 #' @param plt_width The width of the plot. Defaults to 9.
+#' @param vector_plt Should the visualization render as a vector graphic in power point. TRUE for yes,
+#'      FALSE for no. Defaults to TRUE.
 #'
 #' @returns A `doc` object that can be reused when adding additional slides to the PPT.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_obs_add_viz_ppt <- function(doc, plt, ca_descriptions, core_action, plt_height = 6, plt_width = 9) {
+g2g_obs_add_viz_ppt <- function(doc, plt, ca_descriptions, core_action, plt_height = 6, plt_width = 9, vector_plt = TRUE) {
 
   is_ca <- stringr::str_detect(core_action, "[0-9]")
 
@@ -598,7 +600,8 @@ g2g_obs_add_viz_ppt <- function(doc, plt, ca_descriptions, core_action, plt_heig
     doc, plt,
     slide_title, plt_width = plt_width,
     plt_height = plt_height,
-    notes_text = ca_notes
+    notes_text = ca_notes,
+    vector_plt = vector_plt
   )
 
   return(doc)
