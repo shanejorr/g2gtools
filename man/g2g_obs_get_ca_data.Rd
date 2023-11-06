@@ -13,7 +13,7 @@ g2g_obs_get_ca_data(
 }
 \arguments{
 \item{.data}{Observation data in long form, with the following columns:
-'.timing', 'core_action_main', 'core_action_minor'. Data should already be aggregated and show
+'timing', 'core_action_main', 'core_action_minor'. Data should already be aggregated and show
 percentages for each core action/ response combination. Can create data with the \code{g2g_obs_calc_perc()} function.}
 
 \item{core_action}{The core action that we want to get data for. A string that mirrors the spelling in the
@@ -21,8 +21,8 @@ percentages for each core action/ response combination. Can create data with the
 
 \item{scale_order}{The order of the response scale. Can find with the function \code{g2g_obs_map_scales()}}
 
-\item{first_obs_factor}{String representing the first observation category in \code{.timing}, as a string.
-\code{.timing} will be changed to a factor with this string being the first level. Useful for ordering plots.
+\item{first_obs_factor}{String representing the first observation category in \code{timing}, as a string.
+\code{timing} will be changed to a factor with this string being the first level. Useful for ordering plots.
 'Defaults to 'First Observation'}
 }
 \value{

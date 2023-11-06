@@ -10,7 +10,7 @@ g2g_obs_calc_perc(.data, grouping_columns = NULL)
 \item{.data}{Observation data that is already in long form, created by \code{g2g_obs_long_form()}.}
 
 \item{grouping_columns}{Columns to group by when calculating percentages. The following
-columns are automatically added for grouping: '.timing', 'core_action_main', 'core_action_minor'.}
+columns are automatically added for grouping: 'timing', 'core_action_main', 'core_action_minor'.}
 }
 \value{
 A tibble with aggregated observation result percentages for each rating. Aggregated by core action and timing (pre or post)

@@ -325,7 +325,7 @@ g2g_first_or_last <- function(.data, grouping_columns, date_column) {
   # check to ensure column are in data set
   df <- .data |>
     dplyr::group_by_at(grouping_columns) |>
-    dplyr::mutate(.timing = dplyr::case_when(
+    dplyr::mutate(timing = dplyr::case_when(
       .data[[date_column]] == max(.data[[date_column]]) ~ 'Last Observation',
       .data[[date_column]] == min(.data[[date_column]]) ~ 'First Observation',
       TRUE ~ 'During Program'
@@ -421,7 +421,7 @@ g2g_obs_long_form <- function(.data, ...) {
 #'
 #' @param .data Observation data that is already in long form, created by `g2g_obs_long_form()`.
 #' @param grouping_columns Columns to group by when calculating percentages. The following
-#'       columns are automatically added for grouping: '.timing', 'core_action_main', 'core_action_minor'.
+#'       columns are automatically added for grouping: 'timing', 'core_action_main', 'core_action_minor'.
 #'
 #' @returns
 #' A tibble with aggregated observation result percentages for each rating. Aggregated by core action and timing (pre or post)
@@ -431,7 +431,7 @@ g2g_obs_long_form <- function(.data, ...) {
 #' @export
 g2g_obs_calc_perc <- function(.data, grouping_columns = NULL) {
 
-  perc_grouping_cols <- c(c('.timing', 'core_action_main', 'core_action_minor'), grouping_columns)
+  perc_grouping_cols <- c(c('timing', 'core_action_main', 'core_action_minor'), grouping_columns)
 
   col_names <- colnames(.data)
 
@@ -455,13 +455,13 @@ g2g_obs_calc_perc <- function(.data, grouping_columns = NULL) {
 #' and adds a column with the percengate of positive responses. This dataset is used for plotting
 #'
 #' @param .data Observation data in long form, with the following columns:
-#'    '.timing', 'core_action_main', 'core_action_minor'. Data should already be aggregated and show
+#'    'timing', 'core_action_main', 'core_action_minor'. Data should already be aggregated and show
 #'    percentages for each core action/ response combination. Can create data with the `g2g_obs_calc_perc()` function.
 #' @param core_action The core action that we want to get data for. A string that mirrors the spelling in the
 #'      `core_action_main` column.
 #' @param scale_order The order of the response scale. Can find with the function `g2g_obs_map_scales()`
-#' @param first_obs_factor String representing the first observation category in `.timing`, as a string.
-#'      `.timing` will be changed to a factor with this string being the first level. Useful for ordering plots.
+#' @param first_obs_factor String representing the first observation category in `timing`, as a string.
+#'      `timing` will be changed to a factor with this string being the first level. Useful for ordering plots.
 #'      'Defaults to 'First Observation'
 #'
 #' @returns
@@ -473,7 +473,7 @@ g2g_obs_calc_perc <- function(.data, grouping_columns = NULL) {
 #' @export
 g2g_obs_get_ca_data <- function(.data, core_action, scale_order, first_obs_factor = 'First Observation') {
 
-  perc_grouping_cols <- c('.timing', 'core_action_main', 'core_action_minor')
+  perc_grouping_cols <- c('timing', 'core_action_main', 'core_action_minor')
 
   col_names <- colnames(.data)
 
@@ -490,14 +490,14 @@ g2g_obs_get_ca_data <- function(.data, core_action, scale_order, first_obs_facto
     dplyr::mutate(
       response = factor(.data[['response']], levels = rev(scale_order)),
       core_action = forcats::fct_rev(.data[['core_action']]),
-      .timing = forcats::fct_relevel(.data[['.timing']], first_obs_factor)
+      timing = forcats::fct_relevel(.data[['timing']], first_obs_factor)
     )
 
 }
 
 #' Create a vertical visualization of observation data for a single Core Action.
 #'
-#' Creates a vertical bar plot for a single Core Action. Chart is faceted by .timing.
+#' Creates a vertical bar plot for a single Core Action. Chart is faceted by timing.
 #' X axis labels are the core action abbreviations (example: CA 1 Overall)
 #'
 #' @param .data Data created with `g2g_obs_get_ca_data()`
@@ -510,7 +510,7 @@ g2g_obs_get_ca_data <- function(.data, core_action, scale_order, first_obs_facto
 g2g_obs_create_viz_ca <- function(.data, core_action) {
 
   # make sure we have the required columns
-  required_cols <- c('.percent', 'core_action', 'response', '.strong_response_percent', '.timing')
+  required_cols <- c('.percent', 'core_action', 'response', '.strong_response_percent', 'timing')
 
   col_names <- colnames(.data)
 
@@ -524,9 +524,9 @@ g2g_obs_create_viz_ca <- function(.data, core_action) {
   is_ca <- stringr::str_detect(core_action, "[0-9]")
 
   if (is_ca) {
-    plt_title <- glue::glue("Core Action {core_action} Observation Results")
+    plt_title <- glue::glue("Core Action {core_action} Results")
   } else {
-    plt_title <- glue::glue("{core_action} Observation Results")
+    plt_title <- glue::glue("{core_action} Results")
   }
 
   scale_order <- g2g_obs_map_scales(core_action)
@@ -539,9 +539,8 @@ g2g_obs_create_viz_ca <- function(.data, core_action) {
   n_facet_rows <- if (n_facet_panels <= 4) 1 else 2
 
   plt <- .data |>
-    # dplyr::mutate(core_action = stringr::str_wrap(.data[['core_action']], 30)) |>
     g2g_viz_stacked_bar_percent_vertical(
-      x_var = '.timing',
+      x_var = 'timing',
       y_var = '.percent',
       fill_var = 'response',
       text_var = '.strong_response_percent',
@@ -554,6 +553,14 @@ g2g_obs_create_viz_ca <- function(.data, core_action) {
       title = plt_title
     ) +
     ggplot2::facet_wrap(ggplot2::vars(forcats::fct_rev(core_action)), nrow = n_facet_rows)
+
+  # with only one panel, the plot is narrow and the legend and title are cut off from the plot
+  # therefore, make lengend two rows and extend plot margins
+  if (n_facet_panels == 1) {
+    plt <- plt +
+      ggplot2::guides(fill=ggplot2::guide_legend(nrow = 2, byrow = TRUE, reverse = TRUE)) +
+      theme(plot.margin = unit(c(.25, 1, .25, .25), "inches")) # top, right, bottom, left
+  }
 
   return(plt)
 
@@ -630,21 +637,21 @@ g2g_obs_test_results <- function(raw_data, long_form_data, aggregated_data, core
   # is the first or last observation
   # needed so we can pull out the final data from the raw data
   distinct_obs <- long_form_data |>
-    dplyr::distinct(.data[['.id']], .data[['.timing']])
+    dplyr::distinct(.data[['.id']], .data[['timing']])
 
   # extract the needed rows from the raw data and label whether they are the first or last observation
   obs_check <- raw_data |>
     dplyr::mutate(.id = dplyr::row_number()) |>
     dplyr::left_join(distinct_obs, by = '.id') |>
-    tidyr::drop_na(.data[['.timing']]) |>
-    dplyr::select(dplyr::all_of(c('.id', '.timing')), dplyr::contains(core_action_to_test))
+    tidyr::drop_na(.data[['timing']]) |>
+    dplyr::select(dplyr::all_of(c('.id', 'timing')), dplyr::contains(core_action_to_test))
 
-  colnames(obs_check) <- c('.id', '.timing', 'response')
+  colnames(obs_check) <- c('.id', 'timing', 'response')
 
   # calculated the percentages from the raw data
   expected_result <- obs_check |>
     tidyr::drop_na('response') |>
-    dplyr::group_by_at(c('.timing', 'response')) |>
+    dplyr::group_by_at(c('timing', 'response')) |>
     dplyr::summarize(.n_response = dplyr::n()) |>
     dplyr::mutate(
       .n_question = sum(.data[['.n_response']]),
@@ -652,14 +659,14 @@ g2g_obs_test_results <- function(raw_data, long_form_data, aggregated_data, core
       response = stringr::str_to_lower(.data[['response']])
     ) |>
     dplyr::ungroup() |>
-    dplyr::arrange(.data[['.timing']], .data[['response']])
+    dplyr::arrange(.data[['timing']], .data[['response']])
 
   # place the actual percentage data into a format that matches the calculated percentages from the raw data
   actual_result <- aggregated_data |>
     dplyr::filter(stringr::str_detect(.data[['core_action']], core_action_to_test)) |>
     dplyr::mutate(response = stringr::str_to_lower(.data[['response']])) |>
-    dplyr::select(dplyr::all_of(c('.timing', 'response', '.n_response', '.n_question', '.percent'))) |>
-    dplyr::arrange(.data[['.timing']], .data[['response']])
+    dplyr::select(dplyr::all_of(c('timing', 'response', '.n_response', '.n_question', '.percent'))) |>
+    dplyr::arrange(.data[['timing']], .data[['response']])
 
   # test result
   testthat::expect_equal(actual_result, expected_result)
@@ -680,8 +687,8 @@ g2g_obs_test_results <- function(raw_data, long_form_data, aggregated_data, core
 #'      aggregates with `g2g_obs_calc_perc()` and then filtering to only keep overall scores.
 #' @param height_relationships Relationship in proportions between plots with different scales, as a numeric vector.
 #'      Defaults to c(1, 3).
-#' @param first_obs_factor String representing the first observation category in `.timing`, as a string.
-#'      `.timing` will be changed to a factor with this string being the first level. Useful for ordering plots.
+#' @param first_obs_factor String representing the first observation category in `timing`, as a string.
+#'      `timing` will be changed to a factor with this string being the first level. Useful for ordering plots.
 #'      Defaults to 'First Observation'.
 #'
 #' @examples

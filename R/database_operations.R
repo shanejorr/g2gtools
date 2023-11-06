@@ -49,7 +49,7 @@ g2g_db_add_obs <- function(con, .data) {
 
   # dataframe should only have these columns
   req_columns <- c(
-    'teacher_id', 'site_id', 'obs_number', 'timing',
+    'teacher_id', 'site_id', 'obs_number', 'timing', 'term', 'subject',
     'grade', 'date_of_observation', 'question_stem',
     'response_option', 'response', 'core_action_main', 'core_action_minor'
   )
@@ -191,7 +191,7 @@ g2g_db_add_teacher <- function(con, .data) {
 
   # dataframe should only have these columns
   req_columns <- c(
-    'site_id', 'teacher_survey_email', 'obs_name',
+    'site_id', 'subject', 'district_school', 'teacher_survey_email', 'obs_name',
     'student_survey_name', 'years_teaching', 'notes'
   )
 

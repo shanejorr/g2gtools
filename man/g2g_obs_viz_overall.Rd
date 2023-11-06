@@ -17,8 +17,8 @@ aggregates with \code{g2g_obs_calc_perc()} and then filtering to only keep overa
 \item{height_relationships}{Relationship in proportions between plots with different scales, as a numeric vector.
 Defaults to c(1, 3).}
 
-\item{first_obs_factor}{String representing the first observation category in \code{.timing}, as a string.
-\code{.timing} will be changed to a factor with this string being the first level. Useful for ordering plots.
+\item{first_obs_factor}{String representing the first observation category in \code{timing}, as a string.
+\code{timing} will be changed to a factor with this string being the first level. Useful for ordering plots.
 Defaults to 'First Observation'.}
 }
 \value{
