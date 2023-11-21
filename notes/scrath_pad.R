@@ -4,7 +4,7 @@ library(tidyverse)
 
 devtools::load_all()
 
-ppt_file <- "~/repos/tntp/g2gtools/inst/extdata/tntp_template_new.pptx"
+ppt_file <- "~/repos/tntp/g2gtools/inst/extdata/tntp_template_no_slides.pptx"
 
 pptx_layout <- officer::read_pptx(ppt_file) |>
   officer::layout_properties()

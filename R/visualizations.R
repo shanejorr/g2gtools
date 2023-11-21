@@ -3,11 +3,11 @@
 #' Custom theme for Good to Great that relies on the `tntpr::tntp_style()` theme.
 #' Adds check to ensure the 'Halyard Display' font it loaded, and if not loads the font.
 #'
-#'
+#' @param font_size The is the `base_size` parameter in `tntpr::tntp_style()`. Defaults to 24.
 #' @param ... Parameters for `tntpr::tntp_style()`
 #'
 #' @export
-g2g_plt_theme <- function(...) {
+g2g_plt_theme <- function(font_size = 24, ...) {
 
   halyard_fonts <- c("Halyard Display", "Halyard Display Bold", "Halyard Display Italic", "Halyard Display Bold Italic")
 
@@ -15,7 +15,22 @@ g2g_plt_theme <- function(...) {
     grDevices::quartzFonts(`Halyard Display` = grDevices::quartzFont(halyard_fonts))
   }
 
-  tntpr::tntp_style(...)
+  # reduce title font size a bit
+  title_font_size = font_size * .70
+
+  # increase strip text font size
+  strip_text_size <- font_size * .6
+
+  tntpr::tntp_style(
+    base_size = font_size,
+    ...
+  ) +
+    ggplot2::theme(
+      legend.position="bottom",
+      panel.border = ggplot2::element_rect(colour = "black", fill = NA),
+      strip.text = ggplot2::element_text(size = strip_text_size),
+      plot.title = ggplot2::element_text(size = title_font_size)
+    )
 
 }
 
@@ -308,7 +323,7 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns =
 #'      scores and one with percentages.
 #' @param space_between_plots The amount of space,in points ('pt') between plots. Defaults to 40.
 #' @param text_size The size of the text on the bar chart. Default is 4.21.
-#' @param ... Parameters for `g2g_plt_theme`.
+#' @param ... Parameters for `g2g_plt_theme()`.
 #'
 #' @returns A single plot containing two bar chart plots.
 #'
@@ -333,12 +348,12 @@ g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', s
 
   }
 
-  he_perc_fill_color <- if (plots_to_return == 'percentages') "#00A4C7" else "#EA8835"
+  he_perc_fill_color <- if (plots_to_return == 'percentages') tntpr::tntp_colors('dark_green') else tntpr::tntp_colors('moss')
 
   # expectations score
   plt_he_scores <- .data |>
     dplyr::mutate(cm_expectations_text = round(.data[['cm_expectations']], 1)) |>
-    g2g_viz_basic_bar(x_axis, 'cm_expectations', 'cm_expectations_text', - 1.35, text_color = 'white', font_face = "bold", fill_color = "#00A4C7", text_size = text_size, ...) +
+    g2g_viz_basic_bar(x_axis, 'cm_expectations', 'cm_expectations_text', - 1.35, text_color = 'white', font_face = "bold", fill_color = tntpr::tntp_colors('dark_green'), text_size = text_size, ...) +
     ggplot2::ylim(c(0, 20))
 
   plt_he_perc <- .data |>

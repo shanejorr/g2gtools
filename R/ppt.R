@@ -43,9 +43,13 @@ g2g_create_deck_ppt <- function(title) {
 #' @export
 g2g_add_text_slide <- function(doc, title, text_body) {
 
+  formatted_text <- officer::fpar(
+    officer::ftext(text_body, officer::fp_text(font.size = 18))
+  )
+
   doc <- officer::add_slide(doc, "10_1/3 Solid Color Section D", 'Office Theme')
   doc <- officer::ph_with(doc, value = title, location = officer::ph_location_label(ph_label = "Text Placeholder 5"))
-  doc <- officer::ph_with(doc, value = text_body, location = officer::ph_location_label(ph_label = "Text Placeholder 7"))
+  doc <- officer::ph_with(doc, value = formatted_text, location = officer::ph_location_label(ph_label = "Text Placeholder 7"))
 
   return(doc)
 
@@ -119,7 +123,7 @@ g2g_add_viz_ppt <- function(doc, slide_plot, slide_header, plt_width = 9.5, plt_
     text_format <- officer::fpar(
       officer::ftext(
         text_box,
-        officer::fp_text(font.size = 14, bold = TRUE, italic = TRUE, color = "#00355F")
+        officer::fp_text(font.size = 18, bold = TRUE, italic = TRUE, color = tntpr::tntp_colors('navy'))
       ),
       fp_p = officer::fp_par(text.align = "center")
     )
@@ -182,7 +186,7 @@ g2g_ppt_calculate_plot_height <- function(column_with_rows) {
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_add_table_ppt <- function(doc, .data, slide_header, col_lengths, fontsize = 12, notes_text = NULL) {
+g2g_add_table_ppt <- function(doc, .data, slide_header, col_lengths, fontsize = 14, notes_text = NULL) {
 
   n_cols <- ncol(.data)
 
@@ -191,7 +195,7 @@ g2g_add_table_ppt <- function(doc, .data, slide_header, col_lengths, fontsize = 
   }
 
   # create new slide with default template
-  doc <- officer::add_slide(doc, "Title Only", 'Office Theme')
+  doc <- officer::add_slide(doc, "1_1/4 Left", 'Office Theme')
 
   # determine width so that plot is centered
   s_s <- officer::slide_size(doc)
@@ -200,26 +204,28 @@ g2g_add_table_ppt <- function(doc, .data, slide_header, col_lengths, fontsize = 
 
   cols <- seq(1, n_cols)
 
-  small_border = officer::fp_border(color="gray", width = 1)
+  small_border <- officer::fp_border(color="gray", width = 1)
 
   flex_table <- .data |>
     flextable::flextable() |>
     flextable::width(j = cols, width = col_lengths, unit = "in") |>
     flextable::border_inner_h(part="all", border = small_border) |>
     flextable::border_inner_v(part="all", border = small_border) |>
-    flextable::font(fontname = "Segoe UI", part = "all") |>
     flextable::fontsize(size = fontsize, part = "all") |>
+    flextable::bg(bg = "black", part = "header") |>
+    flextable::color(color = 'white', part = 'header') |>
     flextable::bold(bold = TRUE, part = "header") |>
-    flextable::align(align = "left", part = "all")
+    flextable::align(align = "left", part = "all") |>
+    flextable::font(fontname = "Arial", part = "all")
 
   slide_loc <- officer::ph_location(left = left, top = 1.25, newlabel = "table")
 
   doc <- doc |>
     officer::ph_with(
-      flex_table,
-      location = slide_loc
+      value = flex_table,
+      location = officer::ph_location_label(ph_label = "Text Placeholder 7")
     ) |>
-    officer::ph_with(value = slide_header, location = officer::ph_location_type(type = "title"))
+    officer::ph_with(value = slide_header, location = officer::ph_location_label(ph_label = "Text Placeholder 5"))
 
   # add notes, if needed
   if (!is.null(notes_text)) {

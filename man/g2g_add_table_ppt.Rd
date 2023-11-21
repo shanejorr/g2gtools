@@ -9,7 +9,7 @@ g2g_add_table_ppt(
   .data,
   slide_header,
   col_lengths,
-  fontsize = 12,
+  fontsize = 14,
   notes_text = NULL
 )
 }

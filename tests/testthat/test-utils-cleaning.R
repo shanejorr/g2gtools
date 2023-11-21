@@ -56,7 +56,7 @@ test_that("Identify observations in pre and post datasets", {
 test_that("Ensure you get the right scale and color output", {
 
   proper_scales <- c('In All or Most Lessons', 'Often', 'Sometimes', 'Rarely', 'Never') |>
-    purrr::set_names(c("#8FB09D", "#317D5C", "#cccccc", "#aaaaaa", "#888888"))
+    purrr::set_names(c("#1D4935", "#317D5C", "#C7C7C5", "#9E9E9C", "#747473"))
 
   tested_scales <- g2g_scale_order('how_often')
 
@@ -150,13 +150,13 @@ test_that("Properly identify scales and add hex colors", {
   neg_scales
 
   expected_results_pos <- c(
-    "#8FB09D" = "Strongly Agree", "#317D5C" = "Agree", "#eeeeee" = "Somewhat Agree",
-    "#cccccc" = "Somewhat Disagree", "#aaaaaa" = "Disagree", "#888888" = "Strongly Disagree"
+    "#1D4935" = "Strongly Agree", "#317D5C" = "Agree", "#F1F1EE" = "Somewhat Agree",
+    "#C7C7C5" = "Somewhat Disagree", "#9E9E9C" = "Disagree", "#747473" = "Strongly Disagree"
   )
 
   expected_results_neg <- c(
-    "#FDE57B"= "Strongly Disagree", "#F2CF13" = "Disagree", "#888888" = "Somewhat Disagree",
-    "#aaaaaa" = "Somewhat Agree", "#cccccc" = "Agree", "#eeeeee" = "Strongly Agree"
+    "#F2CF13" = "Strongly Disagree", "#FDE57B" = "Disagree", "#F1F1EE" = "Somewhat Disagree",
+    "#C7C7C5" = "Somewhat Agree", "#9E9E9C" = "Agree", "#747473" = "Strongly Agree"
   )
 
   expect_equal(pos_scales, expected_results_pos)

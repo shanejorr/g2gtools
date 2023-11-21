@@ -4,9 +4,11 @@
 \alias{g2g_plt_theme}
 \title{Custom Good to Great Plot Theme}
 \usage{
-g2g_plt_theme(...)
+g2g_plt_theme(font_size = 24, ...)
 }
 \arguments{
+\item{font_size}{The is the \code{base_size} parameter in \code{tntpr::tntp_style()}. Defaults to 24.}
+
 \item{...}{Parameters for \code{tntpr::tntp_style()}}
 }
 \description{
