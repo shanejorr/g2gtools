@@ -34,7 +34,8 @@ Imports:
     googlesheets4,
     here,
     DBI,
-    cli
+    cli,
+    tntpr
 Remotes: 
   github::adamMaier/tntpmetrics,
   github::tntp/tntpr

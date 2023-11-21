@@ -37,7 +37,7 @@ the hex codes for the colors and the names being the unique scales from \code{fi
 \item{text_size}{Size of the text that represents the numbers within the bar chart. Defaults to 4.586111, which is 13 point font size.
 Font size can be converted to \code{text_size} with this formula: \verb{font size / (14/5)}.}
 
-\item{...}{Parameters for \code{g2g_plt_base_theme()}}
+\item{...}{Parameters for \code{tntpr::tntp_style()}}
 }
 \description{
 Creates a stacked vertical bar chart showing Likert items and responses. Data must be percentages.

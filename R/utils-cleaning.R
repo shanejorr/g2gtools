@@ -149,8 +149,8 @@ g2g_scale_order <- function(scale_name, reverse_coded = FALSE) {
   # palettes
   # for all palettes, the two highest values will be blue, the others will be gray
   gray_colors <- c("#eeeeee", "#cccccc", "#aaaaaa", "#888888")
-  blue_colors <- c("#00A4C7", "#81D2EB")
-  orange_colors <- c("#EA8835", "#FFC723")
+  green_colors <- tntpr::tntp_colors("moss", "green")
+  yellow_colors <- tntpr::tntp_colors("gold", "yellow")
 
   gray_length <- length(gray_colors)
 
@@ -159,13 +159,13 @@ g2g_scale_order <- function(scale_name, reverse_coded = FALSE) {
   num_grays <- scale_length - num_pos
 
   if (!reverse_coded) {
-    pal <- c(blue_colors[1:num_pos], gray_colors[(gray_length-(num_grays-1)):gray_length])
+    pal <- c(green_colors[1:num_pos], gray_colors[(gray_length-(num_grays-1)):gray_length])
 
     final_scale  <- single_scale |>
       purrr::set_names(pal)
 
   } else if (reverse_coded) {
-    pal <- c(gray_colors[(gray_length-(num_grays-1)):gray_length], orange_colors[1:num_pos])
+    pal <- c(gray_colors[(gray_length-(num_grays-1)):gray_length], yellow_colors[1:num_pos])
 
     final_scale <- single_scale |>
       purrr::set_names(pal) |>

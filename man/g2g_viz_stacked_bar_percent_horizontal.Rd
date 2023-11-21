@@ -45,7 +45,7 @@ Font size can be converted to \code{text_size} with this formula: \verb{font siz
 \item{text_location}{The variable name, as a string, of the location of the text on the x axis, between 0 and 1. If \code{NULL}, the default,
 the location will be the same as \code{text_var}, but right under the bar.}
 
-\item{...}{Parameters for \code{g2g_plt_base_theme()}}
+\item{...}{Parameters for \code{tntpr::tntp_style()}}
 }
 \description{
 Creates a stacked horizontal bar chart showing Likert items and responses. Data must be percentages.

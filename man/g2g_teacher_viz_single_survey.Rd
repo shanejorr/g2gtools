@@ -29,7 +29,7 @@ Should be a named vector with the values being the name and the names being hex 
 
 \item{reverse_coded}{Boolean whether scales are reverse coded. Defaults to FALSE.}
 
-\item{...}{Parameters for \code{g2g_plt_base_theme()}}
+\item{...}{Parameters for \code{tntpr::tntp_style()}}
 }
 \value{
 A ggplot object.

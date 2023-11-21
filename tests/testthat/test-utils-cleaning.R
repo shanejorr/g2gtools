@@ -56,7 +56,7 @@ test_that("Identify observations in pre and post datasets", {
 test_that("Ensure you get the right scale and color output", {
 
   proper_scales <- c('In All or Most Lessons', 'Often', 'Sometimes', 'Rarely', 'Never') |>
-    purrr::set_names(c('#00A4C7','#81D2EB',"#cccccc", "#aaaaaa", "#888888"))
+    purrr::set_names(c("#8FB09D", "#317D5C", "#cccccc", "#aaaaaa", "#888888"))
 
   tested_scales <- g2g_scale_order('how_often')
 
@@ -102,7 +102,7 @@ test_that("Correctly aggregate positive responses", {
 
 test_that("Properly create data set for g2g_viz_likert_centered", {
 
-  color_pal <- c(Good = "#00A4C7", OK = "#C1C2C4", Bad = "#EA8835")
+  color_pal <- c(Good = "#317D5C", OK = "#C1C2C4", Bad = "#F2CF13")
 
   x_var <- 'percentage'
   y_var <- 'question'
@@ -150,12 +150,12 @@ test_that("Properly identify scales and add hex colors", {
   neg_scales
 
   expected_results_pos <- c(
-    "#00A4C7" = "Strongly Agree", "#81D2EB" = "Agree", "#eeeeee" = "Somewhat Agree",
+    "#8FB09D" = "Strongly Agree", "#317D5C" = "Agree", "#eeeeee" = "Somewhat Agree",
     "#cccccc" = "Somewhat Disagree", "#aaaaaa" = "Disagree", "#888888" = "Strongly Disagree"
   )
 
   expected_results_neg <- c(
-    "#FFC723" = "Strongly Disagree", "#EA8835" = "Disagree", "#888888" = "Somewhat Disagree",
+    "#FDE57B"= "Strongly Disagree", "#F2CF13" = "Disagree", "#888888" = "Somewhat Disagree",
     "#aaaaaa" = "Somewhat Agree", "#cccccc" = "Agree", "#eeeeee" = "Strongly Agree"
   )
 
