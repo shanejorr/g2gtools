@@ -98,7 +98,7 @@ g2g_number_times_teacher_answered <- function(.data) {
 #' @param scales_to_use The scales to use for plotting, in order. If `NULL`, the default, scales will automatically be discovered.
 #'        Should be a named vector with the values being the name and the names being hex numbers for colors.
 #' @param reverse_coded Boolean whether scales are reverse coded. Defaults to FALSE.
-#' @param ... Parameters for `g2g_plt_base_theme()`
+#' @param ... Parameters for `tntpr::tntp_style()`
 #'
 #' @returns A ggplot object.
 #'
