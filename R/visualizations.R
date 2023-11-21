@@ -76,7 +76,7 @@ g2g_plt_theme_no_lines <- function(...) {
 #' @param text_size The size of the text on the bar chart. Default is 4.21.
 #' @param font_face The font face of the text numbers that show up in the bars.
 #'          One of "plain", "bold", "italic", "bold.italic". Defaults to "plain"
-#' @param ... Parameters for `g2g_plt_theme_no_lines`.
+#' @param ... Parameters for `tntpr::tntp_style()`.
 #'
 #' @importFrom rlang .data
 #'
@@ -89,7 +89,8 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fi
       ggplot2::aes(label = .data[[text_var]], y = .data[[y_var]] + text_offset),
       color = text_color, size = text_size, fontface = font_face
     )  +
-    g2g_plt_theme_no_lines(...)
+    tntpr::tntp_style(...)
+    #g2g_plt_theme_no_lines(...)
 
 }
 

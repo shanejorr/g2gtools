@@ -559,7 +559,7 @@ g2g_obs_create_viz_ca <- function(.data, core_action) {
   if (n_facet_panels == 1) {
     plt <- plt +
       ggplot2::guides(fill=ggplot2::guide_legend(nrow = 2, byrow = TRUE, reverse = TRUE)) +
-      theme(plot.margin = unit(c(.25, 1, .25, .25), "inches")) # top, right, bottom, left
+      ggplot2::theme(plot.margin = ggplot2::unit(c(.25, 1, .25, .25), "inches")) # top, right, bottom, left
   }
 
   return(plt)

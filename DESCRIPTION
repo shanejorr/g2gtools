@@ -35,7 +35,9 @@ Imports:
     here,
     DBI,
     cli
-Remotes: github::adamMaier/tntpmetrics
+Remotes: 
+  github::adamMaier/tntpmetrics,
+  github::tntp/tntpr
 URL: https://github.com/shanejorr/g2gtools
 BugReports: https://github.com/shanejorr/g2gtools/issues
 Depends: 

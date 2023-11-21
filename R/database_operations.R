@@ -268,7 +268,7 @@ g2g_db_get_site_info_key <- function(con, site_info) {
 #'      One of 'teacher_information', 'observations', 'teacher_survey', or 'student_survey'.
 #'
 #' @export
-g2g_drop_site_data_from_table <- function(con, site_id, db_table) {
+g2g_db_drop_site_data_from_table <- function(con, site_id, db_table) {
 
   db_tables_to_use <- c('teacher_information', 'observations', 'teacher_survey', 'student_survey')
 
