@@ -28,7 +28,7 @@ scores and one with percentages.}
 
 \item{text_size}{The size of the text on the bar chart. Default is 4.21.}
 
-\item{...}{Parameters for \code{tntpr::tntp_style}.}
+\item{...}{Parameters for \code{g2g_plt_theme}.}
 }
 \value{
 A single plot containing two bar chart plots.

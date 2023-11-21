@@ -4,12 +4,10 @@
 \alias{g2g_create_deck_ppt}
 \title{Create PPT deck with the TNTP template}
 \usage{
-g2g_create_deck_ppt(title, subtitle)
+g2g_create_deck_ppt(title)
 }
 \arguments{
 \item{title}{The title that goes on the title page as a string.}
-
-\item{subtitle}{The subtitle that goes on the title page as a string.}
 }
 \description{
 Initialize a PPT deck with the TNTP template. This function also creates the title page.

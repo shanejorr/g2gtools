@@ -1,3 +1,25 @@
+#' Custom Good to Great Plot Theme
+#'
+#' Custom theme for Good to Great that relies on the `tntpr::tntp_style()` theme.
+#' Adds check to ensure the 'Halyard Display' font it loaded, and if not loads the font.
+#'
+#'
+#' @param ... Parameters for `tntpr::tntp_style()`
+#'
+#' @export
+g2g_plt_theme <- function(...) {
+
+  halyard_fonts <- c("Halyard Display", "Halyard Display Bold", "Halyard Display Italic", "Halyard Display Bold Italic")
+
+  if (!("Halyard Display" %in% names(grDevices::quartzFonts()) && .Platform$OS.type == "unix")) {
+    grDevices::quartzFonts(`Halyard Display` = grDevices::quartzFont(halyard_fonts))
+  }
+
+  tntpr::tntp_style(...)
+
+}
+
+
 #' Create a basic vertical bar chart
 #'
 #' Creates a vertical bar chart. This function can be used as-is, but is primarily used to build
@@ -17,7 +39,7 @@
 #' @param text_size The size of the text on the bar chart. Default is 4.21.
 #' @param font_face The font face of the text numbers that show up in the bars.
 #'          One of "plain", "bold", "italic", "bold.italic". Defaults to "plain"
-#' @param ... Parameters for `tntpr::tntp_style()`.
+#' @param ... Parameters for `g2g_plt_theme()`.
 #'
 #' @importFrom rlang .data
 #'
@@ -28,9 +50,9 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fi
     ggplot2::geom_col(fill = fill_color) +
     ggplot2::geom_text(
       ggplot2::aes(label = .data[[text_var]], y = .data[[y_var]] + text_offset),
-      color = text_color, size = text_size, fontface = font_face
+      color = text_color, size = text_size, fontface = font_face, family = "sans"
     )  +
-    tntpr::tntp_style(...)
+    g2g_plt_theme(...)
 
 }
 
@@ -51,7 +73,7 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fi
 #' @param font_face The font face of the text numbers that show up in the bars.
 #'          One of "plain", "bold", "italic", "bold.italic". Defaults to "plain"
 #' @param add_vertical_lines Boolean, whether to add a vertical line between each fill group. Default is FALSE.
-#' @param ... Parameters for `tntpr::tntp_style()`.
+#' @param ... Parameters for `g2g_plt_theme()`.
 #'
 #' @importFrom rlang .data
 #'
@@ -67,7 +89,7 @@ g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, co
     ) +
     ggplot2::scale_x_discrete(drop=FALSE) +
     ggplot2::scale_fill_manual(values = color_pal, drop = FALSE) +
-    tntpr::tntp_style(...)
+    g2g_plt_theme(...)
 
   if (add_vertical_lines) {
 
@@ -105,7 +127,7 @@ g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, co
 #'       Font size can be converted to `text_size` with this formula: `font size / (14/5)`.
 #' @param text_location The variable name, as a string, of the location of the text on the x axis, between 0 and 1. If `NULL`, the default,
 #'       the location will be the same as `text_var`, but right under the bar.
-#' @param ... Parameters for `tntpr::tntp_style()`
+#' @param ... Parameters for `g2g_plt_theme()`
 #'
 #' @importFrom rlang .data
 #'
@@ -150,7 +172,7 @@ g2g_viz_stacked_bar_percent_horizontal <- function(.data, perc_value_var, questi
     ) +
     ggplot2::scale_fill_manual(values = color_pal, drop = FALSE) +
     ggplot2::scale_x_continuous(labels = scales::percent) +
-    tntpr::tntp_style(...) +
+    g2g_plt_theme(...) +
     ggplot2::guides(fill=ggplot2::guide_legend(nrow=num_legend_rows, byrow=TRUE, reverse = TRUE))
 
   if (!is.null(comparison_var)) {
@@ -185,7 +207,7 @@ g2g_viz_stacked_bar_percent_horizontal <- function(.data, perc_value_var, questi
 #'       the hex codes for the colors and the names being the unique scales from \code{fill_var}
 #' @param text_size Size of the text that represents the numbers within the bar chart. Defaults to 4.586111, which is 13 point font size.
 #'       Font size can be converted to `text_size` with this formula: `font size / (14/5)`.
-#' @param ... Parameters for `tntpr::tntp_style()`
+#' @param ... Parameters for `g2g_plt_theme()`
 #'
 #' @importFrom rlang .data
 #'
@@ -219,7 +241,7 @@ g2g_viz_stacked_bar_percent_vertical <- function(.data, x_var, y_var, fill_var, 
     ) +
     ggplot2::scale_fill_manual(values = color_pal, drop = FALSE) +
     ggplot2::scale_y_continuous(labels = scales::percent) +
-    tntpr::tntp_style(...) +
+    g2g_plt_theme(...) +
     ggplot2::guides(fill=ggplot2::guide_legend(nrow=num_legend_rows, byrow=TRUE, reverse = TRUE))
 
 }
@@ -286,7 +308,7 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns =
 #'      scores and one with percentages.
 #' @param space_between_plots The amount of space,in points ('pt') between plots. Defaults to 40.
 #' @param text_size The size of the text on the bar chart. Default is 4.21.
-#' @param ... Parameters for `tntpr::tntp_style`.
+#' @param ... Parameters for `g2g_plt_theme`.
 #'
 #' @returns A single plot containing two bar chart plots.
 #'
@@ -611,7 +633,7 @@ g2g_viz_likert_centered <- function(.data, x_var, y_var, fill_var, color_pal) {
         label = scales::percent(abs(.data[['category_cumulative']]), accuracy = 1)
       ), size = 4.586111
     ) +
-    tntpr::tntp_style()
+    g2g_plt_theme()
 
 
   if (has_neutral) {

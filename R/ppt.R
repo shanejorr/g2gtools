@@ -3,12 +3,11 @@
 #' Initialize a PPT deck with the TNTP template. This function also creates the title page.
 #'
 #' @param title The title that goes on the title page as a string.
-#' @param subtitle The subtitle that goes on the title page as a string.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_create_deck_ppt <- function(title, subtitle) {
+g2g_create_deck_ppt <- function(title) {
 
   # create today's month and year, to add to title slide
   today_date <- lubridate::today()
@@ -17,15 +16,16 @@ g2g_create_deck_ppt <- function(title, subtitle) {
   month_year <- paste0(today_month, " ", today_year)
 
   # read in TNTP template deck for formatting
-  doc <- officer::read_pptx(path = system.file("extdata", 'tntp_template.pptx', package = 'g2gtools'))
+  doc <- officer::read_pptx(path = system.file("extdata", 'tntp_template_no_slides.pptx', package = 'g2gtools'))
 
   # create title slide
-  doc <- officer::add_slide(doc, "Title Slide", 'TNTP Template 2013')
+  doc <- officer::add_slide(doc, "Cover Mint", 'Office Theme')
 
-  # add title, subtitle, and date
-  doc <- officer::ph_with(doc, value = title, location = officer::ph_location_type(type = "ctrTitle"))
-  doc <- officer::ph_with(doc, value = subtitle, location = officer::ph_location_type(type = "subTitle"))
-  doc <- officer::ph_with(doc, value = month_year, location = officer::ph_location_label(ph_label = "Text Placeholder 5", newlabel = 'siteName'))
+  # add title and date
+  doc <- officer::ph_with(doc, value = title, location = officer::ph_location_label(ph_label = "Text Placeholder 5"))
+  doc <- officer::ph_with(doc, value = month_year, location = officer::ph_location_label(ph_label = "Text Placeholder 4"))
+
+  # doc <- officer::ph_with(doc, value = month_year, location = officer::ph_location_label(ph_label = "Text Placeholder 5", newlabel = 'siteName'))
 
   return(doc)
 
@@ -43,11 +43,9 @@ g2g_create_deck_ppt <- function(title, subtitle) {
 #' @export
 g2g_add_text_slide <- function(doc, title, text_body) {
 
-  text <- officer::fpar(officer::ftext(text_body, officer::fp_text(font.family = "Segoe UI", color = "Black", font.size = 16)))
-
-  doc <- officer::add_slide(doc, "Large Object", 'TNTP Template 2013')
-  doc <- officer::ph_with(doc, value = title, location = officer::ph_location_type(type = "title"))
-  doc <- officer::ph_with(doc, value = text, location = officer::ph_location_type(type = "body"))
+  doc <- officer::add_slide(doc, "10_1/3 Solid Color Section D", 'Office Theme')
+  doc <- officer::ph_with(doc, value = title, location = officer::ph_location_label(ph_label = "Text Placeholder 5"))
+  doc <- officer::ph_with(doc, value = text_body, location = officer::ph_location_label(ph_label = "Text Placeholder 7"))
 
   return(doc)
 
@@ -78,7 +76,7 @@ g2g_add_viz_ppt <- function(doc, slide_plot, slide_header, plt_width = 9.5, plt_
   if (!vector_plt %in% c(TRUE, FALSE)) stop("`vector_plt` must be either TRUE or FALSE", call. = FALSE)
 
   # create new slide with default template
-  doc <- officer::add_slide(doc, "Title Only", 'TNTP Template 2013')
+  doc <- officer::add_slide(doc, "Black Bar on Top", 'Office Theme')
 
   # determine width so that plot is centered
   s_s <- officer::slide_size(doc)
@@ -121,7 +119,7 @@ g2g_add_viz_ppt <- function(doc, slide_plot, slide_header, plt_width = 9.5, plt_
     text_format <- officer::fpar(
       officer::ftext(
         text_box,
-        officer::fp_text(font.size = 14, bold = TRUE, font.family = "Segoe UI", italic = TRUE, color = "#00A4C7")
+        officer::fp_text(font.size = 14, bold = TRUE, italic = TRUE, color = "#00355F")
       ),
       fp_p = officer::fp_par(text.align = "center")
     )
@@ -193,7 +191,7 @@ g2g_add_table_ppt <- function(doc, .data, slide_header, col_lengths, fontsize = 
   }
 
   # create new slide with default template
-  doc <- officer::add_slide(doc, "Title Only", 'TNTP Template 2013')
+  doc <- officer::add_slide(doc, "Title Only", 'Office Theme')
 
   # determine width so that plot is centered
   s_s <- officer::slide_size(doc)

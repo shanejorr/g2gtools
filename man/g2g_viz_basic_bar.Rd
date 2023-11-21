@@ -40,7 +40,7 @@ above the bar. Defaults to 0, which is the \code{y_var} value.}
 \item{font_face}{The font face of the text numbers that show up in the bars.
 One of "plain", "bold", "italic", "bold.italic". Defaults to "plain"}
 
-\item{...}{Parameters for \code{tntpr::tntp_style()}.}
+\item{...}{Parameters for \code{g2g_plt_theme()}.}
 }
 \description{
 Creates a vertical bar chart. This function can be used as-is, but is primarily used to build

@@ -46,7 +46,7 @@ One of "plain", "bold", "italic", "bold.italic". Defaults to "plain"}
 
 \item{add_vertical_lines}{Boolean, whether to add a vertical line between each fill group. Default is FALSE.}
 
-\item{...}{Parameters for \code{tntpr::tntp_style()}.}
+\item{...}{Parameters for \code{g2g_plt_theme()}.}
 }
 \description{
 Create a vertical bar chart with grouping variables for colors. Groups are dodged.
