@@ -157,9 +157,12 @@ g2g_scale_order <- function(scale_name, reverse_coded = FALSE) {
   num_pos <- if (scale_length == 2) 1 else 2
 
   num_grays <- scale_length - num_pos
-
+  # "#1D4935" "#747473"
+  # "#F1F1EE" "#C7C7C5" "#9E9E9C" "#747473"
   if (!reverse_coded) {
-    pal <- c(green_colors[1:num_pos], gray_colors[(gray_length-(num_grays-1)):gray_length])
+
+    # pal <- c(green_colors[1:num_pos], gray_colors[(gray_length-(num_grays-1)):gray_length])
+    pal <- c(green_colors[1:num_pos], gray_colors[1:num_grays])
 
     final_scale  <- single_scale |>
       purrr::set_names(pal)

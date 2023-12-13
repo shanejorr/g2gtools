@@ -23,6 +23,7 @@ g2g_plt_theme <- function(font_size = 24, ...) {
 
   tntpr::tntp_style(
     base_size = font_size,
+    show_axis_titles = TRUE,
     ...
   ) +
     ggplot2::theme(
@@ -183,7 +184,8 @@ g2g_viz_stacked_bar_percent_horizontal <- function(.data, perc_value_var, questi
     ggplot2::geom_col() +
     ggplot2::geom_text(
       ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), x = text_offset),
-      color = 'white', fontface='bold', size = text_size
+      color = 'white',
+      fontface='bold', size = text_size
     ) +
     ggplot2::scale_fill_manual(values = color_pal, drop = FALSE) +
     ggplot2::scale_x_continuous(labels = scales::percent) +
@@ -193,7 +195,7 @@ g2g_viz_stacked_bar_percent_horizontal <- function(.data, perc_value_var, questi
   if (!is.null(comparison_var)) {
     plt <- plt +
       ggplot2::facet_wrap(ggplot2::vars(.data[[question_var]]),  strip.position = "left", ncol = 1) +
-      ggplot2::scale_y_discrete(position = "right", guide = ggplot2::guide_axis(angle=-90)) +
+      ggplot2::scale_y_discrete(position = "right", guide = ggplot2::guide_axis(angle=-0)) +
       ggplot2::theme(
           strip.text.y.left = ggplot2::element_text(angle=0, hjust = 1, colour = "#444444"),
           axis.title.y = ggplot2::element_blank()
@@ -213,7 +215,7 @@ g2g_viz_stacked_bar_percent_horizontal <- function(.data, perc_value_var, questi
 #'     - as a decimal (.75) - answering with the given response option.
 #' @param x_var The x variable name, as a string. This should be numeric and as a decimal between 0 and 1.
 #'       It represents the percentage of respondents for the given question and response option.
-#' @param y_var The x variable name, as a string. This could be questions or a column signifying
+#' @param y_var The y variable name, as a string. This could be questions or a column signifying
 #'       pre or post training, with a facet added after this function signifying questions.
 #' @param fill_var The variable name, as a string, representing the response scales ('Agree').
 #' @param text_var The variable name, as a string, representing the text to plot over the chart.
@@ -252,7 +254,8 @@ g2g_viz_stacked_bar_percent_vertical <- function(.data, x_var, y_var, fill_var, 
     ggplot2::geom_col() +
     ggplot2::geom_text(
       ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), y = text_location),
-      color = 'white', fontface='bold', size = text_size
+      color = ifelse(.data[[text_var]] > 0.05, "white", "black"),
+      fontface='bold', size = text_size
     ) +
     ggplot2::scale_fill_manual(values = color_pal, drop = FALSE) +
     ggplot2::scale_y_continuous(labels = scales::percent) +
@@ -300,7 +303,8 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns =
     dplyr::mutate(question_stem = dplyr::case_when(
       .data$n <= !!number_questions ~ .data$question_stem,
       dplyr::between(.data[['n']], !!number_questions + 1, !!number_questions * 2) ~ glue::glue("(continued) {.data$question_stem}"),
-      .data$n > !!number_questions *2 ~ glue::glue("(continued)  {.data$question_stem}"),
+      dplyr::between(.data[['n']], (!!number_questions * 2) + 1, !!number_questions * 3) ~ glue::glue("(continued)  {.data$question_stem}"),
+      .data$n > !!number_questions * 3 ~ glue::glue("(continued)   {.data$question_stem}"),
       .default = glue::glue("Failed to count number of questions in question stem for the following stem: {.data$question_stem}")
     )
     ) |>

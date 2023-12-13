@@ -23,7 +23,7 @@ single question and response option ('Agree'), and the aggregate percentage of r
 \item{x_var}{The x variable name, as a string. This should be numeric and as a decimal between 0 and 1.
 It represents the percentage of respondents for the given question and response option.}
 
-\item{y_var}{The x variable name, as a string. This could be questions or a column signifying
+\item{y_var}{The y variable name, as a string. This could be questions or a column signifying
 pre or post training, with a facet added after this function signifying questions.}
 
 \item{fill_var}{The variable name, as a string, representing the response scales ('Agree').}
