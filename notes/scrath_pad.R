@@ -1,37 +1,55 @@
 # This file represents scrath work. Don't assume anything in this file actually works.
 # It is not included in the package build.
-library(tidyverse)
+# library(tidyverse)
+
+googlesheets4::gs4_auth("shane.orr@tntp.org")
+googledrive::drive_auth("shane.orr@tntp.org")
 
 devtools::load_all()
 
-ppt_file <- "~/repos/tntp/g2gtools/inst/extdata/tntp_template_no_slides.pptx"
+pre_teacher_url <- "https://docs.google.com/spreadsheets/d/1_S3tNpAbs3xZViQiQO1BtiKuJTkjEfWx1OLnCRkBO08/edit?resourcekey#gid=523023352"
 
-pptx_layout <- officer::read_pptx(ppt_file) |>
-  officer::layout_properties()
+obs_ela_url <- "https://docs.google.com/spreadsheets/d/1WqHxDzMN4dFadMVWm0_w_ojZ-jKINGsgGwK6RklpqSA/edit?resourcekey#gid=1182466783"
 
-# initialize Power Point
-doc <- g2g_create_deck_ppt("This is the title")
+student_survey_id <- "SV_1ENUpq2oW6SNTIG"
 
-doc <- g2g_add_text_slide(doc, "header title", "Slide text")
+site_name <- "Aldine G2G"
 
-sentences <- c(
-  "The quick brown fox jumps over the lazy dog.",
-  "Tomorrow's weather promises sunshine and mild breezes.",
-  "Reading a good book is a wonderful way to relax.",
-  "Technology is rapidly changing the modern world."
+list_of_tools <- list(
+  list(
+    tool_name = 'Teacher Pre-Training Survey',
+    format = 'Google Forms',
+    address = pre_teacher_url,
+    name_column = "What is your school email address?",
+    only_keep_distinct = FALSE
+  ),
+  list(
+    tool_name = 'ELA Observations',
+    format = 'Google Forms',
+    address = obs_ela_url,
+    name_column = "Teacher's Last Name",
+    only_keep_distinct = FALSE
+  ),
+  list(
+    tool_name = 'Student Survey',
+    format = 'Qualtrics',
+    address = student_survey_id,
+    name_column = "teacher_name",
+    only_keep_distinct = TRUE
+  )
 )
 
-df <- data.frame(
-  y = c(10, 15, 7, 11),
-  x = sentences
-)
+# googledrive::drive_trash(glue::glue("{site_name} response dashboard"))
+# Last Update: 2024-01-03 15:03 EST
+# dashboard_title <- glue::glue("{site_name} response dashboard")
+#
+# found_sheets <- googlesheets4::gs4_find(dashboard_title)
+# sheet <- googlesheets4::gs4_get(found_sheets)
+# sheet$spreadsheet_url
+#
+# my_sheet <- googlesheets4::gs4_get(glue::glue("{site_name} response dashboard"))
+create_googlesheet_of_responses(list_of_tools, site_name)
 
-plt <- g2g_viz_basic_bar(df, 'x', 'y', 'y', text_offset = -.15, fill_color = 'gray', text_color = 'black', text_size = 4.21, font_face = "plain") +
-  coord_flip()
-
-doc <- g2g_add_viz_ppt(
-  doc, plt, "This is the header",
-  plt_width = 9,
-  plt_height = 5, notes_text = 'Random notes', text_box = "Here is some random text", vector_plt = FALSE)
-
-print(doc, 'a.pptx')
+# https://docs.google.com/spreadsheets/d/1hAEzOjQOYFqEqSq4IqO6xR-LMx7TUqxIi5WyDZqc_6k/edit#gid=2032117741
+# https://docs.google.com/spreadsheets/d/1hAEzOjQOYFqEqSq4IqO6xR-LMx7TUqxIi5WyDZqc_6k/edit#gid=2032117741
+# https://docs.google.com/spreadsheets/d/1hAEzOjQOYFqEqSq4IqO6xR-LMx7TUqxIi5WyDZqc_6k/edit#gid=2032117741

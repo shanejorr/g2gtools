@@ -35,7 +35,8 @@ Imports:
     here,
     DBI,
     cli,
-    tntpr
+    tntpr,
+    qualtRics
 Remotes: 
   github::adamMaier/tntpmetrics,
   github::tntp/tntpr
