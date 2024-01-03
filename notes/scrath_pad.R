@@ -7,6 +7,8 @@ googledrive::drive_auth("shane.orr@tntp.org")
 
 devtools::load_all()
 
+folder_url <- "https://drive.google.com/drive/u/1/folders/1tIHj_VVo3q9q1EHJnoc-gdWr58KdVSJt"
+
 pre_teacher_url <- "https://docs.google.com/spreadsheets/d/1_S3tNpAbs3xZViQiQO1BtiKuJTkjEfWx1OLnCRkBO08/edit?resourcekey#gid=523023352"
 
 obs_ela_url <- "https://docs.google.com/spreadsheets/d/1WqHxDzMN4dFadMVWm0_w_ojZ-jKINGsgGwK6RklpqSA/edit?resourcekey#gid=1182466783"
@@ -39,13 +41,35 @@ list_of_tools <- list(
   )
 )
 
-# googledrive::drive_trash(glue::glue("{site_name} response dashboard"))
-# Last Update: 2024-01-03 15:03 EST
-# dashboard_title <- glue::glue("{site_name} response dashboard")
+create_googlesheet_of_responses(list_of_tools, site_name, folder_url)
+
+
+folder_id <- googledrive::as_id("https://drive.google.com/drive/u/1/folders/1tIHj_VVo3q9q1EHJnoc-gdWr58KdVSJt")
+
+folder_id <- googledrive::as_id("https://drive.google.com/drive/u/1/folders/1tIHj_VVo3q9q1EHJnoc-gdWr58K")
+
+b <- tryCatch({
+  # Code that might cause an error
+  googledrive::drive_ls(path = folder_id, pattern = dashboard_title)
+},
+error = function(e) {
+  # Code to run in case of an error
+  stop("Could not find the folder specified in `folder_url`.", call. = FALSE)
+}
+)
+
+googledrive::drive_ls(path = folder_id, pattern = dashboard_title)
+
+dashboard_title <- glue::glue("{site_name} response dashboard")
+
+sheet <- googlesheets4::gs4_create(dashboard_title, sheets = 'Total Responses')
+
+googledrive::drive_mv(file = sheet, path = folder_id, name = dashboard_title, overwrite = TRUE)
+
 #
-# found_sheets <- googlesheets4::gs4_find(dashboard_title)
-# sheet <- googlesheets4::gs4_get(found_sheets)
-# sheet$spreadsheet_url
+found_sheets <- googlesheets4::gs4_find(dashboard_title)
+sheet <- googlesheets4::gs4_get(found_sheets)
+sheet$spreadsheet_url
 #
 # my_sheet <- googlesheets4::gs4_get(glue::glue("{site_name} response dashboard"))
 create_googlesheet_of_responses(list_of_tools, site_name)

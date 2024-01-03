@@ -4,7 +4,7 @@
 \alias{create_googlesheet_of_responses}
 \title{Create dashboard on Google Sheets with responses}
 \usage{
-create_googlesheet_of_responses(list_of_tools, site_name)
+create_googlesheet_of_responses(list_of_tools, site_name, folder_url)
 }
 \arguments{
 \item{list_of_tools}{A list of all data tools. Each element in the list is a
@@ -32,6 +32,9 @@ name_column = "teacher_name"
 
 \item{site_name}{Name of site, as string. Added to sheet title and introductory
 line of the first sheet in the dashboard.}
+
+\item{folder_url}{URL, as a string, of the folder where you want to place the dashboard.
+Folder must already be created.}
 }
 \value{
 Displays dashboard in browser for checking. returns \code{NULL}.

@@ -4,7 +4,7 @@
 \alias{create_or_return_sheet}
 \title{Return a Google Sheet or create a new one based on the Sheet's title}
 \usage{
-create_or_return_sheet(dashboard_title)
+create_or_return_sheet(dashboard_title, folder_id)
 }
 \value{
 Google Sheet that can be edited.

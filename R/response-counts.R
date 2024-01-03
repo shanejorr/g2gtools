@@ -117,9 +117,19 @@ total_responses <- function(teacher_responses) {
 #' @returns Google Sheet that can be edited.
 #'
 #' @keywords internal
-create_or_return_sheet <- function(dashboard_title) {
+create_or_return_sheet <- function(dashboard_title, folder_id) {
 
-  found_sheets <- googlesheets4::gs4_find(dashboard_title)
+  # look for the specified folder and return informative error if it doesn't exist
+  found_sheets <- tryCatch({
+    # Code that might cause an error
+    googledrive::drive_ls(path = folder_id, pattern = dashboard_title)
+  },
+    error = function(e) {
+      # Code to run in case of an error
+      stop("Could not find the folder specified in `folder_url`.", call. = FALSE)
+  }
+  )
+
   n_sheets_found <- nrow(found_sheets)
 
   if (n_sheets_found > 1) {
@@ -133,6 +143,12 @@ create_or_return_sheet <- function(dashboard_title) {
   } else if (n_sheets_found == 0) {
 
     sheet <- googlesheets4::gs4_create(dashboard_title, sheets = 'Total Responses')
+
+    # move sheet to proper folder
+    googledrive::drive_mv(file = sheet, path = folder_id, name = dashboard_title, overwrite = TRUE)
+
+    # need to pull in sheet with this function to get URL
+    sheet <- googlesheets4::gs4_get(sheet)
 
   } else {
 
@@ -179,21 +195,27 @@ create_or_return_sheet <- function(dashboard_title) {
 #'        )
 #' @param site_name Name of site, as string. Added to sheet title and introductory
 #'       line of the first sheet in the dashboard.
+#' @param folder_url URL, as a string, of the folder where you want to place the dashboard.
+#'       Folder must already be created.
 #'
 #' @returns Displays dashboard in browser for checking. returns `NULL`.
 #'
 #' @export
-create_googlesheet_of_responses <- function(list_of_tools, site_name) {
+create_googlesheet_of_responses <- function(list_of_tools, site_name, folder_url) {
 
   # initialize sheet -------------------------
   # do this before pulling in the data so that if there is an issue, we haven't
   # wasted time pulling in the data
 
+  folder_id <- googledrive::as_id(folder_url)
+
   dashboard_title <- glue::glue("{site_name} response dashboard")
 
   cli::cli_alert_info("Checking if dashboard already exists...")
 
-  sheet <- create_or_return_sheet(dashboard_title)
+  suppressMessages(
+    sheet <- create_or_return_sheet(dashboard_title, folder_id)
+  )
 
   # get data frame of all respondents and calculate overall responses -------
 
