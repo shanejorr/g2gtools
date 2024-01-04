@@ -1,3 +1,46 @@
+#' Convert a data frame of parameters for a single site into a list
+#'
+#' Converts a data frame into a list of parameters for a single site that can be used by
+#' functions to create response dashboards.
+#'
+#' @param single_df_parameters Data frame with parameters for a single site.
+#'      Must include the following columns: "site_name", "tool_name", "format",
+#'      "address", "name_column", "only_keep_distinct", "folder_url"
+#'
+#' @returns A list where each row is an element in the list, names are column names,
+#'      and values are the values in the column for the given row.
+#'
+#' @keywords internal
+convert_df_to_list_single_site <- function(single_df_parameters) {
+
+  # ensure all columns are present
+  required_cols <- c("site_name", "tool_name", "format", "address", "name_column", "only_keep_distinct", "folder_url")
+  df_cols <- colnames(single_df_parameters)
+  has_required_cols <- length(setdiff(required_cols, df_cols))
+
+  if (has_required_cols != 0) cli::cli_abort("Your data frame of parameters does not have all the required columns. It must contains the following columns: {required_cols}")
+
+  site_name <- unique(single_df_parameters$site_name)
+  folder_url <- unique(single_df_parameters$folder_url)
+
+  if (length(folder_url) != 1) cli::cli_abort("The site '{site_name}' contains more than one `folder_url` values. All values for `folder_url` must be the same per site.")
+
+  single_list_parameters <- single_df_parameters |>
+    dplyr::select(!dplyr::all_of(c('site_name', 'folder_url'))) |>
+    as.list() |>
+    purrr::list_transpose()
+
+  single_list_parameters <- list(
+    site_name = site_name,
+    folder_url = folder_url,
+    tools = single_list_parameters
+  )
+
+  return(single_list_parameters)
+
+}
+
+
 #' Create data frame of responses for a single tool
 #'
 #' Returns a data frame where each row is a response. Columns are the name of the
@@ -134,21 +177,25 @@ create_or_return_sheet <- function(dashboard_title, folder_id) {
 
   if (n_sheets_found > 1) {
 
-    stop(glue::glue("There is more than one sheet already existing with the name {dashboard_title}. Please correct this."), call. = FALSE)
+    cli::cli_abort("There is more than one sheet already existing with the name {dashboard_title}. Please correct this.")
 
   } else if (n_sheets_found == 1) {
 
     sheet <- googlesheets4::gs4_get(found_sheets)
 
+    cli::cli_alert_success("{.field {dashboard_title}} already exists. Writing over it.")
+
   } else if (n_sheets_found == 0) {
 
     sheet <- googlesheets4::gs4_create(dashboard_title, sheets = 'Total Responses')
 
-    # move sheet to proper folder
-    googledrive::drive_mv(file = sheet, path = folder_id, name = dashboard_title, overwrite = TRUE)
+    suppressMessages({
+      # move sheet to proper folder
+      googledrive::drive_mv(file = sheet, path = folder_id, name = dashboard_title, overwrite = TRUE)
 
-    # need to pull in sheet with this function to get URL
-    sheet <- googlesheets4::gs4_get(sheet)
+      # need to pull in sheet with this function to get URL
+      sheet <- googlesheets4::gs4_get(sheet)
+    })
 
   } else {
 
@@ -200,8 +247,8 @@ create_or_return_sheet <- function(dashboard_title, folder_id) {
 #'
 #' @returns Displays dashboard in browser for checking. returns `NULL`.
 #'
-#' @export
-create_googlesheet_of_responses <- function(list_of_tools, site_name, folder_url) {
+#' @keywords internal
+create_googlesheet_of_responses_from_list_single_site <- function(list_of_tools, site_name, folder_url) {
 
   # initialize sheet -------------------------
   # do this before pulling in the data so that if there is an issue, we haven't
@@ -213,9 +260,7 @@ create_googlesheet_of_responses <- function(list_of_tools, site_name, folder_url
 
   cli::cli_alert_info("Checking if dashboard already exists...")
 
-  suppressMessages(
-    sheet <- create_or_return_sheet(dashboard_title, folder_id)
-  )
+  sheet <- create_or_return_sheet(dashboard_title, folder_id)
 
   # get data frame of all respondents and calculate overall responses -------
 
@@ -304,6 +349,53 @@ create_googlesheet_of_responses <- function(list_of_tools, site_name, folder_url
 
   # display sheet in browser to ensure it worked
   googlesheets4::gs4_browse(sheet)
+
+  invisible(NULL)
+
+}
+
+#' Create Google Sheet response dashboard for all sites in parameters data frame
+#'
+#' Create dashboards in Google Sheets with the number of responses for data tools.
+#' Each dashboard contains one sheet with total number of responses for each tool.
+#' Additional sheets are also added that show which teachers responded for each tool.
+#' Overwrites currently existing dashboards with the same name. One dashboard is
+#' created for each unique value in the `site_name` column.
+#'
+#' @param df_of_parameters Data frame with parameters for sites.
+#'      Must include the following columns:
+#'
+#'      - "site_name": String of site name
+#'      - "tool_name":" String of name of tool
+#'      - "format": Format of the tool. Either 'Google Forms' or 'Qualtrics'
+#'      - "address": url to responses Sheet for Google Forms, survey ID for Qualtrics
+#'      - "name_column": Column in the data that contains teacher names
+#'      - "only_keep_distinct": Boolean, whether to only keep distinct teacher names.
+#'           Typically will be TRUE for students surveys, FALSE for others.
+#'      - "folder_url": url to folder on Google Drive where we want the dashboard to live.
+#'           Folder must already be created. The url must be the same for all distinct sites.
+#'
+#' @returns NULL
+#'
+#' @export
+g2g_create_googlesheet_response_dashboards <- function(df_of_parameters) {
+
+  list_of_parameters_all_sites <- df_of_parameters |>
+    dplyr::group_by(.data$site_name) |>
+    dplyr::group_split() |>
+    purrr::map(convert_df_to_list_single_site)
+
+  for (site in list_of_parameters_all_sites) {
+
+    cli::cli_h1(site$site_name)
+
+    create_googlesheet_of_responses_from_list_single_site(
+      list_of_tools = site$tools,
+      site_name = site$site_name,
+      folder_url = site$folder_url
+    )
+
+  }
 
   invisible(NULL)
 
