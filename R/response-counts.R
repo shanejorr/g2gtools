@@ -58,14 +58,16 @@ get_teacher_names_single_tool <- function(single_tool_list) {
 
   if (single_tool_list$format == 'Qualtrics') {
 
-    tool_data <- qualtRics::fetch_survey(single_tool_list$address, time_zone = "America/New_York", verbose = FALSE) |>
+    tool_data <- qualtRics::fetch_survey(single_tool_list$address, col_types = readr::cols(.default = readr::col_character()), verbose = FALSE) |>
       dplyr::filter(.data$Status != "Survey Preview") |>
-      dplyr::rename('response_date' = 'StartDate')
+      dplyr::rename('response_date' = 'StartDate') |>
+      dplyr::mutate(response_date = lubridate::ymd_hms(.data$response_date))
 
   } else if (single_tool_list$format == 'Google Forms') {
 
-    tool_data <- googlesheets4::read_sheet(single_tool_list$address) |>
-      dplyr::rename('response_date' = 'Timestamp')
+    tool_data <- googlesheets4::read_sheet(single_tool_list$address, col_types = 'c') |>
+      dplyr::rename('response_date' = 'Timestamp') |>
+      dplyr::mutate(response_date = lubridate::mdy_hms(.data$response_date))
 
   } else {
     stop("`format` item in list must be either 'Google Forms' or 'Qualtrics'")
@@ -82,6 +84,16 @@ get_teacher_names_single_tool <- function(single_tool_list) {
     tool_data <- tool_data |>
       dplyr::arrange(dplyr::desc(.data$response_date)) |>
       dplyr::distinct(.data$teacher, .keep_all = TRUE)
+
+  }
+
+  # if there are no responses, add a line saying there are no responses
+  # we need to do this so that the tool appears on the individual sheets of tools
+  # and so that it appears on the total responses with a 0
+  if (nrow(tool_data) == 0) {
+
+    tool_data <- tool_data |>
+      dplyr::bind_rows(data.frame(teacher = 'No responses', tool = single_tool_list$tool_name, response_date = lubridate::now()))
 
   }
 
@@ -142,12 +154,20 @@ get_teacher_names_all_tools <- function(list_of_tools) {
 #' @keywords internal
 total_responses <- function(teacher_responses) {
 
-  teacher_responses |>
+  # remove values that signify no responses so they are not included in counts
+  # but make factor first so we can still show these level in overall counts and show 0
+  updated_responses <- teacher_responses |>
+    dplyr::mutate(tool = forcats::as_factor(.data$tool)) |>
+    dplyr::filter(.data$teacher != 'No responses')
+
+  updated_responses |>
     dplyr::summarize(
       n_responses = dplyr::n(),
       most_recent_response = max(.data$response_date),
       .by = 'tool'
-    )
+    ) |>
+    # show 0 for any tool that does not have any responses (does not appear in data)
+    tidyr::complete(.data$tool, fill = list(n_responses = 0))
 
 }
 
