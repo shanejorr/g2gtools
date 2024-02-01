@@ -8,8 +8,6 @@
 [![R-CMD-check](https://github.com/shanejorr/g2gtools/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/shanejorr/g2gtools/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of g2gtools is to …
-
 ## Installation
 
 You can install the development version of g2gtools from
