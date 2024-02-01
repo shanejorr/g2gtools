@@ -67,7 +67,8 @@ get_teacher_names_single_tool <- function(single_tool_list) {
 
     tool_data <- googlesheets4::read_sheet(single_tool_list$address, col_types = 'c') |>
       dplyr::rename('response_date' = 'Timestamp') |>
-      dplyr::mutate(response_date = lubridate::mdy_hms(.data$response_date))
+      dplyr::mutate(response_date = lubridate::mdy_hms(.data$response_date)) |>
+      mutate(across(-response_date, as.character))
 
   } else {
     stop("`format` item in list must be either 'Google Forms' or 'Qualtrics'")

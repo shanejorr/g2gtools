@@ -108,7 +108,7 @@ g2g_number_times_teacher_answered <- function(.data) {
 g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap, pre_post_comparison = NULL, scales_to_use = NULL, reverse_coded = FALSE, ...) {
 
   # make sure we have the required column names
-  required_columns <- c('response', 'response_option', '.percent', 'question_stem', 'term')
+  required_columns <- c('response', 'response_option', '.percent', 'question_stem', pre_post_comparison)
 
   g2g_check_required_columns(.data, required_columns)
 
