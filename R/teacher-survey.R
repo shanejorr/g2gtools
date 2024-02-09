@@ -126,9 +126,17 @@ g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap, pre_
 
   plt_title <- stringr::str_wrap(unique(.data[['question_stem']]), title_wrap)
 
+  # find the positive scales; if scale is only two items then its the first
+  # otherwise it is the first two
+  if (length(scales_to_use) == 2) {
+    positive_scales <- scales_to_use[1]
+  } else {
+    positive_scales <- scales_to_use[c(2,1)]
+  }
+
   plt <- .data |>
     # aggregate positive responses for plotting
-    g2g_aggregate_positive_responses(scales_to_use[c(2,1)], pre_post_comparison, only_keep_first_response = TRUE) |>
+    g2g_aggregate_positive_responses(positive_scales, pre_post_comparison, only_keep_first_response = TRUE) |>
     dplyr::mutate(
       response_option = stringr::str_wrap(.data[['response_option']], response_wrap),
       response_option = tidyr::replace_na(.data[['response_option']], ' '),

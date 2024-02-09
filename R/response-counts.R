@@ -47,7 +47,7 @@ convert_df_to_list_single_site <- function(single_df_parameters) {
 #' respondent and the name of the tool.
 #'
 #' @keywords internal
-get_teacher_names_single_tool <- function(single_tool_list) {
+g2g_get_teacher_names_single_tool <- function(single_tool_list) {
 
   # make sure the list has all the proper items
   list_names <- sort(names(single_tool_list))
@@ -68,7 +68,7 @@ get_teacher_names_single_tool <- function(single_tool_list) {
     tool_data <- googlesheets4::read_sheet(single_tool_list$address, col_types = 'c') |>
       dplyr::rename('response_date' = 'Timestamp') |>
       dplyr::mutate(response_date = lubridate::mdy_hms(.data$response_date)) |>
-      mutate(across(-response_date, as.character))
+      dplyr::mutate(dplyr::across(-.data$response_date, as.character))
 
   } else {
     stop("`format` item in list must be either 'Google Forms' or 'Qualtrics'")
@@ -137,9 +137,9 @@ get_teacher_names_single_tool <- function(single_tool_list) {
 #'       the teacher respondent name and the tool.
 #'
 #' @keywords internal
-get_teacher_names_all_tools <- function(list_of_tools) {
+g2g_get_teacher_names_all_tools <- function(list_of_tools) {
 
-  purrr::map(list_of_tools, get_teacher_names_single_tool) |>
+  purrr::map(list_of_tools, g2g_get_teacher_names_single_tool) |>
     purrr::list_rbind()
 
 }
@@ -149,11 +149,11 @@ get_teacher_names_all_tools <- function(list_of_tools) {
 #' Return data frame with the total number of responses for all tools. Data frame
 #' also has a column showing the date / time of the most recent response
 #'
-#' @param teacher_responses A data frame created with `get_teacher_names_all_tools()`
+#' @param teacher_responses A data frame created with `g2g_get_teacher_names_all_tools()`
 #'      listing the tool and all teachers who have entries with the tool.
 #'
 #' @keywords internal
-total_responses <- function(teacher_responses) {
+g2g_total_responses <- function(teacher_responses) {
 
   # remove values that signify no responses so they are not included in counts
   # but make factor first so we can still show these level in overall counts and show 0
@@ -181,7 +181,7 @@ total_responses <- function(teacher_responses) {
 #' @returns Google Sheet that can be edited.
 #'
 #' @keywords internal
-create_or_return_sheet <- function(dashboard_title, folder_id) {
+g2g_create_or_return_sheet <- function(dashboard_title, folder_id) {
 
   # look for the specified folder and return informative error if it doesn't exist
   found_sheets <- tryCatch({
@@ -269,7 +269,7 @@ create_or_return_sheet <- function(dashboard_title, folder_id) {
 #' @returns Displays dashboard in browser for checking. returns `NULL`.
 #'
 #' @keywords internal
-create_googlesheet_of_responses_from_list_single_site <- function(list_of_tools, site_name, folder_url) {
+g2g_create_googlesheet_of_responses_from_list_single_site <- function(list_of_tools, site_name, folder_url) {
 
   # initialize sheet -------------------------
   # do this before pulling in the data so that if there is an issue, we haven't
@@ -281,7 +281,7 @@ create_googlesheet_of_responses_from_list_single_site <- function(list_of_tools,
 
   cli::cli_alert_info("Checking if dashboard already exists...")
 
-  sheet <- create_or_return_sheet(dashboard_title, folder_id)
+  sheet <- g2g_create_or_return_sheet(dashboard_title, folder_id)
 
   # get data frame of all respondents and calculate overall responses -------
 
@@ -292,11 +292,11 @@ create_googlesheet_of_responses_from_list_single_site <- function(list_of_tools,
 
   # suppress Google Sheets and Qualtrics messages about data imports
   suppressMessages(
-    all_teacher_names <- get_teacher_names_all_tools(list_of_tools)
+    all_teacher_names <- g2g_get_teacher_names_all_tools(list_of_tools)
   )
   # calculate overall number of responses for each data tool
   # will be displayed in first sheet of dashboard
-  number_of_responses <- total_responses(all_teacher_names) |>
+  number_of_responses <- g2g_total_responses(all_teacher_names) |>
     dplyr::rename('Data Tool' = 'tool', 'Number Responses' = 'n_responses', 'Most Recent Response' = 'most_recent_response')
 
   # will iterate through all unique tools when making sheets of each tool
@@ -410,7 +410,7 @@ g2g_create_googlesheet_response_dashboards <- function(df_of_parameters) {
 
     cli::cli_h1(site$site_name)
 
-    create_googlesheet_of_responses_from_list_single_site(
+    g2g_create_googlesheet_of_responses_from_list_single_site(
       list_of_tools = site$tools,
       site_name = site$site_name,
       folder_url = site$folder_url

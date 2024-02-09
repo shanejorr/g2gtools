@@ -37,7 +37,8 @@ Imports:
     cli,
     tntpr,
     qualtRics,
-    googledrive
+    googledrive,
+    readr
 Remotes: 
   github::adamMaier/tntpmetrics,
   github::tntp/tntpr
