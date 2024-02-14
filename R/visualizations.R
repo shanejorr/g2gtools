@@ -9,10 +9,14 @@
 #' @export
 g2g_plt_theme <- function(font_size = 24, ...) {
 
-  halyard_fonts <- c("Halyard Display", "Halyard Display Bold", "Halyard Display Italic", "Halyard Display Bold Italic")
+  if (.Platform$OS.type == "unix") {
 
-  if (!("Halyard Display" %in% names(grDevices::quartzFonts()) && .Platform$OS.type == "unix")) {
-    grDevices::quartzFonts(`Halyard Display` = grDevices::quartzFont(halyard_fonts))
+    halyard_fonts <- c("Halyard Display", "Halyard Display Bold", "Halyard Display Italic", "Halyard Display Bold Italic")
+
+    if (!("Halyard Display" %in% names(grDevices::quartzFonts()))) {
+
+      grDevices::quartzFonts(`Halyard Display` = grDevices::quartzFont(halyard_fonts))
+    }
   }
 
   # reduce title font size a bit
