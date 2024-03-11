@@ -105,8 +105,8 @@ g2g_db_add_teacher_survey <- function(con, .data) {
 
   if (!cols_equal) cli::cli_abort("Your column names are incorrect. Please ensure you have all required columns, and no more.")
 
-  # timing should only be one of three values
-  term_values <- c('Pre-Training', 'Post-Training', 'Follow-Up')
+  # timing should only be one of these values
+  term_values <- c('Pre-Training', 'Post-Training', "Mid-Training", 'Follow-Up')
 
   actual_values <- unique(.data$term)
 

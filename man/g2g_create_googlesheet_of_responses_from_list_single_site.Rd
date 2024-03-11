@@ -7,7 +7,8 @@
 g2g_create_googlesheet_of_responses_from_list_single_site(
   list_of_tools,
   site_name,
-  folder_url
+  folder_url,
+  add_note_at_bottom = NULL
 )
 }
 \arguments{
@@ -39,6 +40,10 @@ line of the first sheet in the dashboard.}
 
 \item{folder_url}{URL, as a string, of the folder where you want to place the dashboard.
 Folder must already be created.}
+
+\item{add_note_at_bottom}{String, representing a note you want to add below the dashboard. For example, you might add:
+"*Note: The number of responses for the student survey represent the number of teachers who have administered the survey."
+Defaults to NULL, meaning no note will be added}
 }
 \value{
 Displays dashboard in browser for checking. returns \code{NULL}.

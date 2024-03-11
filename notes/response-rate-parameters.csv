@@ -1,8 +1,3 @@
-﻿site_name,tool_name,format,address,name_column,only_keep_distinct,folder_url
-Aldine G2G,Teacher Pre-Training Survey,Google Forms,https://docs.google.com/spreadsheets/d/1_S3tNpAbs3xZViQiQO1BtiKuJTkjEfWx1OLnCRkBO08/edit?resourcekey#gid=523023352,What is your school email address?,FALSE,https://drive.google.com/drive/u/1/folders/1tIHj_VVo3q9q1EHJnoc-gdWr58KdVSJt
-Aldine G2G,ELA Observations,Google Forms,https://docs.google.com/spreadsheets/d/1WqHxDzMN4dFadMVWm0_w_ojZ-jKINGsgGwK6RklpqSA/edit?resourcekey#gid=1182466783,Teacher's Last Name,FALSE,https://drive.google.com/drive/u/1/folders/1tIHj_VVo3q9q1EHJnoc-gdWr58KdVSJt
-Aldine G2G,Student Survey,Qualtrics,SV_1ENUpq2oW6SNTIG,teacher_name,TRUE,https://drive.google.com/drive/u/1/folders/1tIHj_VVo3q9q1EHJnoc-gdWr58KdVSJt
-Redesign G2G,Teacher Pre-Training Survey,Google Forms,https://docs.google.com/spreadsheets/d/1uWqD7etQrj_KQJ8lYpuiB3lEBC7PQm_4S342Hh-_u0M/edit#gid=1610035484,What is your school email address?,FALSE,https://drive.google.com/drive/u/1/folders/1UD3pREbBHXO9gW11p-jpamNx5fvybitL
-Redesign G2G,Teacher Post-Training Survey,Google Forms,https://docs.google.com/spreadsheets/d/1Pz2Aq5Ljx4x-iTyRLdWp0EVUnRtWXsVqeftxkxgILNY/edit?resourcekey#gid=396244635,What is your school email address?,FALSE,https://drive.google.com/drive/u/1/folders/1UD3pREbBHXO9gW11p-jpamNx5fvybitL
-Redesign G2G,ELA Observations,Google Forms,https://docs.google.com/spreadsheets/d/1KGEFdjceO0HxGb--Mb0dAGQz7PayRAPDOdbO6-BNVvE/edit?resourcekey#gid=351190031,Teacher's Last Name,FALSE,https://drive.google.com/drive/u/1/folders/1UD3pREbBHXO9gW11p-jpamNx5fvybitL
-Redesign G2G,Student Survey,Qualtrics,SV_bBZNvyZpUsmC2BE,teacher_name,TRUE,https://drive.google.com/drive/u/1/folders/1UD3pREbBHXO9gW11p-jpamNx5fvybitL
+site_name,tool_name,format,address,name_column,only_keep_distinct,folder_url,filter_column,filter_value,time_filter
+Cleveland,Teacher Survey,Google Forms,https://docs.google.com/spreadsheets/d/1z8fkiC77roE7MqeiA4XOUiFgeiLza1BGtL7zV1mZM2Q/edit#gid=89856682,What is your school email address?,FALSE,https://drive.google.com/drive/folders/1PBKPTpWKhfm_Co0PRBVPS1IosFfSaYcn,Which district do you work in?,Cleveland ISD,2024-04-01
+Cleveland,Student Survey,Qualtrics,SV_4OAuZmPxUbeZL26,,FALSE,https://drive.google.com/drive/folders/1PBKPTpWKhfm_Co0PRBVPS1IosFfSaYcn,,,

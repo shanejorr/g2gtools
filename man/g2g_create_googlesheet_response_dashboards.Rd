@@ -4,7 +4,10 @@
 \alias{g2g_create_googlesheet_response_dashboards}
 \title{Create Google Sheet response dashboard for all sites in parameters data frame}
 \usage{
-g2g_create_googlesheet_response_dashboards(df_of_parameters)
+g2g_create_googlesheet_response_dashboards(
+  df_of_parameters,
+  add_note_at_bottom = NULL
+)
 }
 \arguments{
 \item{df_of_parameters}{Data frame with parameters for sites.
@@ -20,6 +23,10 @@ Must include the following columns:
  - "folder_url": url to folder on Google Drive where we want the dashboard to live.
       Folder must already be created. The url must be the same for all distinct sites.
 }\if{html}{\out{</div>}}}
+
+\item{add_note_at_bottom}{String, representing a note you want to add below the dashboard. For example, you might add:
+"*Note: The number of responses for the student survey represent the number of teachers who have administered the survey."
+Defaults to NULL, meaning no note will be added}
 }
 \description{
 Create dashboards in Google Sheets with the number of responses for data tools.

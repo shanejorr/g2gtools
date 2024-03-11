@@ -40,6 +40,7 @@ g2g_tidy_forms_survey <- function(.data, question_columns, grouping_columns = NU
   message("\nPlease ensure this is correct.\nThis is not an error. Just a manual check :)")
 
   tidy_survey_results <- .data |>
+    dplyr::ungroup() |>
     # add a column that uniquely identifies each respondent
     # needed so when we convert to long form we can still identify individual respondents
     dplyr::mutate(.id = dplyr::row_number()) |>

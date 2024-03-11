@@ -2,40 +2,28 @@ library(tidyverse)
 
 devtools::load_all()
 
-teacher_pre <- teacher_pre_survey |>
-  g2g_tidy_forms_survey(8:30, 3) |>
-  mutate(assessment = 'Pre-training')
+googlesheets4::gs4_auth("shane.orr@tntp.org")
+googledrive::drive_auth("shane.orr@tntp.org")
 
-teacher_post <- teacher_pre_survey |>
-  g2g_tidy_forms_survey(8:30, 3) |>
-  mutate(assessment = 'Post-training')
+df_of_parameters <- readr::read_csv('notes/response-rate-parameters.csv'
+                                    #, col_types = cols(time_filter = col_date(format = "%m/%d/%Y"))
+  )
 
-results <- bind_rows(teacher_pre, teacher_post) |>
-  g2g_forms_survey_calc_percentages('assessment')
+g2g_create_googlesheet_response_dashboards(df_of_parameters, add_note_at_bottom = 'TEST')
 
-## work with a single stem ----------------------
+as.Date(df_of_parameters$time_filter[1])
 
-unique_stems <- unique(teacher$question_stem)
+# filter by time
 
-stem <- unique_stems[4]
+teacher_survey <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1z8fkiC77roE7MqeiA4XOUiFgeiLza1BGtL7zV1mZM2Q/edit#gid=89856682", col_types = 'c')
 
-single_stem <- results |>
-  filter(question_stem == !!stem)
+date <- "2024-04-01"
 
-# find the scale and hex color codes, but you need to flip the values and names for plots
-scales_to_use <- g2g_find_scale(single_stem$response)
-hex_colors <- names(scales_to_use) |> set_names(scales_to_use)
+is_date('sdf')
 
-single_stem_clean <- single_stem |>
-  g2g_aggregate_positive_responses(scales_to_use[c(2, 1)], 'assessment', TRUE) |>
-  mutate(response = factor(response, levels = rev(scales_to_use)))
+as.Date('dsf')
 
-
-# visualization ----------------
-
-question_name <- unique(single_stem_clean$question_stem)
-
-g2g_viz_stacked_bar_percent(single_stem_clean, '.percent', 'assessment', 'response', '.strong_response_percent', hex_colors) +
-  facet_wrap(vars(response_option), ncol = 1)
-
-
+teacher_survey1 <- teacher_survey |>
+  dplyr::rename('response_date' = 'Timestamp') |>
+  dplyr::mutate(response_date = lubridate::mdy_hms(.data$response_date)) |>
+  dplyr::filter(.data[['response_date']] > as.Date("2023-04-01"))

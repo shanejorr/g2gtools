@@ -126,7 +126,7 @@ g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap, pre_
 
   plt_title <- stringr::str_wrap(unique(.data[['question_stem']]), title_wrap)
 
-  # find the positive scales; if scale is only two items then its the first
+  # find the positive scales; if scale is only two or 3 items then its the first
   # otherwise it is the first two
   if (length(scales_to_use) == 2) {
     positive_scales <- scales_to_use[1]

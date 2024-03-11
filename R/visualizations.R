@@ -68,6 +68,7 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fi
 
   ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]])) +
     ggplot2::geom_col(fill = fill_color) +
+    ggplot2::scale_x_discrete(drop=FALSE) +
     ggplot2::geom_text(
       ggplot2::aes(label = .data[[text_var]], y = .data[[y_var]] + text_offset),
       color = text_color, size = text_size, fontface = font_face, family = "sans"

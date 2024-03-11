@@ -14,7 +14,7 @@
 convert_df_to_list_single_site <- function(single_df_parameters) {
 
   # ensure all columns are present
-  required_cols <- c("site_name", "tool_name", "format", "address", "name_column", "only_keep_distinct", "folder_url")
+  required_cols <- c("site_name", "tool_name", "format", "address", "name_column", "only_keep_distinct", "folder_url", "filter_column", "filter_value", "time_filter")
   df_cols <- colnames(single_df_parameters)
   has_required_cols <- length(setdiff(required_cols, df_cols))
 
@@ -52,7 +52,7 @@ g2g_get_teacher_names_single_tool <- function(single_tool_list) {
   # make sure the list has all the proper items
   list_names <- sort(names(single_tool_list))
 
-  required_list_names <- sort(c("tool_name", "format", "address", "name_column", "only_keep_distinct"))
+  required_list_names <- sort(c("tool_name", "format", "address", "name_column", "only_keep_distinct", "filter_column", "filter_value", "time_filter"))
 
   if (!all(required_list_names == list_names)) stop(stringr::str_c("Your list does not contain all the properly named elements. It should contain: '", stringr::str_flatten_comma(required_list_names), "'."))
 
@@ -61,17 +61,48 @@ g2g_get_teacher_names_single_tool <- function(single_tool_list) {
     tool_data <- qualtRics::fetch_survey(single_tool_list$address, col_types = readr::cols(.default = readr::col_character()), verbose = FALSE) |>
       dplyr::filter(.data$Status != "Survey Preview") |>
       dplyr::rename('response_date' = 'StartDate') |>
-      dplyr::mutate(response_date = lubridate::ymd_hms(.data$response_date))
+      dplyr::mutate(response_date = lubridate::ymd_hms(.data$response_date)) |>
+      dplyr::arrange(.data$response_date)
 
   } else if (single_tool_list$format == 'Google Forms') {
 
     tool_data <- googlesheets4::read_sheet(single_tool_list$address, col_types = 'c') |>
       dplyr::rename('response_date' = 'Timestamp') |>
       dplyr::mutate(response_date = lubridate::mdy_hms(.data$response_date)) |>
-      dplyr::mutate(dplyr::across(-.data$response_date, as.character))
+      dplyr::mutate(dplyr::across(-.data$response_date, as.character)) |>
+      dplyr::arrange(.data$response_date)
 
   } else {
     stop("`format` item in list must be either 'Google Forms' or 'Qualtrics'")
+  }
+
+  # if there is no name_column then create the column in the data set and
+  # make the values be "response [row number]"
+  if (is.na(single_tool_list$name_column)) {
+
+    tool_data$teacher <- glue::glue("Response {seq(1, nrow(tool_data))}")
+    single_tool_list$name_column <- 'teacher'
+
+  }
+
+  # if there is a value in the filter_column cell then filter for the value in the filter_value cell
+  if (!is.na(single_tool_list$filter_column)) {
+
+    tool_data <- tool_data |>
+      dplyr::filter(.data[[single_tool_list$filter_column]] == !!single_tool_list$filter_value)
+
+  }
+
+  # if there is a value in the time_filter cell then filter for dates after the day in the cell
+  if (!is.na(single_tool_list$time_filter)) {
+
+    # ensure the value can be converted to a date and then convert
+    is_date(single_tool_list$time_filter)
+    time_filter <- as.Date(single_tool_list$time_filter)
+
+    tool_data <- tool_data |>
+      dplyr::filter(.data[['response_date']] >= !!time_filter)
+
   }
 
   tool_data <- tool_data |>
@@ -265,11 +296,14 @@ g2g_create_or_return_sheet <- function(dashboard_title, folder_id) {
 #'       line of the first sheet in the dashboard.
 #' @param folder_url URL, as a string, of the folder where you want to place the dashboard.
 #'       Folder must already be created.
+#' @param add_note_at_bottom String, representing a note you want to add below the dashboard. For example, you might add:
+#'      "*Note: The number of responses for the student survey represent the number of teachers who have administered the survey."
+#'      Defaults to NULL, meaning no note will be added
 #'
 #' @returns Displays dashboard in browser for checking. returns `NULL`.
 #'
 #' @keywords internal
-g2g_create_googlesheet_of_responses_from_list_single_site <- function(list_of_tools, site_name, folder_url) {
+g2g_create_googlesheet_of_responses_from_list_single_site <- function(list_of_tools, site_name, folder_url, add_note_at_bottom = NULL) {
 
   # initialize sheet -------------------------
   # do this before pulling in the data so that if there is an issue, we haven't
@@ -331,15 +365,15 @@ g2g_create_googlesheet_of_responses_from_list_single_site <- function(list_of_to
   })
 
   # write note about student survey, if there is a student survey shown
-  if ('Student Survey' %in% unique_tools) {
+  if (!is.null(add_note_at_bottom)) {
 
-    student_survey_text <- data.frame(text = '*Note: The number of responses for the student survey represent the number of teachers who have administered the survey.')
+    text_add <- data.frame(text = add_note_at_bottom)
 
     # text will start one line after the table with the number of results
     starting_position <- 4 + nrow(number_of_responses) + 2
 
     suppressMessages(
-      googlesheets4::range_write(ss = sheet, data = student_survey_text, sheet = 'Total Responses', range = paste0("A", starting_position), col_names = FALSE)
+      googlesheets4::range_write(ss = sheet, data = text_add, sheet = 'Total Responses', range = paste0("A", starting_position), col_names = FALSE)
     )
 
   }
@@ -356,7 +390,17 @@ g2g_create_googlesheet_of_responses_from_list_single_site <- function(list_of_to
     single_tool_teacher_names <- all_teacher_names |>
       dplyr::filter(.data$tool == !!single_tool) |>
       dplyr::select(!'tool') |>
-      dplyr::rename('Teacher' = 'teacher', 'Date of response' = 'response_date')
+      dplyr::rename('Date of response' = 'response_date')
+
+    # if all the teacher names contain the word 'Response' then these are not teachers necessarily
+    # therefore, change teacher column name to 'Respondent
+    if (all(stringr::str_detect(single_tool_teacher_names$teacher, "Response"))) {
+      single_tool_teacher_names <- single_tool_teacher_names |>
+        dplyr::rename('Respondent' = 'teacher')
+    } else {
+      single_tool_teacher_names <- single_tool_teacher_names |>
+        dplyr::rename('Teacher' = 'teacher')
+    }
 
     suppressMessages({
       googlesheets4::sheet_write(single_tool_teacher_names, ss = sheet, sheet = single_tool)
@@ -395,11 +439,14 @@ g2g_create_googlesheet_of_responses_from_list_single_site <- function(list_of_to
 #'           Typically will be TRUE for students surveys, FALSE for others.
 #'      - "folder_url": url to folder on Google Drive where we want the dashboard to live.
 #'           Folder must already be created. The url must be the same for all distinct sites.
+#' @param add_note_at_bottom String, representing a note you want to add below the dashboard. For example, you might add:
+#'      "*Note: The number of responses for the student survey represent the number of teachers who have administered the survey."
+#'      Defaults to NULL, meaning no note will be added
 #'
 #' @returns NULL
 #'
 #' @export
-g2g_create_googlesheet_response_dashboards <- function(df_of_parameters) {
+g2g_create_googlesheet_response_dashboards <- function(df_of_parameters, add_note_at_bottom = NULL) {
 
   list_of_parameters_all_sites <- df_of_parameters |>
     dplyr::group_by(.data$site_name) |>
@@ -413,9 +460,36 @@ g2g_create_googlesheet_response_dashboards <- function(df_of_parameters) {
     g2g_create_googlesheet_of_responses_from_list_single_site(
       list_of_tools = site$tools,
       site_name = site$site_name,
-      folder_url = site$folder_url
+      folder_url = site$folder_url,
+      add_note_at_bottom
     )
 
+  }
+
+  invisible(NULL)
+
+}
+
+#' Helper function to make sure value can be converted into a date
+#'
+#' @keywords internal
+is_date <- function(date_string, call = rlang::caller_env()) {
+
+  # Define a function to check if a string can be converted to a date
+  can_be_converted_to_date <- function(date_string) {
+    # Attempt to convert the string to a date
+    result <- tryCatch({
+      as.Date(date_string)
+      TRUE  # Conversion successful
+    }, error = function(e) {
+      FALSE  # Conversion failed
+    })
+
+    return(result)
+  }
+
+  if (!can_be_converted_to_date(date_string)) {
+    cli::cli_abort("Cannot convert `{date_string}` to a date from `df_of_parameters`.", call = call)
   }
 
   invisible(NULL)
