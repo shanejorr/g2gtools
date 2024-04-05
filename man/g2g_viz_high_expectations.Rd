@@ -10,6 +10,7 @@ g2g_viz_high_expectations(
   plots_to_return = "both",
   space_between_plots = 50,
   text_size = 4.21,
+  he_scale = "sum",
   ...
 )
 }
@@ -27,6 +28,11 @@ scores and one with percentages.}
 \item{space_between_plots}{The amount of space,in points ('pt') between plots. Defaults to 40.}
 
 \item{text_size}{The size of the text on the bar chart. Default is 4.21.}
+
+\item{he_scale}{The scale in which high expectations scores were calculated.
+string, either 'sum' or 'average'. 'sum' is when all HE questions for a teacher
+are summed and will fall between 0 and 20. 'average' is when the questions are averaged
+and will fall between 0 and 5. Defaults to 'sum'.}
 
 \item{...}{Parameters for \code{g2g_plt_theme()}.}
 }

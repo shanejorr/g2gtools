@@ -34,7 +34,8 @@ g2g_plt_theme <- function(font_size = 24, ...) {
       legend.position="bottom",
       panel.border = ggplot2::element_rect(colour = "black", fill = NA),
       strip.text = ggplot2::element_text(size = strip_text_size),
-      plot.title = ggplot2::element_text(size = title_font_size)
+      plot.title = ggplot2::element_text(size = title_font_size),
+      plot.caption = ggplot2::element_text(size = 14)
     )
 
 }
@@ -332,6 +333,10 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns =
 #'      scores and one with percentages.
 #' @param space_between_plots The amount of space,in points ('pt') between plots. Defaults to 40.
 #' @param text_size The size of the text on the bar chart. Default is 4.21.
+#' @param he_scale The scale in which high expectations scores were calculated.
+#'          string, either 'sum' or 'average'. 'sum' is when all HE questions for a teacher
+#'          are summed and will fall between 0 and 20. 'average' is when the questions are averaged
+#'          and will fall between 0 and 5. Defaults to 'sum'.
 #' @param ... Parameters for `g2g_plt_theme()`.
 #'
 #' @returns A single plot containing two bar chart plots.
@@ -339,7 +344,7 @@ g2g_split_question_stems <- function(.data, number_questions, grouping_columns =
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', space_between_plots = 50, text_size = 4.21, ...) {
+g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', space_between_plots = 50, text_size = 4.21, he_scale = 'sum', ...) {
 
   # ensure the two cm columns are present
   col_names <- colnames(.data)
@@ -357,17 +362,23 @@ g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', s
 
   }
 
+  if (!he_scale %in% c('sum', 'average')) stop("`he_scale` must be either 'sum' or 'average'.")
+
+  # set parameters for plots based on scale
+  y_lim <- if (he_scale == 'sum') 20 else 5
+  score_text_space <- if (he_scale == 'sum') -1.35 else -1.35/4
+
   he_perc_fill_color <- if (plots_to_return == 'percentages') tntpr::tntp_colors('dark_green') else tntpr::tntp_colors('moss')
 
   # expectations score
   plt_he_scores <- .data |>
     dplyr::mutate(cm_expectations_text = round(.data[['cm_expectations']], 1)) |>
-    g2g_viz_basic_bar(x_axis, 'cm_expectations', 'cm_expectations_text', - 1.35, text_color = 'white', font_face = "bold", fill_color = tntpr::tntp_colors('dark_green'), text_size = text_size, ...) +
-    ggplot2::ylim(c(0, 20))
+    g2g_viz_basic_bar(x_axis, 'cm_expectations', 'cm_expectations_text', score_text_space, text_color = 'white', font_face = "bold", fill_color = tntpr::tntp_colors('dark_green'), text_size = text_size, ...) +
+    ggplot2::ylim(c(0, y_lim))
 
   plt_he_perc <- .data |>
     dplyr::mutate(cm_binary_expectations_text = scales::percent(.data[['cm_binary_expectations']], accuracy = 1)) |>
-    g2g_viz_basic_bar(x_axis, 'cm_binary_expectations', 'cm_binary_expectations_text', - .075, text_color = 'white', font_face = "bold", fill_color = he_perc_fill_color, text_size = text_size, ...) +
+    g2g_viz_basic_bar(x_axis, 'cm_binary_expectations', 'cm_binary_expectations_text', -.075, text_color = 'white', font_face = "bold", fill_color = he_perc_fill_color, text_size = text_size, ...) +
     ggplot2::scale_y_continuous(labels = scales::percent, limits = c(0, 1))
 
   if (plots_to_return == 'percentages') {
@@ -390,7 +401,7 @@ g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', s
 
     plt_he_scores <- plt_he_scores +
       ggplot2::labs(
-        title = 'Average High Expectations Score\n  ',
+        title = 'Avg. high expectations score',
         x = NULL,
         y = NULL
       ) +
@@ -401,7 +412,7 @@ g2g_viz_high_expectations <- function(.data, x_axis, plots_to_return = 'both', s
 
     plt_he_perc <- plt_he_perc +
       ggplot2::labs(
-        title = "Percentage of Teachers\nWith High Expectations",
+        title = "Percentage of teachers\nwith high expectations",
         x = NULL,
         y = NULL
       ) +
