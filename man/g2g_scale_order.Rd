@@ -35,6 +35,7 @@ Return a vector of scales in the proper order with colors
 \item 'es_high': Extremadamente Altas, Altas, Algo Altas, Un Poco Altas, Nada Altas
 \item 'always_rarely': Always', Often', Sometimes, Rarely or Never
 \item 'all_few': All, Most, Some, Few or None
+\item 'alot_none': 'A Lot, Some, Little, None
 }
 }
 

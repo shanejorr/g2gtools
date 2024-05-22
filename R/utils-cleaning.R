@@ -86,8 +86,8 @@ g2g_list_of_scales <- function() {
     high = c('Extremely High', 'High', 'Somewhat High', 'Slightly High', 'Not High at All'),
     es_high = c("Extremadamente Altas", "Altas", "Algo Altas", "Un Poco Altas", "Nada Altas"),
     always_rarely = c('Always', 'Often', 'Sometimes', 'Rarely or Never'),
-    all_few = c('All', 'Most', 'Some', 'Few or None')
-
+    all_few = c('All', 'Most', 'Some', 'Few or None'),
+    alot_none = c('A Lot', 'Some', 'Little', 'None')
   )
 
 }
@@ -113,6 +113,7 @@ g2g_list_of_scales <- function() {
 #' -  'es_high': Extremadamente Altas, Altas, Algo Altas, Un Poco Altas, Nada Altas
 #' -  'always_rarely': Always', Often', Sometimes, Rarely or Never
 #' -  'all_few': All, Most, Some, Few or None
+#' -  'alot_none': 'A Lot, Some, Little, None
 #'
 #'
 #' @return A a named vector where the values are the scales in the proper order and the names are the
