@@ -4,10 +4,11 @@
 #' Adds check to ensure the 'Halyard Display' font it loaded, and if not loads the font.
 #'
 #' @param font_size The is the `base_size` parameter in `tntpr::tntp_style()`. Defaults to 24.
+#' @param plot_position The is the `plot.title.position` parameter. Defaults to 'plot'. Can also be 'panel'.
 #' @param ... Parameters for `tntpr::tntp_style()`
 #'
 #' @export
-g2g_plt_theme <- function(font_size = 24, ...) {
+g2g_plt_theme <- function(font_size = 24, plot_position = "plot", ...) {
 
   if (.Platform$OS.type == "unix") {
 
@@ -35,11 +36,11 @@ g2g_plt_theme <- function(font_size = 24, ...) {
       panel.border = ggplot2::element_rect(colour = "black", fill = NA),
       strip.text = ggplot2::element_text(size = strip_text_size),
       plot.title = ggplot2::element_text(size = title_font_size),
-      plot.caption = ggplot2::element_text(size = 14)
+      plot.caption = ggplot2::element_text(size = 14),
+      plot.title.position = "plot"
     )
 
 }
-
 
 #' Create a basic vertical bar chart
 #'
@@ -68,7 +69,7 @@ g2g_plt_theme <- function(font_size = 24, ...) {
 g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fill_color = 'gray', text_color = 'black', text_size = 4.21, font_face = "plain", ...) {
 
   ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]])) +
-    ggplot2::geom_col(fill = fill_color) +
+    ggplot2::geom_col(fill = fill_color, show.legend = TRUE) +
     ggplot2::scale_x_discrete(drop=FALSE) +
     ggplot2::geom_text(
       ggplot2::aes(label = .data[[text_var]], y = .data[[y_var]] + text_offset),
@@ -103,7 +104,7 @@ g2g_viz_basic_bar <- function(.data, x_var, y_var, text_var, text_offset = 0, fi
 g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, color_pal, text_offset = 0, text_color = 'black', text_size = 4.21, font_face = "plain", add_vertical_lines = FALSE, ...) {
 
   plt<- ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
-    ggplot2::geom_col(width = .75, position = ggplot2::position_dodge2(width = .75, preserve = "single")) +
+    ggplot2::geom_col(width = .75, show.legend = TRUE, position = ggplot2::position_dodge2(width = .75, preserve = "single")) +
     ggplot2::geom_text(
       ggplot2::aes(label = .data[[text_var]], y = .data[[y_var]] + text_offset, group = .data[[fill_var]]),
       color = text_color, size = text_size, fontface = font_face,
@@ -187,7 +188,7 @@ g2g_viz_stacked_bar_percent_horizontal <- function(.data, perc_value_var, questi
   }
 
   plt <- ggplot2::ggplot(.data, ggplot2::aes(.data[[perc_value_var]], .data[[y_var]], fill = .data[[fill_var]])) +
-    ggplot2::geom_col() +
+    ggplot2::geom_col(show.legend = TRUE) +
     ggplot2::geom_text(
       ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), x = text_offset),
       color = 'white',
@@ -257,7 +258,7 @@ g2g_viz_stacked_bar_percent_vertical <- function(.data, x_var, y_var, fill_var, 
   )
 
   ggplot2::ggplot(.data, ggplot2::aes(.data[[x_var]], .data[[y_var]], fill = .data[[fill_var]])) +
-    ggplot2::geom_col() +
+    ggplot2::geom_col(show.legend = TRUE) +
     ggplot2::geom_text(
       ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), y = text_location),
       color = ifelse(.data[[text_var]] > 0.05, "white", "black"),
@@ -655,7 +656,7 @@ g2g_viz_likert_centered <- function(.data, x_var, y_var, fill_var, color_pal) {
   legend_order <- c(rev(data_and_scales$scales$negative), rev(data_and_scales$scales$positive), data_and_scales$scales$neutral)
 
   plt <- ggplot2::ggplot(df, ggplot2::aes(x = .data[[x_var]], y = .data[[y_var]], fill = .data[[fill_var]])) +
-    ggplot2::geom_col() +
+    ggplot2::geom_col(show.legend = TRUE) +
     ggplot2::scale_fill_manual(
       values = color_pal, drop = FALSE,
       breaks = legend_order,

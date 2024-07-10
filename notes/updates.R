@@ -1,29 +1,50 @@
+# chatgpt
+
+library(httr2)
 library(tidyverse)
+library(jsonlite)
 
-devtools::load_all()
+system_prompt <- function() {
 
-googlesheets4::gs4_auth("shane.orr@tntp.org")
-googledrive::drive_auth("shane.orr@tntp.org")
+  "You are a social science researcher. You specialize in conducting qualitative coding of open-ended survey responses using thematic coding. You create concise and thorough summaries of open-ended survey responses."
 
-df_of_parameters <- readr::read_csv('notes/response-rate-parameters.csv'
-                                    #, col_types = cols(time_filter = col_date(format = "%m/%d/%Y"))
-  )
+}
 
-g2g_create_googlesheet_response_dashboards(df_of_parameters, add_note_at_bottom = 'TEST')
+cat('dsafasd\n', capture.output(write.csv(mtcars, row.names = FALSE)), "\nafsasdf")
 
-as.Date(df_of_parameters$time_filter[1])
+user_prompt <- function(qualitative_responses) {
 
-# filter by time
+  introduction <- "You have been asked to code the following qualitative responses from an open-ended survey. Please provide a concise summary of responses for each question by picking out the key general themes. A key general theme is a theme that appears, generally, at least three times in a single question. "
 
-teacher_survey <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1z8fkiC77roE7MqeiA4XOUiFgeiLza1BGtL7zV1mZM2Q/edit#gid=89856682", col_types = 'c')
+}
 
-date <- "2024-04-01"
+qualitative_code_responses <- function(qualitative_responses, model = "gpt-4o") {
+  api_url <- "https://api.openai.com/v1/chat/completions"
+  api_key <- Sys.getenv("OPENAI_API_KEY")
 
-is_date('sdf')
+  # Create request |>
+  req <- request(api_url) |>
+    req_headers(
+      "Content-Type" = "application/json",
+      "Authorization" = paste("Bearer", api_key)
+    ) |>
+    req_body_json(list(
+      model = model,
+      messages = list(
+        list(role = "system", content = system_prompt()),
+        list(role = "user", content = user_prompt(qualitative_responses)))
+      )
+    )
 
-as.Date('dsf')
+  # Send request and get response
+  resp <- req_perform(req)
 
-teacher_survey1 <- teacher_survey |>
-  dplyr::rename('response_date' = 'Timestamp') |>
-  dplyr::mutate(response_date = lubridate::mdy_hms(.data$response_date)) |>
-  dplyr::filter(.data[['response_date']] > as.Date("2023-04-01"))
+  # Parse and return the response
+  resp_body <- resp_body_json(resp)
+  return(resp_body$choices[[1]]$message$content)
+}
+
+# Example of calling the function and printing the result
+result <- get_gpt4o_response("df")
+print(result)
+
