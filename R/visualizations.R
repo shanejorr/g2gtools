@@ -184,7 +184,7 @@ g2g_viz_stacked_bar_percent_horizontal <- function(.data, perc_value_var, questi
       TRUE ~ .06
     )
   } else {
-    text_offset <- .data[[text_var]]
+    text_offset <- .data[[text_location]]
   }
 
   plt <- ggplot2::ggplot(.data, ggplot2::aes(.data[[perc_value_var]], .data[[y_var]], fill = .data[[fill_var]])) +
