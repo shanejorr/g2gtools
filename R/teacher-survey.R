@@ -98,6 +98,7 @@ g2g_number_times_teacher_answered <- function(.data) {
 #' @param scales_to_use The scales to use for plotting, in order. If `NULL`, the default, scales will automatically be discovered.
 #'        Should be a named vector with the values being the name and the names being hex numbers for colors.
 #' @param reverse_coded Boolean whether scales are reverse coded. Defaults to FALSE.
+#' @param facet_wrap_col The column to use for faceting the plot. Use NULL if you do not want to facet. Defaults to NULL.
 #' @param ... Parameters for `g2g_plt_theme()`
 #'
 #' @returns A ggplot object.
@@ -105,10 +106,10 @@ g2g_number_times_teacher_answered <- function(.data) {
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap, pre_post_comparison = NULL, scales_to_use = NULL, reverse_coded = FALSE, ...) {
+g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap, pre_post_comparison = NULL, scales_to_use = NULL, reverse_coded = FALSE, facet_wrap_col = NULL, ...) {
 
   # make sure we have the required column names
-  required_columns <- c('response', 'response_option', '.percent', 'question_stem', pre_post_comparison)
+  required_columns <- c('response', 'response_option', '.percent', 'question_stem', pre_post_comparison, facet_wrap_col)
 
   g2g_check_required_columns(.data, required_columns)
 
@@ -136,7 +137,7 @@ g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap, pre_
 
   plt <- .data |>
     # aggregate positive responses for plotting
-    g2g_aggregate_positive_responses(positive_scales, pre_post_comparison, only_keep_first_response = TRUE) |>
+    g2g_aggregate_positive_responses(positive_scales, c(pre_post_comparison, facet_wrap_col), only_keep_first_response = TRUE) |>
     dplyr::mutate(
       response_option = stringr::str_wrap(.data[['response_option']], response_wrap),
       response_option = tidyr::replace_na(.data[['response_option']], ' '),
@@ -157,6 +158,10 @@ g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap, pre_
       fill = NULL,
       title = plt_title
     )
+
+  if (!is.null(facet_wrap_col)) {
+    plt <- plt + ggplot2::facet_wrap(facets = facet_wrap_col)
+  }
 
   return(plt)
 

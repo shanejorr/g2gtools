@@ -177,20 +177,24 @@ g2g_viz_stacked_bar_percent_horizontal <- function(.data, perc_value_var, questi
   num_legend_rows <- if (num_legend_items > 4) 2 else 1
 
   if (is.null(text_location)) {
-    text_offset <- dplyr::case_when(
+    text_x_position <- dplyr::case_when(
       .data[[text_var]] < .09 ~ .05,
       .data[[text_var]] > .09 & .data[[text_var]] < 1 ~ .data[[text_var]] - .06,
       .data[[text_var]] == 1 ~ .data[[text_var]] - .08,
       TRUE ~ .06
     )
+
+    text_label <- scales::percent(.data[[text_var]], accuracy = 1)
+
   } else {
-    text_offset <- .data[[text_location]]
+    text_x_position <- .data[[text_location]]
+    text_label <- .data[[text_var]]
   }
 
   plt <- ggplot2::ggplot(.data, ggplot2::aes(.data[[perc_value_var]], .data[[y_var]], fill = .data[[fill_var]])) +
     ggplot2::geom_col(show.legend = TRUE) +
     ggplot2::geom_text(
-      ggplot2::aes(label = scales::percent(.data[[text_var]], accuracy = 1), x = text_offset),
+      ggplot2::aes(label = text_label, x = text_x_position),
       color = 'white',
       fontface='bold', size = text_size
     ) +

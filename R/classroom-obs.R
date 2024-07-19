@@ -463,6 +463,8 @@ g2g_obs_calc_perc <- function(.data, grouping_columns = NULL) {
 #' @param first_obs_factor String representing the first observation category in `timing`, as a string.
 #'      `timing` will be changed to a factor with this string being the first level. Useful for ordering plots.
 #'      'Defaults to 'First Observation'
+#' @param grouping_columns Columns to group by when calculating aggregate of positive responses. Defaults to NULL.
+#'      The default grouping columns of 'timing', 'core_action_main', 'core_action_minor' are always used.
 #'
 #' @returns
 #' A tibble with aggregate data for a single core action. It contains an additional column with the
@@ -471,9 +473,13 @@ g2g_obs_calc_perc <- function(.data, grouping_columns = NULL) {
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_obs_get_ca_data <- function(.data, core_action, scale_order, first_obs_factor = 'First Observation') {
+g2g_obs_get_ca_data <- function(.data, core_action, scale_order, first_obs_factor = 'First Observation', grouping_columns = NULL) {
 
   perc_grouping_cols <- c('timing', 'core_action_main', 'core_action_minor')
+
+  if (!is.null(grouping_columns)) {
+    perc_grouping_cols <- c(perc_grouping_cols, grouping_columns)
+  }
 
   col_names <- colnames(.data)
 
