@@ -38,7 +38,8 @@ Imports:
     tntpr,
     qualtRics,
     googledrive,
-    readr
+    readr,
+    httr2
 Remotes: 
   github::adamMaier/tntpmetrics,
   github::tntp/tntpr

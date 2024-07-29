@@ -39,17 +39,40 @@ g2g_create_deck_ppt <- function(title) {
 #' @param doc Document object. Created with \code{officer::read_pptx()} or [g2g_create_deck_ppt()].
 #' @param title The slide title.
 #' @param text_body The text that goes in the text box
+#' @param bullet_points A vector of strings or NULL. If a vector of strings, the text will be formatted as bullet points. Defaults to NULL.
 #'
 #' @export
-g2g_add_text_slide <- function(doc, title, text_body) {
+g2g_add_text_slide <- function(doc, title, text_body, bullet_points = NULL) {
+
+  text_location <- officer::ph_location_label(ph_label = "Text Placeholder 7")
+  text_size <- officer::fp_text(font.size = 18)
+  body_label_name <- "Text Placeholder 7"
+  slide_template <- "10_1/3 Solid Color Section D"
 
   formatted_text <- officer::fpar(
-    officer::ftext(text_body, officer::fp_text(font.size = 18))
+    officer::ftext(text_body, text_size)
   )
 
-  doc <- officer::add_slide(doc, "10_1/3 Solid Color Section D", 'Office Theme')
+  doc <- officer::add_slide(doc, slide_template, 'Office Theme')
   doc <- officer::ph_with(doc, value = title, location = officer::ph_location_label(ph_label = "Text Placeholder 5"))
-  doc <- officer::ph_with(doc, value = formatted_text, location = officer::ph_location_label(ph_label = "Text Placeholder 7"))
+  doc <- officer::ph_with(doc, value = formatted_text, location = text_location)
+
+  if (!is.null(bullet_points)) {
+
+    # Add bullet list to the slide, positioned a quarter inch below the sentence
+    text_box_dimensions <- officer::layout_properties(doc) |>
+      dplyr::filter(.data$ph_label == body_label_name, .data$name == slide_template)
+
+    doc <- officer::ph_with(
+      doc,
+      location = officer::ph_location(left = text_box_dimensions$offx, top = text_box_dimensions$offy+0.5, width = text_box_dimensions$cx, height = text_box_dimensions$cy),
+      value = officer::unordered_list(
+        level_list = rep(1, length(bullet_points)),
+        str_list = bullet_points,
+        style = text_size
+      )
+    )
+  }
 
   return(doc)
 

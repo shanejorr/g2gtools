@@ -11,7 +11,6 @@ g2g_teacher_viz_single_survey(
   pre_post_comparison = NULL,
   scales_to_use = NULL,
   reverse_coded = FALSE,
-  facet_wrap_col = NULL,
   ...
 )
 }
@@ -29,8 +28,6 @@ These will be the questions.}
 Should be a named vector with the values being the name and the names being hex numbers for colors.}
 
 \item{reverse_coded}{Boolean whether scales are reverse coded. Defaults to FALSE.}
-
-\item{facet_wrap_col}{The column to use for faceting the plot. Use NULL if you do not want to facet. Defaults to NULL.}
 
 \item{...}{Parameters for \code{g2g_plt_theme()}}
 }

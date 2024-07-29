@@ -4,7 +4,7 @@
 \alias{g2g_add_text_slide}
 \title{Create a text slide}
 \usage{
-g2g_add_text_slide(doc, title, text_body)
+g2g_add_text_slide(doc, title, text_body, bullet_points = NULL)
 }
 \arguments{
 \item{doc}{Document object. Created with \code{officer::read_pptx()} or \code{\link[=g2g_create_deck_ppt]{g2g_create_deck_ppt()}}.}
@@ -12,6 +12,8 @@ g2g_add_text_slide(doc, title, text_body)
 \item{title}{The slide title.}
 
 \item{text_body}{The text that goes in the text box}
+
+\item{bullet_points}{A vector of strings or NULL. If a vector of strings, the text will be formatted as bullet points. Defaults to NULL.}
 }
 \description{
 Create a white PPT slide that is just a slide title and text within a text box.
