@@ -509,11 +509,13 @@ g2g_obs_get_ca_data <- function(.data, core_action, scale_order, first_obs_facto
 #' @param .data Data created with `g2g_obs_get_ca_data()`
 #' @param core_action The core action that we want to get data for. A string that mirrors the spelling in the
 #'      `core_action_main` column.
+#' @param scales_to_use The order of the response scale. Can find with the function `g2g_obs_map_scales()`.
+#'     Default is to use the scales from the `g2g_obs_map_scales(core_action)` function.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_obs_create_viz_ca <- function(.data, core_action) {
+g2g_obs_create_viz_ca <- function(.data, core_action, scales_to_use = NULL) {
 
   # make sure we have the required columns
   required_cols <- c('.percent', 'core_action', 'response', '.strong_response_percent', 'timing')
@@ -535,7 +537,11 @@ g2g_obs_create_viz_ca <- function(.data, core_action) {
     plt_title <- glue::glue("{core_action} Results")
   }
 
-  scale_order <- g2g_obs_map_scales(core_action)
+  if (is.null(scales_to_use)) {
+    scale_order <- g2g_obs_map_scales(core_action)
+  } else {
+    scale_order <- scales_to_use
+  }
 
   pal <- names(scale_order) |> purrr::set_names(scale_order)
 

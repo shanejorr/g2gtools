@@ -49,7 +49,7 @@ g2g_db_add_obs <- function(con, .data) {
 
   # dataframe should only have these columns
   req_columns <- c(
-    'teacher_id', 'site_id', 'obs_number', 'timing', 'term', 'subject',
+    'teacher_id', 'site_id', 'obs_number', 'term', 'subject',
     'grade', 'date_of_observation', 'question_stem',
     'response_option', 'response', 'core_action_main', 'core_action_minor'
   )
@@ -57,15 +57,6 @@ g2g_db_add_obs <- function(con, .data) {
   cols_equal <- length(req_columns) == length(colnames(.data)) & all(sort(colnames(.data)) == sort(req_columns))
 
   if (!cols_equal) cli::cli_abort("Your column names are incorrect. Please ensure you have all required columns, and no more.")
-
-  # timing should only be one of three values
-  timing_values <- c('First Observation', 'Last Observation', 'During Program')
-
-  actual_values <- unique(.data$timing)
-
-  additional_values_in_data <- setdiff(actual_values, timing_values)
-
-  if (length(additional_values_in_data) > 0) cli::cli_abort("The `timing` column should only contain the values: {timing_values}. Your data contains additional values")
 
   DBI::dbWriteTable(con, tbl_name, .data, append = TRUE, row.names = FALSE)
 
@@ -97,7 +88,7 @@ g2g_db_add_teacher_survey <- function(con, .data) {
 
   # dataframe should only have these columns
   req_columns <- c(
-    'submission_date', 'teacher_id','site_id', 'term', 'in_survey', 'n_times_administered',
+    'submission_date', 'teacher_id','site_id', 'term',
     'question_type', 'question_stem', 'response_option', 'response'
   )
 

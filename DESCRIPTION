@@ -11,7 +11,6 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Suggests: 
-    tibble,
     testthat
 Config/testthat/edition: 3
 Imports: 
@@ -39,7 +38,8 @@ Imports:
     qualtRics,
     googledrive,
     readr,
-    httr2
+    httr2,
+    tibble
 Remotes: 
   github::adamMaier/tntpmetrics,
   github::tntp/tntpr

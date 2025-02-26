@@ -4,25 +4,7 @@ library(httr2)
 library(tidyverse)
 library(jsonlite)
 
-system_prompt <- function() {
-
-  initial_prompt <- "You are a social science researcher. You specialize in conducting qualitative coding of open-ended survey responses using thematic coding. You create concise and thorough summaries of open-ended survey responses using the latest research-based methods for qualitative coding. You follow the principals in The Coding Manual for Qualitative Researchers by Johnny Saldana."
-
-  output_format_csv <- "Please provide your responses in a CSV format. There should be one column called `themes`. Each row should contain a key theme and the key theme should not be more than a sentence, but it should be a complete sentence. You should only output the 'csv' formatted response. "
-
-  example_themes <- c(
-    "themes",
-    "Teachers enjoyed the teacher training program.",
-    "Teachers found value in the student-centered learning techniques that they learned.",
-    "The training provided practical strategies for classroom management."
-  ) |>
-    str_flatten(collapse = "\n")
-
-  str_c(initial_prompt, output_format_csv, "Here are some examples of key themes and how the output should appear in csv format: '", example_themes, "'. ")
-
-}
-
-responses <- c(
+survey_responses <- c(
   "The training provided valuable insights into differentiated instruction.",
   "Improved classroom management techniques were a key highlight.",
   "Emphasis on student-centered learning was particularly beneficial.",
@@ -74,60 +56,17 @@ responses <- c(
   "I now have a better understanding of effective questioning techniques.",
   "The importance of fostering a love for learning was a major takeaway."
 ) |>
-  str_flatten(collapse = "', '")
-
-user_prompt_intro <- "You have been asked to code the following qualitative responses from an open-ended survey. Please provide a concise summary of responses for the question by picking out the key general themes. "
-
-survey_background <- "The qualitative responses come from a survey of teachers after they completed a teacher training program. The question they are responding to is: "
+  stringr::str_flatten(collapse = "', '")
 
 survey_question <- "What are the key takeaways from the teacher training program?"
 
-num_key_themes <- function(num_themes) {
+user_prompt_text <- user_prompt_survey(survey_question, survey_responses)
 
-  glue::glue("Please identify no more than {num_themes} key themes. You do not have to identify at least {num_themes} key themes if there are fewer than {num_themes} key themes present in the responses. ")
 
-}
+key_themes <- call_gpt(user_prompt_text, system_prompt_survey())
 
-question_and_background <- str_c(user_prompt_intro, survey_background, "'", survey_question, "'. ", num_key_themes(3))
-
-response_text <- str_c("The responses are: '", responses, "'")
-
-user_prompt <- str_c(question_and_background, response_text)
-
-call_gpt <- function(user_prompt, system_prompt, model = "gpt-4o") {
-
-  api_url <- "https://api.openai.com/v1/chat/completions"
-  api_key <- Sys.getenv("OPENAI_API_KEY")
-
-  # Create request |>
-  req <- request(api_url) |>
-    req_headers(
-      "Content-Type" = "application/json",
-      "Authorization" = paste("Bearer", api_key)
-    ) |>
-    req_body_json(list(
-      model = model,
-      messages = list(
-        list(role = "system", content = system_prompt),
-        list(role = "user", content = user_prompt))
-      )
-    )
-
-  # Send request and get response
-  resp <- req_perform(req)
-
-  # Parse and return the response
-  resp_body <- resp_body_json(resp)
-
-  return(resp_body$choices[[1]]$message$content)
-}
-a <- resp_body$choices[[1]]$message$content
-
-str_remove_all(a, "^```\n|```$") |> cat()
-
-read_csv(I(str_remove(a, "^```\n|```$")))
-
-# Example of calling the function and printing the result
-result <- get_gpt4o_response("df")
-print(result)
+a <- stringr::str_remove(key_themes, "csv\n") |>
+  stringr::str_remove_all("`")
+a
+readr::read_csv(a)
 
