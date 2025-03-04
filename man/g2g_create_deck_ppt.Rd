@@ -4,11 +4,13 @@
 \alias{g2g_create_deck_ppt}
 \title{Create PPT deck with the TNTP template}
 \usage{
-g2g_create_deck_ppt(title)
+g2g_create_deck_ppt(template = "TNTP", title = NULL)
 }
 \arguments{
-\item{title}{The title that goes on the title page as a string.}
+\item{template}{The template to use. Either "TNTP" (default) or "EAF".}
+
+\item{title}{The title that goes on the title page as a string. If NULL (default), no title slide is created.}
 }
 \description{
-Initialize a PPT deck with the TNTP template. This function also creates the title page.
+Initialize a PPT deck with either the TNTP or EAF template. This function also creates the title page.
 }

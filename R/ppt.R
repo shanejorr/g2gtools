@@ -1,34 +1,55 @@
 #' Create PPT deck with the TNTP template
 #'
-#' Initialize a PPT deck with the TNTP template. This function also creates the title page.
+#' Initialize a PPT deck with either the TNTP or EAF template. This function also creates the title page.
 #'
-#' @param title The title that goes on the title page as a string.
+#' @param template The template to use. Either "TNTP" (default) or "EAF".
+#' @param title The title that goes on the title page as a string. If NULL (default), no title slide is created.
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_create_deck_ppt <- function(title) {
+g2g_create_deck_ppt <- function(template = "TNTP", title = NULL) {
+  
+  # Validate template parameter
+  if (!template %in% c("TNTP", "EAF")) {
+    stop("Template must be either 'TNTP' or 'EAF'", call. = FALSE)
+  }
+  
+  # Determine template filename based on template parameter
+  template_filename <- if (template == "TNTP") {
+    "tntp_template.pptx"
+  } else {
+    "eaf_template.pptx"
+  }
+  
+  # Get the path to the template file
+  template_path <- system.file("extdata", template_filename, package = 'g2gtools')
+  
+  # Check that template file exists
+  if (template_path == "") {
+    stop(paste0("Template file '", template_filename, "' not found in package extdata directory"), call. = FALSE)
+  }
 
-  # create today's month and year, to add to title slide
-  today_date <- lubridate::today()
-  today_month <- lubridate::month(today_date, label = TRUE, abbr = FALSE)
-  today_year <- lubridate::year(today_date)
-  month_year <- paste0(today_month, " ", today_year)
+  # read in template deck for formatting
+  doc <- officer::read_pptx(path = template_path)
 
-  # read in TNTP template deck for formatting
-  doc <- officer::read_pptx(path = system.file("extdata", 'tntp_template_no_slides.pptx', package = 'g2gtools'))
+  # create title slide if title is provided
+  if (!is.null(title)) {
+    # create today's month and year, to add to title slide
+    today_date <- lubridate::today()
+    today_month <- lubridate::month(today_date, label = TRUE, abbr = FALSE)
+    today_year <- lubridate::year(today_date)
+    month_year <- paste0(today_month, " ", today_year)
+    
+    # create title slide
+    doc <- officer::add_slide(doc, "Cover Mint", 'Office Theme')
 
-  # create title slide
-  doc <- officer::add_slide(doc, "Cover Mint", 'Office Theme')
-
-  # add title and date
-  doc <- officer::ph_with(doc, value = title, location = officer::ph_location_label(ph_label = "Text Placeholder 5"))
-  doc <- officer::ph_with(doc, value = month_year, location = officer::ph_location_label(ph_label = "Text Placeholder 4"))
-
-  # doc <- officer::ph_with(doc, value = month_year, location = officer::ph_location_label(ph_label = "Text Placeholder 5", newlabel = 'siteName'))
+    # add title and date
+    doc <- officer::ph_with(doc, value = title, location = officer::ph_location_label(ph_label = "Text Placeholder 5"))
+    doc <- officer::ph_with(doc, value = month_year, location = officer::ph_location_label(ph_label = "Text Placeholder 4"))
+  }
 
   return(doc)
-
 }
 
 #' Create a text slide
