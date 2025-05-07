@@ -4,11 +4,10 @@
 #' Adds check to ensure the 'Halyard Display' font it loaded, and if not loads the font.
 #'
 #' @param font_size The is the `base_size` parameter in `tntpr::tntp_style()`. Defaults to 24.
-#' @param plot_position The is the `plot.title.position` parameter. Defaults to 'plot'. Can also be 'panel'.
-#' @param ... Parameters for `tntpr::tntp_style()`
+#' @param ... Parameters for `theme()`
 #'
 #' @export
-g2g_plt_theme <- function(font_size = 24, plot_position = "plot", ...) {
+g2g_plt_theme <- function(font_size = 16, ...) {
 
   if (.Platform$OS.type == "unix") {
 
@@ -26,19 +25,23 @@ g2g_plt_theme <- function(font_size = 24, plot_position = "plot", ...) {
   # increase strip text font size
   strip_text_size <- font_size * .6
 
-  tntpr::tntp_style(
-    base_size = font_size,
-    show_axis_titles = TRUE,
-    ...
-  ) +
-    ggplot2::theme(
+  # tntpr::tntp_style(
+  #   # base_size = font_size,
+  #   show_axis_titles = TRUE,
+  #   ...
+  # ) +
+  ggplot2::theme_minimal(base_size = font_size) +
+  ggplot2::theme(
+      panel.grid = element_blank(),
       legend.position="bottom",
       panel.border = ggplot2::element_rect(colour = "black", fill = NA),
-      strip.text = ggplot2::element_text(size = strip_text_size),
-      plot.title = ggplot2::element_text(size = title_font_size),
-      plot.caption = ggplot2::element_text(size = 14),
-      plot.title.position = "plot"
-    )
+      plot.title = element_text(
+        size = rel(0.9),  # 90% of the base size
+        face = "bold"
+      ),
+      plot.subtitle = element_text(size = rel(0.95)),
+      ...
+  )
 
 }
 
