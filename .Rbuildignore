@@ -5,3 +5,4 @@
 ^notes$
 ^data-raw$
 ^\.github$
+^CLAUDE\.md$
