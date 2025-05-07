@@ -194,7 +194,7 @@ g2g_viz_stacked_bar_percent_horizontal <- function(.data, perc_value_var, questi
     text_label <- .data[[text_var]]
   }
 
-  plt <- ggplot2::ggplot(.data, ggplot2::aes(.data[[perc_value_var]], .data[[y_var]], fill = .data[[fill_var]])) +
+  plt <- ggplot2::ggplot(.data, ggplot2::aes(.data[[perc_value_var]], forcats::fct_reorder(.data[[y_var]], .data[[text_var]]), fill = .data[[fill_var]])) +
     ggplot2::geom_col(show.legend = TRUE) +
     ggplot2::geom_text(
       ggplot2::aes(label = text_label, x = text_x_position),
