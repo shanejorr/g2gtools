@@ -98,6 +98,7 @@ g2g_number_times_teacher_answered <- function(.data) {
 #' @param scales_to_use The scales to use for plotting, in order. If `NULL`, the default, scales will automatically be discovered.
 #'        Should be a named vector with the values being the name and the names being hex numbers for colors.
 #' @param reverse_coded Boolean whether scales are reverse coded. Defaults to FALSE.
+#' @param sort_by_value Logical. If TRUE, the y-axis will be sorted by the values in `text_var`. If FALSE, no sorting will be applied. Defaults to FALSE.
 #' @param ... Parameters for `g2g_plt_theme()`
 #'
 #' @returns A ggplot object.
@@ -105,7 +106,7 @@ g2g_number_times_teacher_answered <- function(.data) {
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap, pre_post_comparison = NULL, scales_to_use = NULL, reverse_coded = FALSE, ...) {
+g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap, pre_post_comparison = NULL, scales_to_use = NULL, reverse_coded = FALSE, sort_by_value = FALSE, ...) {
 
   # make sure we have the required column names
   required_columns <- c('response', 'response_option', '.percent', 'question_stem', pre_post_comparison)
@@ -149,6 +150,7 @@ g2g_teacher_viz_single_survey <- function(.data, response_wrap, title_wrap, pre_
       text_var= '.strong_response_percent',
       color_pal = hex_colors,
       comparison_var = pre_post_comparison,
+      sort_by_value = sort_by_value,
       ...
     ) +
     ggplot2::labs(
