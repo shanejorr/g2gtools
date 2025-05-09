@@ -153,12 +153,13 @@ g2g_viz_basic_dodged_bar <- function(.data, x_var, y_var, fill_var, text_var, co
 #'       Font size can be converted to `text_size` with this formula: `font size / (14/5)`.
 #' @param text_location The variable name, as a string, of the location of the text on the x axis, between 0 and 1. If `NULL`, the default,
 #'       the location will be the same as `text_var`, but right under the bar.
+#' @param sort_by_value Logical. If TRUE, the y-axis will be sorted by the values in `text_var`. If FALSE, no sorting will be applied. Defaults to TRUE.
 #' @param ... Parameters for `g2g_plt_theme()`
 #'
 #' @importFrom rlang .data
 #'
 #' @export
-g2g_viz_stacked_bar_percent_horizontal <- function(.data, perc_value_var, question_var, fill_var, text_var, color_pal, comparison_var = NULL, text_size = 4.586111, text_location = NULL, ...) {
+g2g_viz_stacked_bar_percent_horizontal <- function(.data, perc_value_var, question_var, fill_var, text_var, color_pal, comparison_var = NULL, text_size = 4.586111, text_location = NULL, sort_by_value = TRUE, ...) {
 
   if (!is.null(comparison_var)) {
     # plot values for plots that are comparing multiple terms
@@ -194,8 +195,14 @@ g2g_viz_stacked_bar_percent_horizontal <- function(.data, perc_value_var, questi
     text_label <- .data[[text_var]]
   }
 
-  plt <- ggplot2::ggplot(.data, ggplot2::aes(.data[[perc_value_var]], forcats::fct_reorder(.data[[y_var]], .data[[text_var]]), fill = .data[[fill_var]])) +
-    ggplot2::geom_col(show.legend = TRUE) +
+  # Conditionally apply sorting based on sort_by_value parameter
+  if (sort_by_value) {
+    plt <- ggplot2::ggplot(.data, ggplot2::aes(.data[[perc_value_var]], forcats::fct_reorder(.data[[y_var]], .data[[text_var]], na.rm = TRUE), fill = .data[[fill_var]]))
+  } else {
+    plt <- ggplot2::ggplot(.data, ggplot2::aes(.data[[perc_value_var]], .data[[y_var]], fill = .data[[fill_var]]))
+  }
+  
+  plt <- plt + ggplot2::geom_col(show.legend = TRUE) +
     ggplot2::geom_text(
       ggplot2::aes(label = text_label, x = text_x_position),
       color = 'white',
