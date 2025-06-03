@@ -1,0 +1,355 @@
+# Summary of functions in `g2gtools` files
+
+Double hashtags '##' are the filenames and triple hashtags '###' are the functions within the file.
+
+## `R/calculations.R`
+
+Contains core calculation functions for processing survey and observation data. The primary function calculates percentages from long-form data, allowing for various grouping and counting options essential for data analysis workflows.
+
+### `g2g_calc_percentages`
+
+Calculates percentages from data in long format, supporting custom grouping columns and optional count columns for flexible percentage calculations.
+
+## `R/classroom-obs.R`
+
+Comprehensive functions for processing classroom observation data based on the IPG (Instructional Practice Guide). Handles Core Action identification, IPG score calculations, data transformation for tntpmetrics package compatibility, and specialized observation visualizations and analysis.
+
+### `g2g_classroom_obs_add_ca`
+
+Adds Core Action (major and minor) identifiers to classroom observation data that has been placed into long form.
+
+### `g2g_relabel_yesbut_notreally`
+
+Relabels observation scales that go from yes to no, specifically transforming 'Yes, but' and 'Not really' responses to shorter, consistent formats.
+
+### `g2g_classroom_obs_add_tntpmetrics`
+
+Converts classroom observation data to a format usable by the tntpmetrics package for calculating IPG scores.
+
+### `g2g_calc_avg_ipg`
+
+Calculates average IPG scores for identified groups using classroom observation data.
+
+### `g2g_obs_combine_ca`
+
+Adds a column that combines descriptions of major and minor core actions into one column for plotting purposes.
+
+### `g2g_first_or_last`
+
+Finds the first and last observations for a person based on date, useful for tracking observation timing.
+
+### `g2g_obs_map_scales`
+
+Returns the appropriate scales for specific Core Actions based on the Core Action type.
+
+### `g2g_obs_long_form`
+
+Places observation data into long form and adds columns identifying the core action using g2g_tidy_forms_survey and g2g_classroom_obs_add_ca.
+
+### `g2g_obs_calc_perc`
+
+Calculates the response percentages of each core action by pre and post training periods.
+
+### `g2g_obs_get_ca_data`
+
+Creates a dataset containing aggregate responses for a single Core Action with percentage of positive responses.
+
+### `g2g_obs_create_viz_ca`
+
+Creates a vertical visualization of observation data for a single Core Action with faceting by timing.
+
+### `g2g_obs_add_viz_ppt`
+
+Adds an observation visualization to a PowerPoint slide with appropriate titles and notes.
+
+### `g2g_obs_test_results`
+
+Tests to ensure aggregated data matches the raw data for quality assurance purposes.
+
+### `g2g_obs_viz_overall`
+
+Creates a single plot containing all overall observation scores with different scales appropriately handled.
+
+## `R/data.R`
+
+Documentation for example datasets included in the package.
+
+### `teacher_pre_survey`
+
+Documentation for example teacher pre-training survey dataset.
+
+### `classroom_observations_math`
+
+Documentation for example classroom observation math dataset.
+
+## `R/database_operations.R`
+
+Functions for interacting with the Good to Great SQLite database, providing complete CRUD operations for sites, observations, teacher surveys, student surveys, and teacher information.
+
+### `g2g_db_add_site_info`
+
+Adds site information to the sites table in the Good to Great database.
+
+### `g2g_db_add_obs`
+
+Adds a dataframe of classroom observations to the observations table.
+
+### `g2g_db_add_teacher_survey`
+
+Adds a dataframe of teacher survey responses to the teacher_survey table.
+
+### `g2g_db_add_student_survey`
+
+Adds a dataframe of student survey responses to the student_survey table.
+
+### `g2g_db_add_teacher`
+
+Adds a dataframe of teacher information to the teacher_information table.
+
+### `g2g_db_get_site_info_key`
+
+Gets the site_id (primary key) from the sites table for use when adding related data.
+
+### `g2g_db_drop_site_data_from_table`
+
+Drops all site data from a specified table with confirmation prompts for safety.
+
+## `R/google-forms-survey.R`
+
+Functions for processing Google Forms survey data into tidy format and calculating high expectations metrics compatible with tntpmetrics package.
+
+### `g2g_tidy_forms_survey`
+
+Transforms Google Forms survey data from wide format to tidy format where each row represents a single person's response to a single question.
+
+### `g2g_teacher_survey_add_he_metric_colnames`
+
+Creates tntpmetrics high expectations column names from high expectations questions for proper metric calculation.
+
+### `g2g_calc_high_expectations`
+
+Creates a dataset that can be used by tntpmetrics to calculate high expectations metrics.
+
+### `g2g_calc_high_expectations_averages`
+
+Calculates average high expectations scores and percentage of teachers with high expectations for given groups.
+
+### `g2g_calc_inst_practices`
+
+Calculates a single aggregate score for all instructional practices questions by converting scales to numbers and averaging.
+
+### `g2g_forms_survey_calc_percentages`
+
+Calculates the percentage and number of responses for each question and response option in teacher surveys.
+
+## `R/gpt-tools.R`
+
+Functions for creating prompts and calling the GPT API to perform qualitative coding of open-ended survey responses.
+
+### `g2g_user_prompt_survey`
+
+Creates a user prompt for the GPT API that includes survey questions and responses for thematic analysis.
+
+### `g2g_system_prompt_survey`
+
+Creates a system prompt that defines the GPT model's role as a social science researcher specializing in qualitative coding.
+
+### `g2g_call_gpt`
+
+Sends requests to the GPT API with user and system prompts and returns the model's response for qualitative analysis.
+
+## `R/ppt.R`
+
+Comprehensive PowerPoint creation and manipulation functions for generating data presentation decks with TNTP and EAF templates.
+
+### `g2g_create_deck_ppt`
+
+Creates a PowerPoint deck using TNTP or EAF templates and optionally creates a title slide.
+
+### `g2g_add_text_slide`
+
+Creates a text slide with title and body text, optionally formatted as bullet points.
+
+### `g2g_add_viz_ppt`
+
+Adds ggplot visualizations to PowerPoint slides as vector graphics with customizable dimensions and notes.
+
+### `g2g_ppt_calculate_plot_height`
+
+Calculates optimal height for visualizations being inserted into PowerPoint based on the number of chart rows.
+
+### `g2g_add_table_ppt`
+
+Adds formatted tables to PowerPoint slides with customizable column widths and styling.
+
+### `g2g_slide_notes`
+
+Provides predefined custom notes for PowerPoint slides to explain data metrics like HE scores, IPG scores, and instructional practice scores.
+
+### `g2g_notes_from_data`
+
+Creates notes from data containing categories and descriptions for adding contextual information to slides.
+
+## `R/response-counts.R`
+
+Functions for creating Google Sheets dashboards that track survey response counts across multiple data collection tools and sites.
+
+### `convert_df_to_list_single_site`
+
+Converts a data frame of parameters for a single site into a list format usable by dashboard creation functions.
+
+### `g2g_get_teacher_names_single_tool`
+
+Creates a data frame of responses for a single tool, returning teacher names and response dates.
+
+### `g2g_get_teacher_names_all_tools`
+
+Creates a data frame of responses for all tools by combining results from multiple individual tools.
+
+### `g2g_total_responses`
+
+Returns a data frame with total response counts for all tools and the date/time of most recent responses.
+
+### `g2g_create_or_return_sheet`
+
+Returns an existing Google Sheet or creates a new one based on the sheet's title for dashboard management.
+
+### `g2g_create_googlesheet_of_responses_from_list_single_site`
+
+Creates a comprehensive dashboard in Google Sheets showing response counts and individual respondents for each data tool.
+
+### `g2g_create_googlesheet_response_dashboards`
+
+Creates response dashboards for all sites in a parameters data frame, generating one dashboard per unique site.
+
+### `is_date`
+
+Helper function that validates whether a string can be converted to a date format.
+
+## `R/teacher-survey.R`
+
+Specialized functions for processing and analyzing teacher survey data, including pre/post comparisons and survey-specific visualizations.
+
+### `g2g_teacher_combine_pre_post`
+
+Combines pre and post-training teacher surveys and conducts light cleaning including email and response option standardization.
+
+### `g2g_number_times_teacher_answered`
+
+Identifies how many times a teacher answered each question to help identify incomplete pre/post pairs.
+
+### `g2g_teacher_viz_single_survey`
+
+Creates visualizations for survey items that appear on only one survey (pre or post) without comparisons.
+
+### `g2g_teacher_reverse_coded`
+
+Identifies and marks reverse coded teacher survey questions where disagreement represents a positive response.
+
+### `g2g_teacher_shorten_questions`
+
+Shortens survey questions by removing parenthetical information to improve plotting readability.
+
+## `R/utils-cleaning.R`
+
+Utility functions for data cleaning, validation, and standardization used across the package.
+
+### `g2g_clean_column_names`
+
+Cleans up column names from Google Forms surveys by standardizing spaces, punctuation, and case.
+
+### `g2g_test_full_question_brackets`
+
+Validates that question columns contain only one set of brackets for proper question stem separation.
+
+### `g2g_list_of_scales`
+
+Returns a named list of all scales used in Good to Great surveys across different languages and contexts.
+
+### `g2g_scale_order`
+
+Returns a vector of scales in proper order with associated colors for consistent visualization.
+
+### `g2g_find_scale`
+
+Automatically identifies which scale is being used in data and converts it to a properly ordered factor.
+
+### `g2g_id_pre_post`
+
+Identifies participants who have data in both pre and post datasets for comparative analysis.
+
+### `g2g_compare_names`
+
+Checks participant names for consistency across pre and post data to help identify data quality issues.
+
+### `g2g_aggregate_positive_responses`
+
+Sums percentage totals of positive responses for calculating favorable response rates.
+
+### `g2g_to_title`
+
+Converts text to title case while keeping common words like 'and', 'the', 'of' uncapitalized.
+
+### `g2g_site_information`
+
+Creates a standardized list of site information including names, dates, subjects, and file paths.
+
+### `g2g_pull_data`
+
+Pulls data from Google Sheets and adds descriptive columns for site, semester, subject, and tool identification.
+
+### `g2g_check_required_columns`
+
+Validates that required columns are present in datasets before processing.
+
+## `R/visualizations.R`
+
+Comprehensive visualization functions for creating charts, plots, and data graphics used throughout Good to Great analysis workflows.
+
+### `g2g_plt_theme`
+
+Custom Good to Great plot theme that extends tntpr::tntp_style() with font loading and styling adjustments.
+
+### `g2g_viz_basic_bar`
+
+Creates basic vertical bar charts that serve as building blocks for more complex visualizations.
+
+### `g2g_viz_basic_dodged_bar`
+
+Creates vertical bar charts with grouping variables where groups are positioned side-by-side (dodged).
+
+### `g2g_viz_stacked_bar_percent_horizontal`
+
+Creates stacked horizontal bar charts for displaying Likert item responses with percentage data.
+
+### `g2g_viz_stacked_bar_percent_vertical`
+
+Creates stacked vertical bar charts for displaying Likert item responses with percentage data.
+
+### `g2g_split_question_stems`
+
+Splits question stems when there are too many questions for a single visualization by adding continuation markers.
+
+### `g2g_viz_high_expectations`
+
+Creates bar chart visualizations for high expectations scores and percentage of teachers with high expectations.
+
+### `g2g_viz_inst_practice`
+
+Creates bar charts of instructional practice scores derived from teacher survey responses.
+
+### `g2g_viz_ipg`
+
+Creates paired bar chart visualizations showing IPG scores and percentage of observations with strong instruction.
+
+### `g2g_viz_checks`
+
+Performs validation checks for visualization parameters to ensure data integrity and proper formatting.
+
+### `g2g_viz_likert_centered`
+
+Creates horizontal bar charts with scales centered on zero, separating positive, negative, and neutral responses.
+
+### `g2g_helper_clean_viz_likert_centered`
+
+Helper function that cleans and prepares data for centered Likert scale visualizations.
