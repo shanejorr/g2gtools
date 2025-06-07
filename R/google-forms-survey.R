@@ -349,8 +349,13 @@ g2g_forms_survey_calc_percentages <- function(.data, grouping_columns = NULL, ad
 
   if (!add_n %in% add_n_options) stop(paste0("`add_n` must be one of '", paste0(add_n_options, collapse= "', "), "'"), call. = FALSE)
 
+  # Capture the original order of question_stem from the input data
+  original_question_order <- unique(.data$question_stem)
+
   df <- .data |>
     tidyr::drop_na("response") |>
+    # Convert question_stem to factor to preserve original order during grouping
+    dplyr::mutate(question_stem = factor(.data$question_stem, levels = original_question_order)) |>
     # calculate the number of responses for each response option
     dplyr::group_by_at(c(grouping_columns, questions_responses)) |>
     dplyr::count(name = '.n_response') |>
@@ -358,6 +363,8 @@ g2g_forms_survey_calc_percentages <- function(.data, grouping_columns = NULL, ad
     dplyr::group_by_at(c(grouping_columns, questions_responses[-3])) |>
     dplyr::mutate(.n_question = sum(.data$.n_response)) |>
     dplyr::ungroup() |>
+    # Convert question_stem back to character
+    dplyr::mutate(question_stem = as.character(.data$question_stem)) |>
     # calculate percentages
     dplyr::mutate(
       # calculate percentages
