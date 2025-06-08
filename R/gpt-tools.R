@@ -1,80 +1,182 @@
-#' Create a user prompt for GPT API
+#' Build a user-prompt for K-12 qualitative coding from a data-frame column
 #'
-#' This function constructs a user prompt to be sent to the GPT API, which includes
-#' the survey question and the survey responses. The goal of the prompt is to ask
-#' the GPT model to identify and summarize the key themes in the qualitative responses
-#' provided by survey participants.
+#' Produces the **user-role** prompt that pairs with
+#' `g2g_system_prompt_survey()` when calling the OpenAI Chat Completions
+#' API.
+#' Supply a data frame (or tibble) that has **exactly one column**: the column
+#' name is treated as the survey question and each row as a response.
 #'
-#' @param survey_question A character string representing the survey question.
-#' @param survey_background Background information on the survey (who took it, purpose, etc.)
-#' @param survey_responses A character vector representing the survey responses. Each response is a different element in the vector.
-#' @param num_themes An integer representing the number of key themes to identify (default is 3).
-#' @param custom_language Additional instructions for the prompt.
+#' The function
+#' \enumerate{
+#'   \item removes \code{NA} values;
+#'   \item filters out non-substantive replies such as “n/a”, “none”, “no”, “.”,
+#'         etc. (case-insensitive); and
+#'   \item embeds the remaining answers—delimited by `---`—into a prompt that
+#'         instructs the model to return its thematic analysis **only** as a
+#'         CSV with the required header.
+#' }
 #'
-#' @return A character string representing the constructed prompt for the GPT model.
-#' This prompt will contain the survey question, context, and responses that need to be summarized.
 #'
+#' @param question_column A data frame (or tibble) with *one* column.
+#'        The column name is taken as the survey question; each row is coerced
+#'        to character and treated as a response.
+#' @param survey_background Optional character string with context (e.g., who
+#'        took the survey, purpose).  Default \code{NULL}.
+#' @param num_themes Optional integer.  If provided, the model is told to
+#'        identify *no more than* this many themes.  Default \code{NULL}.
+#' @param custom_language Optional additional instructions appended to the
+#'        prompt.  Default \code{NULL}.
 #'
+#' @return A length-1 character vector containing the full user prompt.
 #' @export
-g2g_user_prompt_survey <- function(survey_question, survey_background, survey_responses, num_themes = 3, custom_language = " ") {
+#'
+#' @examples
+#' if (requireNamespace("tibble", quietly = TRUE)) {
+#'   df <- tibble::tibble(
+#'     "Describe one thing you liked about the class." = c(
+#'       "I loved the projects.", "N/A", "The teacher cared.", "none", "Nope."
+#'     )
+#'   )
+#'   cat(g2g_user_prompt_survey(df, num_themes = 4))
+#' }
+g2g_user_prompt_survey <- function(
+    question_column,
+    survey_background = NULL,
+    num_themes        = NULL,
+    custom_language   = NULL
+) {
 
-  # Error handling for empty inputs
-  if (missing(survey_question) || survey_question == "") {
-    stop("Survey question cannot be empty.")
+  ## ------------------------------------------------------------------------ ##
+  ## Validate input
+  if (!is.data.frame(question_column) || ncol(question_column) != 1) {
+    stop("`question_column` must be a data frame (or tibble) with exactly one column.")
   }
 
-  if (missing(survey_responses)) {
-    stop("Survey responses cannot be empty.")
+  question_text <- names(question_column)[1]
+  question_text <- stringr::str_trim(question_text)
+
+  if (question_text == "") {
+    stop("The column name (survey question) cannot be blank.")
   }
 
-  survey_responses_flat <- stringr::str_flatten(survey_responses, collapse = "\n", na.rm = TRUE)
+  ## ------------------------------------------------------------------------ ##
+  ## Extract and clean responses
+  responses_vec <- question_column[[1]]
+  responses_vec <- as.character(responses_vec)
 
-  if (survey_responses_flat == "") {
-    stop("Survey responses cannot be empty.")
+  # Drop NA values
+  responses_vec <- responses_vec[!is.na(responses_vec)]
+
+  # Trim whitespace
+  responses_vec <- stringr::str_trim(responses_vec)
+
+  # Define non-substantive patterns (regex, already lower-case)
+  junk_patterns <- c(
+    "", "n/?a", "none", "nothing", "nothing to add", "no", "nope",
+    "not applicable", "n\\.a\\.", "nil", "\\.", "-", "--", "no comment",
+    "no comments?", "nothing else", "nothing really", "blank", "\\?"
+  )
+  junk_regex <- paste0("^\\s*(", paste(junk_patterns, collapse = "|"), ")\\s*$")
+
+  # Remove junk responses (case-insensitive)
+  is_junk <- stringr::str_detect(
+    stringr::str_to_lower(responses_vec),
+    junk_regex
+  )
+  responses_vec <- responses_vec[!is_junk]
+
+  if (length(responses_vec) == 0) {
+    stop("No substantive responses remain after filtering NA and non-substantive entries.")
   }
 
-  user_prompt_intro <- "You have been asked to qualitatively code and then summarize the following qualitative responses from an open-ended survey. Please provide a concise summary of responses for the question by picking out the key general themes. "
+  ## ------------------------------------------------------------------------ ##
+  ## Assemble responses block (`---` delimiter)
+  responses_block <- stringr::str_c("---\n", responses_vec, collapse = "\n")
+  responses_block <- stringr::str_c(responses_block, "\n---")
 
-  num_key_themes <- function(num_themes) {
+  n_resp <- length(responses_vec)
 
-    glue::glue("Please identify no more than {num_themes} key themes. You do not have to identify at least {num_themes} key themes if there are fewer than {num_themes} key themes present in the responses. ")
+  ## ------------------------------------------------------------------------ ##
+  ## Build prompt
+  prompt <- glue::glue(
+    "Survey question:\n\"{question_text}\"\n\n",
+    if (!is.null(survey_background) && stringr::str_trim(survey_background) != "") {
+      glue::glue("Background: {survey_background}\n\n")
+    } else "",
+    "Here are {n_resp} individual responses, separated by triple dashes (---):\n\n",
+    "{responses_block}\n\n",
+    "Please identify the key themes across these responses",
+    if (!is.null(num_themes)) glue::glue(" (no more than {num_themes})") else "",
+    " and return **only** a CSV with the header:\n",
+    "`question,theme_name,description,quote1,quote2,quote3,frequency,total_responses`.\n",
+    "Do not write any text outside the CSV.\n"
+  )
 
+  if (!is.null(custom_language) && stringr::str_trim(custom_language) != "") {
+    prompt <- paste(prompt, stringr::str_trim(custom_language), sep = "\n")
   }
 
-  question_and_background <- stringr::str_c(user_prompt_intro, survey_background, "'", survey_question, "'. ", num_key_themes(num_themes))
-
-  response_text <- stringr::str_c("The survey responses are as follows, each is seperated by a line break ('\n'):\n", survey_responses_flat)
-
-  return(stringr::str_flatten(c(custom_language, question_and_background, response_text, collapse = "\n")))
-
+  prompt
 }
 
-#' Create a system prompt for GPT API
+#' System prompt for inductive thematic coding of K-12 survey text (CSV output)
 #'
-#' This function creates a system prompt that provides the GPT model with background information
-#' about the task at hand. It sets the role of the model as a social science researcher specializing
-#' in qualitative coding. It also specifies the output format, which is a CSV containing key themes
-#' extracted from the survey responses.
+#' Returns the full **system-prompt** string to supply to the OpenAI Chat
+#' Completions API when you need grounded (inductive) qualitative coding of
+#' open-ended survey answers from students, teachers, or families in **K-12 education**.
+#' The model is instructed to extract themes and emit the results as tidy CSV.
 #'
-#' @return A character string representing the system prompt to guide the GPT model in its role and task.
+#' @details
+#' The prompt tells the model to:
+#' \itemize{
+#'   \item apply grounded coding—derive themes inductively rather than using
+#'         a predetermined list;
+#'   \item label each theme with a jargon-free name of at most five words;
+#'   \item provide a 1–2 sentence description, up to three representative
+#'         quotes (each ≤ 25 words, with names masked as \code{"[NAME]"}), and
+#'         a frequency count;
+#'   \item sort rows by descending frequency; and
+#'   \item output nothing but a CSV table using the fixed header
+#'         \code{question,theme_name,description,quote1,quote2,quote3,frequency,total_responses}.
+#' }
 #'
+#' The returned character scalar can be passed directly as the
+#' \code{system}-role message in \code{openai::createChatCompletion()} (or any
+#' wrapper you use).  Pair it with a user prompt that supplies the survey
+#' question and responses and asks for analysis following the CSV rules.
+#'
+#' @return A length-1 character vector containing the complete prompt string.
 #' @export
+#'
+#' @examples
+#' prompt_txt <- g2g_system_prompt_survey()
+#' cat(substr(prompt_txt, 1, 160), "...\n")   # preview the first 160 chars
 g2g_system_prompt_survey <- function() {
-
-  initial_prompt <- glue::glue("
-      You are a social science researcher. You specialize in conducting qualitative coding of open-ended survey responses using thematic coding.
-      You create concise and thorough summaries of open-ended survey responses using the latest research-based methods for qualitative coding.
-      You follow the principals in 'The Coding Manual for Qualitative Researchers' by Johnny Saldana and other best practices.
-      You report on the most prevelant key themes, whether they are positive or negative.
-      You convert your key themes into sentences and explanations that lay-people can understand by first qualitatively coding the survey responses.
-      Then you go back at convert the key themes into sentences understandable to a lay person with little background understanding.
-      Each key theme should be summarized into between one and three sentences.
-  ")
-
-  output_format_csv <- "\nPlease provide your responses in a CSV format. There should be one column with a column name called `themes`. Each row should contain an explanation of the key theme in the style just mentioned. You should only output the 'csv' formatted response. "
-
-  stringr::str_c(initial_prompt, output_format_csv)
-
+  paste(
+    "You are a qualitative-analysis specialist focused on K-12 education survey data.",
+    "Your task is to read open-ended responses, derive clear, concise themes",
+    "inductively, and return the findings in a tidy CSV format suitable for",
+    "further quantitative work.",
+    "",
+    "Operating rules",
+    "1. Use grounded, inductive coding; never force a response into a preset bucket unless explicitly told to.",
+    "2. After identifying themes, assign each a short, jargon-free name (max 5 words).",
+    "3. For every theme gather:",
+    "   • description — 1–2 sentences explaining the idea",
+    "   • up to 3 representative quotes (≤ 25 words each, names replaced with “[NAME]”)",
+    "   • frequency — count of responses in which the theme appears",
+    "4. Sort rows from most to least frequent.",
+    "5. Output **only** a CSV with the exact header below and one row per theme.",
+    "6. Include the survey question text and total_responses in every row so each record is self-contained.",
+    "7. Quote snippets only; do not reproduce entire responses.",
+    "8. Mask or remove personally identifiable information beyond the allowed quote fragments.",
+    "9. Provide no commentary outside the CSV table.",
+    "",
+    "CSV header (use exactly this order):",
+    "",
+    "question,theme_name,description,quote1,quote2,quote3,frequency,total_responses",
+    sep = "\n"
+  )
 }
 
 #' Call GPT API
@@ -96,7 +198,7 @@ g2g_system_prompt_survey <- function() {
 #' }
 #'
 #' @export
-g2g_call_gpt <- function(user_prompt, system_prompt, model = "gpt-4o") {
+g2g_call_gpt <- function(user_prompt, system_prompt, model = "gpt-4.1") {
 
   api_url <- "https://api.openai.com/v1/chat/completions"
   api_key <- Sys.getenv("OPENAI_API_KEY")
