@@ -1,3 +1,49 @@
+#' Remove meaningless responses from qualitative survey data
+#'
+#' This function removes non-substantive responses from a data frame column
+#' representing qualitative responses to a survey. It removes NA values and
+#' common non-substantive responses like "none", "n/a", "nothing", etc.
+#' The filtering is case-insensitive.
+#'
+#' @param response_column A vector (typically a data frame column) containing
+#'        qualitative survey responses.
+#'
+#' @return A vector with NA values and non-substantive responses removed.
+#'
+#' @examples
+#' responses <- c("Great class", NA, "none", "N/A", "I loved it", "nothing", "?")
+#' g2g_qual_remove_meaningless(responses)
+#'
+#' @export
+g2g_qual_remove_meaningless <- function(response_column) {
+
+  # Convert to character
+  responses_vec <- as.character(response_column)
+
+  # Drop NA values
+  responses_vec <- responses_vec[!is.na(responses_vec)]
+
+  # Trim whitespace
+  responses_vec <- stringr::str_trim(responses_vec)
+
+  # Define non-substantive patterns (regex)
+  junk_patterns <- c(
+    "", "n/?a", "none", "nothing", "nothing to add", "no", "nope",
+    "not applicable", "n\\.a\\.", "nil", "\\.", "-", "--", "no comment",
+    "no comments?", "nothing else", "nothing really", "blank", "\\?"
+  )
+  junk_regex <- paste0("^\\s*(", paste(junk_patterns, collapse = "|"), ")\\s*$")
+
+  # Remove junk responses (case-insensitive)
+  is_junk <- stringr::str_detect(
+    stringr::str_to_lower(responses_vec),
+    junk_regex
+  )
+  responses_vec <- responses_vec[!is_junk]
+
+  return(responses_vec)
+}
+
 #' Build a user-prompt for K-12 qualitative coding from a data-frame column
 #'
 #' Produces the **user-role** prompt that pairs with
@@ -28,7 +74,6 @@
 #'        prompt.  Default \code{NULL}.
 #'
 #' @return A length-1 character vector containing the full user prompt.
-#' @export
 #'
 #' @examples
 #' if (requireNamespace("tibble", quietly = TRUE)) {
@@ -39,6 +84,8 @@
 #'   )
 #'   cat(g2g_user_prompt_survey(df, num_themes = 4))
 #' }
+#'
+#' @export
 g2g_user_prompt_survey <- function(
     question_column,
     survey_background = NULL,
@@ -61,29 +108,7 @@ g2g_user_prompt_survey <- function(
 
   ## ------------------------------------------------------------------------ ##
   ## Extract and clean responses
-  responses_vec <- question_column[[1]]
-  responses_vec <- as.character(responses_vec)
-
-  # Drop NA values
-  responses_vec <- responses_vec[!is.na(responses_vec)]
-
-  # Trim whitespace
-  responses_vec <- stringr::str_trim(responses_vec)
-
-  # Define non-substantive patterns (regex, already lower-case)
-  junk_patterns <- c(
-    "", "n/?a", "none", "nothing", "nothing to add", "no", "nope",
-    "not applicable", "n\\.a\\.", "nil", "\\.", "-", "--", "no comment",
-    "no comments?", "nothing else", "nothing really", "blank", "\\?"
-  )
-  junk_regex <- paste0("^\\s*(", paste(junk_patterns, collapse = "|"), ")\\s*$")
-
-  # Remove junk responses (case-insensitive)
-  is_junk <- stringr::str_detect(
-    stringr::str_to_lower(responses_vec),
-    junk_regex
-  )
-  responses_vec <- responses_vec[!is_junk]
+  responses_vec <- g2g_qual_remove_meaningless(question_column[[1]])
 
   if (length(responses_vec) == 0) {
     stop("No substantive responses remain after filtering NA and non-substantive entries.")
@@ -146,11 +171,12 @@ g2g_user_prompt_survey <- function(
 #' question and responses and asks for analysis following the CSV rules.
 #'
 #' @return A length-1 character vector containing the complete prompt string.
-#' @export
 #'
 #' @examples
 #' prompt_txt <- g2g_system_prompt_survey()
 #' cat(substr(prompt_txt, 1, 160), "...\n")   # preview the first 160 chars
+#'
+#' @export
 g2g_system_prompt_survey <- function() {
   paste(
     "You are a qualitative-analysis specialist focused on K-12 education survey data.",

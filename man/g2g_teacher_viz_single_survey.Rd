@@ -11,6 +11,7 @@ g2g_teacher_viz_single_survey(
   pre_post_comparison = NULL,
   scales_to_use = NULL,
   reverse_coded = FALSE,
+  sort_by_value = FALSE,
   ...
 )
 }
@@ -28,6 +29,8 @@ These will be the questions.}
 Should be a named vector with the values being the name and the names being hex numbers for colors.}
 
 \item{reverse_coded}{Boolean whether scales are reverse coded. Defaults to FALSE.}
+
+\item{sort_by_value}{Logical. If TRUE, the y-axis will be sorted by the values in \code{text_var}. If FALSE, no sorting will be applied. Defaults to FALSE.}
 
 \item{...}{Parameters for \code{g2g_plt_theme()}}
 }

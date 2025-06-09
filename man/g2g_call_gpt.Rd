@@ -4,7 +4,7 @@
 \alias{g2g_call_gpt}
 \title{Call GPT API}
 \usage{
-g2g_call_gpt(user_prompt, system_prompt, model = "gpt-4o")
+g2g_call_gpt(user_prompt, system_prompt, model = "gpt-4.1")
 }
 \arguments{
 \item{user_prompt}{A character string containing the user prompt.}

@@ -14,6 +14,7 @@ g2g_viz_stacked_bar_percent_horizontal(
   comparison_var = NULL,
   text_size = 4.586111,
   text_location = NULL,
+  sort_by_value = FALSE,
   ...
 )
 }
@@ -44,6 +45,8 @@ Font size can be converted to \code{text_size} with this formula: \verb{font siz
 
 \item{text_location}{The variable name, as a string, of the location of the text on the x axis, between 0 and 1. If \code{NULL}, the default,
 the location will be the same as \code{text_var}, but right under the bar.}
+
+\item{sort_by_value}{Logical. If TRUE, the y-axis will be sorted by the values in \code{text_var}. If FALSE, no sorting will be applied. Defaults to FALSE}
 
 \item{...}{Parameters for \code{g2g_plt_theme()}}
 }

@@ -2,34 +2,58 @@
 % Please edit documentation in R/gpt-tools.R
 \name{g2g_user_prompt_survey}
 \alias{g2g_user_prompt_survey}
-\title{Create a user prompt for GPT API}
+\title{Build a user-prompt for K-12 qualitative coding from a data-frame column}
 \usage{
 g2g_user_prompt_survey(
-  survey_question,
-  survey_background,
-  survey_responses,
-  num_themes = 3,
-  custom_language = " "
+  question_column,
+  survey_background = NULL,
+  num_themes = NULL,
+  custom_language = NULL
 )
 }
 \arguments{
-\item{survey_question}{A character string representing the survey question.}
+\item{question_column}{A data frame (or tibble) with \emph{one} column.
+The column name is taken as the survey question; each row is coerced
+to character and treated as a response.}
 
-\item{survey_background}{Background information on the survey (who took it, purpose, etc.)}
+\item{survey_background}{Optional character string with context (e.g., who
+took the survey, purpose).  Default \code{NULL}.}
 
-\item{survey_responses}{A character vector representing the survey responses. Each response is a different element in the vector.}
+\item{num_themes}{Optional integer.  If provided, the model is told to
+identify \emph{no more than} this many themes.  Default \code{NULL}.}
 
-\item{num_themes}{An integer representing the number of key themes to identify (default is 3).}
-
-\item{custom_language}{Additional instructions for the prompt.}
+\item{custom_language}{Optional additional instructions appended to the
+prompt.  Default \code{NULL}.}
 }
 \value{
-A character string representing the constructed prompt for the GPT model.
-This prompt will contain the survey question, context, and responses that need to be summarized.
+A length-1 character vector containing the full user prompt.
 }
 \description{
-This function constructs a user prompt to be sent to the GPT API, which includes
-the survey question and the survey responses. The goal of the prompt is to ask
-the GPT model to identify and summarize the key themes in the qualitative responses
-provided by survey participants.
+Produces the \strong{user-role} prompt that pairs with
+\code{g2g_system_prompt_survey()} when calling the OpenAI Chat Completions
+API.
+Supply a data frame (or tibble) that has \strong{exactly one column}: the column
+name is treated as the survey question and each row as a response.
+}
+\details{
+The function
+\enumerate{
+\item removes \code{NA} values;
+\item filters out non-substantive replies such as “n/a”, “none”, “no”, “.”,
+etc. (case-insensitive); and
+\item embeds the remaining answers—delimited by \verb{---}—into a prompt that
+instructs the model to return its thematic analysis \strong{only} as a
+CSV with the required header.
+}
+}
+\examples{
+if (requireNamespace("tibble", quietly = TRUE)) {
+  df <- tibble::tibble(
+    "Describe one thing you liked about the class." = c(
+      "I loved the projects.", "N/A", "The teacher cared.", "none", "Nope."
+    )
+  )
+  cat(g2g_user_prompt_survey(df, num_themes = 4))
+}
+
 }
